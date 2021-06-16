@@ -8,7 +8,7 @@ import org.vaadin.artur.helpers.CrudService;
 import java.time.LocalDate;
 
 @Service
-public class DemandService extends CrudService<Demand, Integer> {
+public class DemandService extends CrudService<Demand, Long> {
 
     private DemandRepository repository;
 

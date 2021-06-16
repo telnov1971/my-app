@@ -131,7 +131,7 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        Optional<Integer> demandId = event.getRouteParameters().getInteger(DEMAND_ID);
+        Optional<Long> demandId = event.getRouteParameters().getLong(DEMAND_ID);
         if (demandId.isPresent()) {
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());
             if (demandFromBackend.isPresent()) {
