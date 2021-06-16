@@ -81,6 +81,9 @@ public class DataGenerator {
             if (sendRepository.count() != 0L) {
                 logger.info("Using existing 'Send' table");
             } else {
+                sendRepository.save(new Send("При визите","000000001"));
+                sendRepository.save(new Send("Почтой России","000000002"));
+                sendRepository.save(new Send("Курьером","000000003"));
             }
             if (statusRepository.count() != 0L) {
                 logger.info("Using existing 'Status' table");

@@ -3,8 +3,10 @@ package com.example.application.views.masterdetail;
 import java.util.Optional;
 
 import com.example.application.data.entity.Demand;
+import com.example.application.data.entity.DemandType;
 import com.example.application.data.service.DemandService;
 
+import com.example.application.data.service.DemandTypeService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
@@ -58,9 +60,13 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
     private Demand demand;
 
     private DemandService demandService;
+    private DemandTypeService demandTypeService;
 
-    public MasterDetailView(@Autowired DemandService demandService) {
+    @Autowired
+    public MasterDetailView(DemandService demandService,
+                            DemandTypeService demandTypeService) {
         this.demandService = demandService;
+        this.demandTypeService = demandTypeService;
         addClassNames("master-detail-view", "flex", "flex-col", "h-full");
 
         // Create UI
