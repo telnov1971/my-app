@@ -26,7 +26,6 @@ public class Point extends AbstractEntity {
 
     public Point() {
     }
-
     public Point(Double powerDemanded, Double powerCurrent, Voltage voltage, Safety safety) {
         this.powerDemanded = powerDemanded;
         this.powerCurrent = powerCurrent;
@@ -38,45 +37,35 @@ public class Point extends AbstractEntity {
     public Double getPowerDemanded() {
         return powerDemanded;
     }
-
     public void setPowerDemanded(Double powerDemanded) {
         this.powerDemanded = powerDemanded;
         this.poweMaximum = this.powerCurrent + this.powerDemanded;
     }
-
     public Double getPowerCurrent() {
         return powerCurrent;
     }
-
     public void setPowerCurrent(Double powerCurrent) {
         this.powerCurrent = powerCurrent;
         this.poweMaximum = this.powerCurrent + this.powerDemanded;
     }
-
     public Voltage getVoltage() {
         return voltage;
     }
-
     public void setVoltage(Voltage voltage) {
         this.voltage = voltage;
     }
-
     public Safety getSafety() {
         return safety;
     }
-
     public void setSafety(Safety safety) {
         this.safety = safety;
     }
-
     public String getSpecification() {
         return specification;
     }
-
     public void setSpecification(String specification) {
         this.specification = specification;
     }
-
     public Double getPoweMaximum() {
         return poweMaximum;
     }
