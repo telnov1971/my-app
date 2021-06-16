@@ -48,7 +48,6 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
     private DatePicker createdate;
     private TextField object;
     private TextField address;
-    private TextField points;
     private Checkbox done;
 
     private Button cancel = new Button("Cancel");
@@ -77,7 +76,6 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         grid.addColumn("createdate").setAutoWidth(true);
         grid.addColumn("object").setAutoWidth(true);
         grid.addColumn("address").setAutoWidth(true);
-        grid.addColumn("points").setAutoWidth(true);
         TemplateRenderer<Demand> doneRenderer = TemplateRenderer.<Demand>of(
                 "<iron-icon hidden='[[!item.done]]' icon='vaadin:check' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-primary-text-color);'></iron-icon><iron-icon hidden='[[item.done]]' icon='vaadin:minus' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-disabled-text-color);'></iron-icon>")
                 .withProperty("done", Demand::isDone);
@@ -103,7 +101,7 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         binder = new BeanValidationBinder<>(Demand.class);
 
         // Bind fields. This where you'd define e.g. validation rules
-        binder.forField(points).withConverter(new StringToIntegerConverter("Only numbers are allowed")).bind("points");
+        //binder.forField(points).withConverter(new StringToIntegerConverter("Only numbers are allowed")).bind("points");
 
         binder.bindInstanceFields(this);
 
@@ -162,10 +160,9 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         createdate = new DatePicker("Createdate");
         object = new TextField("Object");
         address = new TextField("Address");
-        points = new TextField("Points");
         done = new Checkbox("Done");
         done.getStyle().set("padding-top", "var(--lumo-space-m)");
-        Component[] fields = new Component[]{createdate, object, address, points, done};
+        Component[] fields = new Component[]{createdate, object, address, done};
 
         for (Component field : fields) {
             ((HasStyle) field).addClassName("full-width");

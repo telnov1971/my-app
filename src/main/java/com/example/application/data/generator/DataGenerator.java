@@ -36,7 +36,6 @@ public class DataGenerator {
             demandRepositoryGenerator.setData(Demand::setCreatedate, DataType.DATE_LAST_7_DAYS);
             demandRepositoryGenerator.setData(Demand::setObject, DataType.WORD);
             demandRepositoryGenerator.setData(Demand::setAddress, DataType.WORD);
-            demandRepositoryGenerator.setData(Demand::setPoints, DataType.NUMBER_UP_TO_100);
             demandRepositoryGenerator.setData(Demand::setDone, DataType.BOOLEAN_50_50);
             demandRepository.saveAll(demandRepositoryGenerator.create(100, seed));
 
