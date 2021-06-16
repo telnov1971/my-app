@@ -1,6 +1,7 @@
 package com.example.application.views.demandlist;
 
 import com.example.application.data.entity.Demand;
+import com.example.application.data.entity.DemandType;
 import com.example.application.data.service.DemandService;
 import com.example.application.data.service.DemandTypeService;
 import com.example.application.views.main.MainView;
@@ -31,13 +32,15 @@ public class DemandList extends Div {
         addClassNames("master-detail-view", "flex", "flex-col", "h-full");
 
         // Configure Grid
-        grid.addColumn("createdate").setAutoWidth(true);
-        grid.addColumn("object").setAutoWidth(true);
-        grid.addColumn("address").setAutoWidth(true);
+        grid.addColumn("createdate").setAutoWidth(true).setHeader("Дата создания");
+        grid.addColumn("demandType.name").setAutoWidth(true).setHeader("Тип");
+        grid.addColumn("object").setAutoWidth(true).setHeader("Объект");
+        grid.addColumn("address").setAutoWidth(true).setHeader("Адрес объекта");
+        grid.addColumn("status.name").setAutoWidth(true).setHeader("Статус");
         TemplateRenderer<Demand> doneRenderer = TemplateRenderer.<Demand>of(
                 "<iron-icon hidden='[[!item.done]]' icon='vaadin:check' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-primary-text-color);'></iron-icon><iron-icon hidden='[[item.done]]' icon='vaadin:minus' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-disabled-text-color);'></iron-icon>")
                 .withProperty("done", Demand::isDone);
-        grid.addColumn(doneRenderer).setHeader("Done").setAutoWidth(true);
+        grid.addColumn(doneRenderer).setHeader("Завершено").setAutoWidth(true);
 
         grid.setItems(query -> demandService.list(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
