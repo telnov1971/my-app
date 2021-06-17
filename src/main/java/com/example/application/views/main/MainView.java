@@ -6,10 +6,13 @@ import com.example.application.views.demandedit.DemandEditTo15;
 import com.example.application.views.demandlist.DemandList;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.avatar.Avatar;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -17,29 +20,54 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.PWA;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.PageTitle;
-import com.example.application.views.main.MainView;
-import com.example.application.views.masterdetail.MasterDetailView;
-import com.example.application.views.myapp.MyAppView;
-import com.example.application.views.about.AboutView;
 
 /**
  * The main view is a top-level placeholder for other views.
  */
 public class MainView extends AppLayout {
 
-    private final Tabs menu;
+    //private final Tabs menu;
+    private final MenuBar menuBar = new MenuBar();
 
     public MainView() {
         HorizontalLayout header = createHeader();
-        menu = createMenuTabs();
-        addToNavbar(createTopBar(header, menu));
+        //menu = createMenuTabs();
+        menuBar.setOpenOnHover(true);
+        createMenuBar(menuBar);
+        addToNavbar(createTopMenuBar(header, menuBar));
+    }
+
+    private void createMenuBar(MenuBar menuBar) {
+        menuBar.addItem("Список заявок", e ->{
+            UI.getCurrent().navigate(DemandList.class);
+        });
+        MenuItem editors = menuBar.addItem("Новая заявка");
+        editors.getSubMenu().addItem("До 15 кВт", e -> {
+            UI.getCurrent().navigate(DemandEditTo15.class);
+        } );
+        editors.getSubMenu().addItem("До 150 кВт", e -> {
+            UI.getCurrent().navigate(DemandEditTo15.class);
+        } );
+        editors.getSubMenu().addItem("Временное подключение", e -> {
+            UI.getCurrent().navigate(DemandEditTo15.class);
+        } );
+        editors.getSubMenu().addItem("Для энергогенирации", e -> {
+            UI.getCurrent().navigate(DemandEditTo15.class);
+        } );
     }
 
     private VerticalLayout createTopBar(HorizontalLayout header, Tabs menu) {
+        VerticalLayout layout = new VerticalLayout();
+        layout.getThemeList().add("dark");
+        layout.setWidthFull();
+        layout.setSpacing(false);
+        layout.setPadding(false);
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.add(header, menu);
+        return layout;
+    }
+
+    private VerticalLayout createTopMenuBar(HorizontalLayout header, MenuBar menu) {
         VerticalLayout layout = new VerticalLayout();
         layout.getThemeList().add("dark");
         layout.setWidthFull();
@@ -76,7 +104,7 @@ public class MainView extends AppLayout {
 
     private static Tab[] getAvailableTabs() {
         return new Tab[]{
-                createTab("Master-Detail", MasterDetailView.class),
+                //createTab("Master-Detail", MasterDetailView.class),
                 createTab("Список заявок", DemandList.class),
                 createTab("Заявка", DemandEditTo15.class)
                 //createTab("My App", MyAppView.class),
@@ -95,11 +123,14 @@ public class MainView extends AppLayout {
     @Override
     protected void afterNavigation() {
         super.afterNavigation();
-        getTabForComponent(getContent()).ifPresent(menu::setSelectedTab);
+        //getTabForComponent(getContent()).ifPresent(menu::setSelectedTab);
     }
 
+    /*
     private Optional<Tab> getTabForComponent(Component component) {
         return menu.getChildren().filter(tab -> ComponentUtil.getData(tab, Class.class).equals(component.getClass()))
                 .findFirst().map(Tab.class::cast);
     }
+
+     */
 }

@@ -2,10 +2,14 @@ package com.example.application.views.demandedit;
 
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
+import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
 import com.example.application.views.masterdetail.MasterDetailView;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasStyle;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -19,13 +23,18 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.hibernate.service.Service;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Route(value = "demandto15/:demandID?", layout = MainView.class)
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
+@PageTitle("Редактор заявки")
 public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private final String DEMAND_ID = "demandID";
 
@@ -56,16 +65,9 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         this.statusService = statusService;
         this.garantService = garantService;
 
-        /*
-        * createdate
-        * demandType.name
-        * object
-        * address
-        * garant.name
-        * status.name
-        * */
-
         createdate = new DatePicker("Дата создания");
+        createdate.setValue(LocalDate.now());
+        createdate.setReadOnly(true);
 
         demandType = new Select<>();
         demandType.setLabel("Тип заявки");
@@ -99,22 +101,26 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         binder.forField(status).bind(Demand::getStatus,Demand::setStatus);
         */
         save.addClickListener(event -> {
-            try {
-                binder.writeBean(demand);
-                demandService.update(this.demand);
-            } catch (ValidationException e) {
-                e.printStackTrace();
-            }
-            //binder.writeBeanIfValid(demand);
+            binder.writeBeanIfValid(demand);
+            demandService.update(this.demand);
+            UI.getCurrent().navigate(DemandList.class);
         });
 
         reset.addClickListener(event -> {
             // clear fields by setting null
             binder.readBean(null);
+            UI.getCurrent().navigate(DemandList.class);
         });
 
-        formDemand.add(createdate,demandType,object,address,garant,status);
+        Component[] fields = new Component[]{createdate,demandType,object,address,garant,status};
+        formDemand.add(fields);
+        buttonBar.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
+        buttonBar.setSpacing(true);
+        reset.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
         buttonBar.add(save,reset);
+
         add(formDemand, buttonBar);
     }
 
@@ -128,10 +134,7 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
             } else {
                 //Notification.show(String.format("The requested demand was not found, ID = %d", demandId.get()), 3000,
                         //Notification.Position.BOTTOM_START);
-                // when a row is selected but the data is no longer available,
-                // refresh grid
                 clearForm();
-                //event.forwardTo(DemandEditTo15.class);
             }
         }
     }
@@ -143,5 +146,9 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private void populateForm(Demand value) {
         this.demand = value;
         binder.readBean(this.demand);
+        if(value != null) {
+            this.demandType.setReadOnly(true);
+            this.createdate.setReadOnly(true);
+        }
     }
 }

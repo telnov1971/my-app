@@ -38,7 +38,7 @@ import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.component.datepicker.DatePicker;
 
 @Route(value = "master-detail/:demandID?/:action?(edit)", layout = MainView.class)
-@RouteAlias(value = "", layout = MainView.class)
+//@RouteAlias(value = "", layout = MainView.class)
 @PageTitle("Master-Detail")
 public class MasterDetailView extends Div implements BeforeEnterObserver {
 
