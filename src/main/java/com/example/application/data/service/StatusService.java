@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
+import java.util.List;
+
 @Service
 public class StatusService extends CrudService<Status, Long> {
     private final StatusRepository statusRepository;
@@ -16,5 +18,9 @@ public class StatusService extends CrudService<Status, Long> {
     @Override
     protected StatusRepository getRepository() {
         return statusRepository;
+    }
+
+    public List<Status> findAll() {
+        return statusRepository.findAll();
     }
 }

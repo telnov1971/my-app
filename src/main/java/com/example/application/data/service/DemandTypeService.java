@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
+import java.util.List;
+
 @Service
 public class DemandTypeService extends CrudService<DemandType, Long> {
     private final DemandTypeRepository demandTypeRepository;
@@ -16,5 +18,9 @@ public class DemandTypeService extends CrudService<DemandType, Long> {
     @Override
     protected DemandTypeRepository getRepository() {
         return demandTypeRepository;
+    }
+
+    public List<DemandType> findAll() {
+        return demandTypeRepository.findAll();
     }
 }

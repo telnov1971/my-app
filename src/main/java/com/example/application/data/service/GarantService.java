@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
+import java.util.List;
+
 @Service
 public class GarantService extends CrudService<Garant, Long> {
     private final GarantRepository garantRepository;
@@ -16,5 +18,9 @@ public class GarantService extends CrudService<Garant, Long> {
     @Override
     protected GarantRepository getRepository() {
         return garantRepository;
+    }
+
+    public List<Garant> findAll() {
+        return garantRepository.findAll();
     }
 }

@@ -2,6 +2,7 @@ package com.example.application.views.main;
 
 import java.util.Optional;
 
+import com.example.application.views.demandedit.DemandEditTo15;
 import com.example.application.views.demandlist.DemandList;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
@@ -76,9 +77,11 @@ public class MainView extends AppLayout {
     private static Tab[] getAvailableTabs() {
         return new Tab[]{
                 createTab("Master-Detail", MasterDetailView.class),
-                createTab("Demand's List", DemandList.class),
-                createTab("My App", MyAppView.class),
-                createTab("About", AboutView.class)};
+                createTab("Список заявок", DemandList.class),
+                createTab("Заявка", DemandEditTo15.class)
+                //createTab("My App", MyAppView.class),
+                //createTab("About", AboutView.class)
+                };
     }
 
     private static Tab createTab(String text, Class<? extends Component> navigationTarget) {
