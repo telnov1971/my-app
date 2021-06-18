@@ -12,6 +12,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.notification.Notification;
@@ -28,6 +29,7 @@ import com.vaadin.flow.router.Route;
 import org.hibernate.service.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +39,9 @@ import java.util.Optional;
 @PageTitle("Редактор заявки")
 public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private final String DEMAND_ID = "demandID";
+    private final VoltageService voltageService;
+    private final SafetyService safetyService;
+
 
     private FormLayout formDemand = new FormLayout();
     private BeanValidationBinder<Demand> binder = new BeanValidationBinder<>(Demand.class);
@@ -49,6 +54,8 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private TextField address;
     private Select<Garant> garant;
     private Select<Status> status;
+    private List<Point> points = new ArrayList<>();
+    private Grid<Point> pointGrid = new Grid<>(Point.class);
 
     private Button save = new Button("Сохранить");
     private Button reset = new Button("Отменить");
@@ -57,13 +64,24 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private final DemandTypeService demandTypeService;
     private final StatusService statusService;
     private final GarantService garantService;
+    private final PointService pointService;
 
-    public DemandEditTo15(DemandService demandService, DemandTypeService demandTypeService, StatusService statusService, GarantService garantService, Component... components) {
+    public DemandEditTo15(DemandService demandService,
+                          DemandTypeService demandTypeService,
+                          StatusService statusService,
+                          GarantService garantService,
+                          PointService pointService,
+                          VoltageService voltageService,
+                          SafetyService safetyService,
+                          Component... components) {
         super(components);
         this.demandService = demandService;
         this.demandTypeService = demandTypeService;
         this.statusService = statusService;
         this.garantService = garantService;
+        this.pointService = pointService;
+        this.voltageService = voltageService;
+        this.safetyService = safetyService;
 
         createdate = new DatePicker("Дата создания");
         createdate.setValue(LocalDate.now());
@@ -90,6 +108,21 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         List<Status> statusList = statusService.findAll();
         status.setItemLabelGenerator(Status::getName);
         status.setItems(statusList);
+
+        pointGrid.setHeightByRows(true);
+        points.add(new Point(0.0,
+                0.0,
+                voltageService.findById(1L).get(),
+                safetyService.findById(1L).get()));
+        this.pointGrid.addColumn(Point::getPowerDemanded).setHeader("Заявленная");
+        this.pointGrid.addColumn("safety.name").setHeader("Надёжность");
+        //pointGrid.setItems(points);
+        //pointGrid.addColumn(Point::getPowerDemanded).setAutoWidth(true).setHeader("Мощность заявленная");
+        ////Grid.Column<Point> firstNameColumn = pointGrid.addColumn(Point::getPowerDemanded).setHeader("Мощность заявленная");
+        //pointGrid.addColumn(Point::getPowerCurrent).setAutoWidth(true).setHeader("Мощность текущая");
+        //pointGrid.addColumn(Point::getPowerMaximum).setAutoWidth(true).setHeader("Мощность максимальная");
+        //pointGrid.addColumn("safety.name").setAutoWidth(true).setHeader("Категория надёжности");
+        //pointGrid.addColumn("voltage.name").setAutoWidth(true).setHeader("Уровень напряжения");
 
         binder.bindInstanceFields(this);
         /*
@@ -121,7 +154,7 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
 
         buttonBar.add(save,reset);
 
-        add(formDemand, buttonBar);
+        add(formDemand, buttonBar, pointGrid);
     }
 
     @Override
@@ -149,6 +182,10 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         if(value != null) {
             this.demandType.setReadOnly(true);
             this.createdate.setReadOnly(true);
+            this.points = this.pointService.findAllByDemand(demand);
+            this.pointGrid.setItems(points);
+            this.pointGrid.addColumn(Point::getPowerDemanded).setHeader("Заявленная");
+            this.pointGrid.addColumn("safety.name").setHeader("Надёжность");
         }
     }
 }

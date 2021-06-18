@@ -1,6 +1,9 @@
 package com.example.application.data.entity;
 
 import com.example.application.data.AbstractEntity;
+import com.example.application.data.service.SafetyService;
+import com.example.application.data.service.VoltageService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 
@@ -10,11 +13,11 @@ public class Point extends AbstractEntity {
     @ManyToOne
     private Demand demand;
     @Column(name = "powDem")
-    private Double powerDemanded;
+    private Double powerDemanded = 0.0;
     @Column(name = "powCur")
-    private Double powerCurrent;
+    private Double powerCurrent = 0.0;
     @Column(name = "powMax")
-    private Double poweMaximum;
+    private Double powerMaximum = 0.0;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "volt_id")
     private Voltage voltage;
@@ -24,12 +27,12 @@ public class Point extends AbstractEntity {
     @Column(name = "spec")
     private String specification;
 
-    public Point() {
-    }
+    public Point() {}
+
     public Point(Double powerDemanded, Double powerCurrent, Voltage voltage, Safety safety) {
         this.powerDemanded = powerDemanded;
         this.powerCurrent = powerCurrent;
-        this.poweMaximum = this.powerCurrent + this.powerDemanded;
+        this.powerMaximum = this.powerCurrent + this.powerDemanded;
         this.voltage = voltage;
         this.safety = safety;
     }
@@ -39,14 +42,14 @@ public class Point extends AbstractEntity {
     }
     public void setPowerDemanded(Double powerDemanded) {
         this.powerDemanded = powerDemanded;
-        this.poweMaximum = this.powerCurrent + this.powerDemanded;
+        this.powerMaximum = this.powerCurrent + this.powerDemanded;
     }
     public Double getPowerCurrent() {
         return powerCurrent;
     }
     public void setPowerCurrent(Double powerCurrent) {
         this.powerCurrent = powerCurrent;
-        this.poweMaximum = this.powerCurrent + this.powerDemanded;
+        this.powerMaximum = this.powerCurrent + this.powerDemanded;
     }
     public Voltage getVoltage() {
         return voltage;
@@ -66,7 +69,7 @@ public class Point extends AbstractEntity {
     public void setSpecification(String specification) {
         this.specification = specification;
     }
-    public Double getPoweMaximum() {
-        return poweMaximum;
+    public Double getPowerMaximum() {
+        return powerMaximum;
     }
 }

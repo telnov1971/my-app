@@ -1,11 +1,11 @@
 package com.example.application.data.service;
 
 import com.example.application.data.entity.Voltage;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VoltageService extends CrudService<Voltage, Long> {
@@ -22,5 +22,9 @@ public class VoltageService extends CrudService<Voltage, Long> {
 
     public List<Voltage> findAll() {
         return voltageRepository.findAll();
+    }
+
+    public Optional<Voltage> findById(Long i) {
+        return voltageRepository.findById(i);
     }
 }
