@@ -26,7 +26,9 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import org.hibernate.service.Service;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -55,7 +57,7 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private Select<Garant> garant;
     private Select<Status> status;
     private List<Point> points = new ArrayList<>();
-    private Grid<Point> pointGrid = new Grid<>(Point.class);
+    private Grid<Point> pointGrid = new Grid<>(Point.class, false);
 
     private Button save = new Button("Сохранить");
     private Button reset = new Button("Отменить");
@@ -110,19 +112,11 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         status.setItems(statusList);
 
         pointGrid.setHeightByRows(true);
-        points.add(new Point(0.0,
-                0.0,
-                voltageService.findById(1L).get(),
-                safetyService.findById(1L).get()));
-        this.pointGrid.addColumn(Point::getPowerDemanded).setHeader("Заявленная");
-        this.pointGrid.addColumn("safety.name").setHeader("Надёжность");
-        //pointGrid.setItems(points);
-        //pointGrid.addColumn(Point::getPowerDemanded).setAutoWidth(true).setHeader("Мощность заявленная");
-        ////Grid.Column<Point> firstNameColumn = pointGrid.addColumn(Point::getPowerDemanded).setHeader("Мощность заявленная");
-        //pointGrid.addColumn(Point::getPowerCurrent).setAutoWidth(true).setHeader("Мощность текущая");
-        //pointGrid.addColumn(Point::getPowerMaximum).setAutoWidth(true).setHeader("Мощность максимальная");
-        //pointGrid.addColumn("safety.name").setAutoWidth(true).setHeader("Категория надёжности");
-        //pointGrid.addColumn("voltage.name").setAutoWidth(true).setHeader("Уровень напряжения");
+        pointGrid.addColumn(Point::getPowerDemanded).setHeader("Мощность заявленная");
+        pointGrid.addColumn(Point::getPowerCurrent).setAutoWidth(true).setHeader("Мощность текущая");
+        pointGrid.addColumn(Point::getPowerMaximum).setAutoWidth(true).setHeader("Мощность максимальная");
+        pointGrid.addColumn(point -> point.getSafety().getName()).setAutoWidth(true).setHeader("Категория надёжности");
+        pointGrid.addColumn(point -> point.getVoltage().getName()).setAutoWidth(true).setHeader("Уровень напряжения");
 
         binder.bindInstanceFields(this);
         /*
@@ -173,19 +167,31 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     }
 
     private void clearForm() {
+        points.add(new Point(0.0,
+                0.0,
+                voltageService.findById(1L).get(),
+                safetyService.findById(1L).get()));
         populateForm(null);
+
     }
 
     private void populateForm(Demand value) {
-        this.demand = value;
+        demand = value;
         binder.readBean(this.demand);
         if(value != null) {
-            this.demandType.setReadOnly(true);
-            this.createdate.setReadOnly(true);
-            this.points = this.pointService.findAllByDemand(demand);
-            this.pointGrid.setItems(points);
-            this.pointGrid.addColumn(Point::getPowerDemanded).setHeader("Заявленная");
-            this.pointGrid.addColumn("safety.name").setHeader("Надёжность");
+            demandType.setReadOnly(true);
+            createdate.setReadOnly(true);
+
+            points = pointService.findAllByDemand(demand);
         }
+/*
+        pointGrid.addColumn(Point::getPowerDemanded).setHeader("Мощность заявленная");
+        pointGrid.addColumn(Point::getPowerCurrent).setAutoWidth(true).setHeader("Мощность текущая");
+        pointGrid.addColumn(Point::getPowerMaximum).setAutoWidth(true).setHeader("Мощность максимальная");
+        pointGrid.addColumn(point -> point.getSafety().getName()).setAutoWidth(true).setHeader("Категория надёжности");
+        pointGrid.addColumn(point -> point.getVoltage().getName()).setAutoWidth(true).setHeader("Уровень напряжения");
+*/
+
+        pointGrid.setItems(points);
     }
 }
