@@ -12,6 +12,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
@@ -22,6 +23,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -58,6 +60,7 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private Select<Status> status;
     private List<Point> points = new ArrayList<>();
     private Grid<Point> pointGrid = new Grid<>(Point.class, false);
+    private ListDataProvider<Point> pointDataProvider;
 
     private Button save = new Button("Сохранить");
     private Button reset = new Button("Отменить");
@@ -117,6 +120,26 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         pointGrid.addColumn(Point::getPowerMaximum).setAutoWidth(true).setHeader("Мощность максимальная");
         pointGrid.addColumn(point -> point.getSafety().getName()).setAutoWidth(true).setHeader("Категория надёжности");
         pointGrid.addColumn(point -> point.getVoltage().getName()).setAutoWidth(true).setHeader("Уровень напряжения");
+        points.add(new Point());
+        pointGrid.setItems(points);
+        pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
+        points.remove(points.size() - 1);
+
+        Button addButton = new Button("Добавить точку", event -> {
+            pointDataProvider.getItems().add(new Point(0.0,
+                    0.0,
+                    voltageService.findById(1L).get(),
+                    safetyService.findById(1L).get()
+            ));
+            pointDataProvider.refreshAll();
+            //pointGrid.getDataProvider().refreshAll();
+        });
+
+        Button removeButton = new Button("Удалить последнюю", event -> {
+            this.points.remove(points.size() - 1);
+            pointDataProvider.refreshAll();
+            //pointGrid.getDataProvider().refreshAll();
+        });
 
         binder.bindInstanceFields(this);
         /*
@@ -148,7 +171,7 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
 
         buttonBar.add(save,reset);
 
-        add(formDemand, buttonBar, pointGrid);
+        add(formDemand, buttonBar, pointGrid, addButton, removeButton);
     }
 
     @Override
@@ -191,7 +214,7 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         pointGrid.addColumn(point -> point.getSafety().getName()).setAutoWidth(true).setHeader("Категория надёжности");
         pointGrid.addColumn(point -> point.getVoltage().getName()).setAutoWidth(true).setHeader("Уровень напряжения");
 */
-
         pointGrid.setItems(points);
+        pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
     }
 }
