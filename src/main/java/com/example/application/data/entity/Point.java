@@ -1,9 +1,6 @@
 package com.example.application.data.entity;
 
 import com.example.application.data.AbstractEntity;
-import com.example.application.data.service.SafetyService;
-import com.example.application.data.service.VoltageService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 
@@ -13,7 +10,7 @@ public class Point extends AbstractEntity {
     @ManyToOne
     private Demand demand;
     @Column(name = "powDem")
-    private Double powerDemanded = 0.0;
+    private Double powerDemand = 0.0;
     @Column(name = "powCur")
     private Double powerCurrent = 0.0;
     @Column(name = "powMax")
@@ -29,27 +26,27 @@ public class Point extends AbstractEntity {
 
     public Point() {}
 
-    public Point(Double powerDemanded, Double powerCurrent, Voltage voltage, Safety safety) {
-        this.powerDemanded = powerDemanded;
+    public Point(Double powerDemand, Double powerCurrent, Voltage voltage, Safety safety) {
+        this.powerDemand = powerDemand;
         this.powerCurrent = powerCurrent;
-        this.powerMaximum = this.powerCurrent + this.powerDemanded;
+        this.powerMaximum = this.powerCurrent + this.powerDemand;
         this.voltage = voltage;
         this.safety = safety;
     }
 
-    public Double getPowerDemanded() {
-        return powerDemanded;
+    public Double getPowerDemand() {
+        return powerDemand;
     }
-    public void setPowerDemanded(Double powerDemanded) {
-        this.powerDemanded = powerDemanded;
-        this.powerMaximum = this.powerCurrent + this.powerDemanded;
+    public void setPowerDemand(Double powerDemanded) {
+        this.powerDemand = powerDemanded;
+        this.powerMaximum = this.powerCurrent + this.powerDemand;
     }
     public Double getPowerCurrent() {
         return powerCurrent;
     }
     public void setPowerCurrent(Double powerCurrent) {
         this.powerCurrent = powerCurrent;
-        this.powerMaximum = this.powerCurrent + this.powerDemanded;
+        this.powerMaximum = this.powerCurrent + this.powerDemand;
     }
     public Voltage getVoltage() {
         return voltage;

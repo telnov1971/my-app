@@ -51,7 +51,7 @@ public class MainView extends AppLayout {
         editors.getSubMenu().addItem("Временное подключение", e -> {
             UI.getCurrent().navigate(DemandEditTo15.class);
         } );
-        editors.getSubMenu().addItem("Для энергогенирации", e -> {
+        editors.getSubMenu().addItem("Для энергогенерации", e -> {
             UI.getCurrent().navigate(DemandEditTo15.class);
         } );
     }
