@@ -4,8 +4,7 @@ import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -13,21 +12,35 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MultiFileBuffer;
+import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.internal.MessageDigestUtil;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
+import org.apache.commons.io.IOUtils;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.text.html.HTML;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -61,6 +74,9 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
 
     private Button save = new Button("Сохранить");
     private Button reset = new Button("Отменить");
+
+    MultiFileBuffer buffer = new MultiFileBuffer();
+    Upload upload = new Upload(buffer);
 
     private final DemandService demandService;
     private final DemandTypeService demandTypeService;
@@ -111,7 +127,6 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         status.setItemLabelGenerator(Status::getName);
         status.setItems(statusList);
 
-        createPointsLayout();
 
         binder.bindInstanceFields(this);
         /*
@@ -143,7 +158,10 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
 
         buttonBar.add(save,reset);
 
-        add(formDemand, buttonBar, pointsLayout);
+        createPointsLayout();
+        createUploadLayout();
+
+        add(formDemand, buttonBar, pointsLayout, upload);
     }
 
     private void createPointsLayout() {
@@ -231,6 +249,19 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         pointsLayout.add(pointGrid,pointsButtonLayout);
     }
 
+    private void createUploadLayout() {
+        Div output = new Div();
+        /*
+        upload.addSucceededListener(event -> {
+            showOutput(event.getFileName(), output);
+        });
+        upload.addFileRejectedListener(event -> {
+            showOutput(event.getErrorMessage(), output);
+        });
+        */
+        add(upload, output);
+    }
+
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         Optional<Long> demandId = event.getRouteParameters().getLong(DEMAND_ID);
@@ -273,5 +304,12 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
 */
         pointGrid.setItems(points);
         pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
+    }
+
+    private void showOutput(String text,
+                            HasComponents outputContainer) {
+        HtmlComponent p = new HtmlComponent(Tag.P);
+        p.getElement().setText(text);
+        outputContainer.add(p);
     }
 }
