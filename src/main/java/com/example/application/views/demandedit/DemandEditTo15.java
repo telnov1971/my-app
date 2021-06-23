@@ -19,7 +19,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.upload.Receiver;
 import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.FileData;
 import com.vaadin.flow.component.upload.receivers.MultiFileBuffer;
 import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -32,26 +34,33 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.text.html.HTML;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Route(value = "demandto15/:demandID?", layout = MainView.class)
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки")
 public class DemandEditTo15 extends Div implements BeforeEnterObserver {
+
+    @Value("${upload.path.windows}")
+    private String uploadPathWindows;
+    @Value("${upload.path.linux}")
+    private String uploadPathLinux;
+
+
     private final String DEMAND_ID = "demandID";
     private final VoltageService voltageService;
     private final SafetyService safetyService;
-
 
     private FormLayout formDemand = new FormLayout();
     private BeanValidationBinder<Demand> binder = new BeanValidationBinder<>(Demand.class);
@@ -76,7 +85,9 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private Button reset = new Button("Отменить");
 
     MultiFileBuffer buffer = new MultiFileBuffer();
-    Upload upload = new Upload(buffer);
+    Upload multiUpload = new Upload(buffer);
+    private String originalFileName;
+    private String mimeType;
 
     private final DemandService demandService;
     private final DemandTypeService demandTypeService;
@@ -161,7 +172,7 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         createPointsLayout();
         createUploadLayout();
 
-        add(formDemand, buttonBar, pointsLayout, upload);
+        add(formDemand, buttonBar, pointsLayout, multiUpload);
     }
 
     private void createPointsLayout() {
@@ -251,16 +262,100 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
 
     private void createUploadLayout() {
         Div output = new Div();
-        /*
-        upload.addSucceededListener(event -> {
-            showOutput(event.getFileName(), output);
+        //Upload upload = new Upload(this::receiveUpload);
+
+        multiUpload.addSucceededListener(event -> {
+
+            this.originalFileName = event.getFileName();
+            String file2 = "";
+            String uploadPath = new String();
+            String osName = System.getProperty("os.name");
+            if(osName.contains("Windows")) uploadPath = uploadPathWindows;
+            if(osName.contains("Linux")) uploadPath = uploadPathLinux;
+            //File uploadDir = new File(uploadPath);
+
+            String uuidFile = UUID.randomUUID().toString();
+            if(this.originalFileName.lastIndexOf(".") != -1 &&
+                    this.originalFileName.lastIndexOf(".") != 0)
+                // то вырезаем все знаки после последней точки в названии файла, то есть ХХХХХ.txt -> txt
+                file2 = this.originalFileName.substring(this.originalFileName.lastIndexOf(".")+1);
+            String resultFilename = uploadPath + uuidFile + "." + file2;
+
+            try {
+                FileOutputStream fileOutputStream = new FileOutputStream(resultFilename);
+                InputStream inputStream = buffer.getInputStream(event.getFileName());
+                fileOutputStream.write(inputStream.readAllBytes());
+                fileOutputStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //file.deleteOnExit();
+            //buffer.receiveUpload(this.originalFileName, event.getMIMEType());
+            output.removeAll();
+            output.add(new Text("Uploaded: "+originalFileName+" to "+ resultFilename+ " | Type: "+mimeType));
+            //output.add(new Image(new StreamResource(this.originalFileName,this::loadFile),"Uploaded image"));
+
+            //showOutput(event.getFileName(), output);
         });
+        multiUpload.addFailedListener(event -> {
+            output.removeAll();
+            output.add(new Text("Upload failed: " + event.getReason()));
+        });
+        /*
         upload.addFileRejectedListener(event -> {
             showOutput(event.getErrorMessage(), output);
         });
         */
-        add(upload, output);
+
+        //upload.setAutoUpload(false);
+        multiUpload.setUploadButton(new Button("Загрузить файл"));
+        add(multiUpload, output);
     }
+
+    /* Load a file from local filesystem.
+     *
+    public InputStream loadFile() {
+        try {
+            return new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failed to create InputStream for: '" + this.file.getAbsolutePath(), e);
+        }
+        return null;
+    }
+
+    //Receive a uploaded file to a file.
+
+    @Override
+    public OutputStream receiveUpload(String originalFileName, String MIMEType) {
+        this.originalFileName = originalFileName;
+        this.mimeType = MIMEType;
+        try {
+            String file2 = "";
+            String uploadPath = new String();
+            String osName = System.getProperty("os.name");
+            if(osName.contains("Windows")) uploadPath = uploadPathWindows;
+            if(osName.contains("Linux")) uploadPath = uploadPathLinux;
+            File uploadDir = new File(uploadPath);
+
+            String uuidFile = UUID.randomUUID().toString();
+            if(this.originalFileName.lastIndexOf(".") != -1 &&
+                    this.originalFileName.lastIndexOf(".") != 0)
+                // то вырезаем все знаки после последней точки в названии файла, то есть ХХХХХ.txt -> txt
+                file2 = this.originalFileName.substring(this.originalFileName.lastIndexOf(".")+1);
+            String resultFilename = uuidFile + "." + file2;
+
+            this.file = new File(uploadPath + "/" + resultFilename);
+
+            file.deleteOnExit();
+            return new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failed to create InputStream for: '" + this.file.getAbsolutePath(), e);
+        }
+        return null;
+    }*/
+
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
