@@ -4,12 +4,14 @@ import java.util.Optional;
 
 import com.example.application.views.demandedit.DemandEditTo15;
 import com.example.application.views.demandlist.DemandList;
+import com.example.application.views.safe.LoginView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -31,6 +33,7 @@ public class MainView extends AppLayout {
 
     public MainView() {
         HorizontalLayout header = createHeader();
+
         //menu = createMenuTabs();
         menuBar.setOpenOnHover(true);
         createMenuBar(menuBar);
@@ -54,6 +57,9 @@ public class MainView extends AppLayout {
         editors.getSubMenu().addItem("Для энергогенерации", e -> {
             UI.getCurrent().navigate(DemandEditTo15.class);
         } );
+        menuBar.addItem("Login", e ->{
+            UI.getCurrent().navigate(LoginView.class);
+        });
     }
 
     private VerticalLayout createTopBar(HorizontalLayout header, Tabs menu) {
@@ -85,13 +91,15 @@ public class MainView extends AppLayout {
         header.setSpacing(false);
         header.setWidthFull();
         header.setAlignItems(FlexComponent.Alignment.CENTER);
-        Image logo = new Image("images/logo.png", "My App logo");
+        Image logo = new Image("images/logo.png", "Омскэлектро");
         logo.setId("logo");
         header.add(logo);
         Avatar avatar = new Avatar();
         avatar.setId("avatar");
-        header.add(new H1("My App"));
+        header.add(new H1("Личный кабинет"));
         header.add(avatar);
+        Anchor logout = new Anchor("/logout", "Выход");
+        header.add(logout);
         return header;
     }
 
