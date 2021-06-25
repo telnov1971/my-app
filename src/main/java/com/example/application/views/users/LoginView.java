@@ -1,7 +1,6 @@
-package com.example.application.views.safe;
+package com.example.application.views.users;
 
 import com.example.application.security.CustomRequestCache;
-import com.example.application.views.main.MainView;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.login.LoginI18n;

@@ -1,13 +1,10 @@
 package com.example.application.views.main;
 
-import java.util.Optional;
-
 import com.example.application.data.entity.User;
 import com.example.application.data.service.UserService;
 import com.example.application.views.demandedit.DemandEditTo15;
 import com.example.application.views.demandlist.DemandList;
-import com.example.application.views.safe.LoginView;
-import com.example.application.views.safe.Profile;
+import com.example.application.views.users.Profile;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
@@ -21,13 +18,11 @@ import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.PWA;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**

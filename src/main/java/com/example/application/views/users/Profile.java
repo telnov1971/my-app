@@ -1,4 +1,4 @@
-package com.example.application.views.safe;
+package com.example.application.views.users;
 
 import com.example.application.data.entity.User;
 import com.example.application.data.service.UserService;
@@ -30,6 +30,7 @@ public class Profile extends Div implements BeforeEnterObserver {
     private final String USER_ID = "userID";
     private User user = new User();
     private BeanValidationBinder<User> userBinder = new BeanValidationBinder<>(User.class);
+    private User userFromDB;
     private FormLayout userForm = new FormLayout();
     private HorizontalLayout buttonBar = new HorizontalLayout();
     private TextField username;
@@ -52,6 +53,7 @@ public class Profile extends Div implements BeforeEnterObserver {
         save.addClickListener(event -> {
             if(userService.findByUsername(user.getUsername())!=null){
                 userBinder.writeBeanIfValid(user);
+
                 userService.update(this.user);
                 UI.getCurrent().navigate("/");
             } else {
@@ -94,9 +96,11 @@ public class Profile extends Div implements BeforeEnterObserver {
     }
 
     private void populateForm(User value) {
-        user = value;
-        user.setPassword("");
-        userBinder.readBean(this.user);
+        userFromDB = value;
+        user.setId(userFromDB.getId());
+        user.setUsername(userFromDB.getUsername());
+        user.setEmail(userFromDB.getEmail());
+        userBinder.readBean(user);
     }
 
 }

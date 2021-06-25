@@ -62,7 +62,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         // Vaadin Flow статические ресурсы
                 "/VAADIN/**",
         // стандартная favicon URI
-                "/icon.ico",
+                "/favicon.ico",
         // the robots exclusion standard
                 "/robots.txt",
         // web application manifest при разработке прогрессивного веб-приложения
@@ -70,6 +70,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/sw.js",
                 "/offline-page.html",
                 "/sw-runtime-resources-precache.js",
+                "/icons/**",
         // (development mode) Разрешает доступ к веб-ресурсам в режиме разработки
                 "/frontend/**",
         // (development mode) webjars Разрешает доступ к веб-ресурсам в режиме разработки

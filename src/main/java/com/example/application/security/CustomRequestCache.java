@@ -1,6 +1,6 @@
 package com.example.application.security;
 
-import com.example.application.views.safe.LoginView;
+import com.example.application.views.users.LoginView;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
