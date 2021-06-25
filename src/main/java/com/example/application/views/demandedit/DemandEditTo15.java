@@ -28,10 +28,7 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.internal.MessageDigestUtil;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.StreamResource;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +45,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Route(value = "demandto15/:demandID?", layout = MainView.class)
+@RouteAlias(value ="demandto15")
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки")
 public class DemandEditTo15 extends Div implements BeforeEnterObserver {

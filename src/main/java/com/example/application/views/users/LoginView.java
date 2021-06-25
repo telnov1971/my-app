@@ -3,6 +3,7 @@ package com.example.application.views.users;
 import com.example.application.security.CustomRequestCache;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -31,7 +32,8 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         login.setTitle("Вход в личный кабинет");
         login.setI18n(createRussianLoginI18n());
         login.setAction("login");
-        add(login);
+        Anchor registration = new Anchor("/profile","Зарегистрироваться");
+        add(login, registration);
 
         login.addLoginListener(e -> {
             try{

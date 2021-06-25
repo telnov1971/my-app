@@ -37,9 +37,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         // Ограничим доступ к нашему приложению
         .and().authorizeRequests()
                 .antMatchers("/login","/logout",
-                        "/profile",
+                        "/**/profile/",
                         "/static/**",
-                        "/icons",
+                        "/icons/**",
                         "/activate/**").permitAll()
         // Разрешим все внутренние запросы потока связанных с Vaadin.
         .requestMatchers(SecurityUtils::isFrameworkInternalRequest).permitAll()

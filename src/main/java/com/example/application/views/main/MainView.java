@@ -43,6 +43,11 @@ public class MainView extends AppLayout {
         menuBar.setOpenOnHover(true);
         createMenuBar(menuBar);
         addToNavbar(createTopMenuBar(header, menuBar));
+//        if(!SecurityContextHolder.getContext().getAuthentication().isAuthenticated()){
+//            menuBar.setVisible(false);
+//        } else {
+//            menuBar.setVisible(true);
+//        }
     }
 
     private void createMenuBar(MenuBar menuBar) {
