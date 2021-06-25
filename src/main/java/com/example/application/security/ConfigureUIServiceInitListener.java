@@ -1,5 +1,6 @@
-package com.example.application.config;
+package com.example.application.security;
 
+import com.example.application.security.SecurityUtils;
 import com.example.application.views.safe.LoginView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -26,9 +27,11 @@ public class ConfigureUIServiceInitListener implements VaadinServiceInitListener
      * перед навигацией событие с подробной информацией о событии
      */
     private void beforeEnter(BeforeEnterEvent event) {
-        if(!LoginView.class.equals(event.getNavigationTarget()) // Пропускает к самой странице входа в систему
-                &&!SecurityUtils.isUserLoggedIn()) { // Перенаправляет только если пользователь не вошел в систему
-            event.rerouteTo(LoginView.class); // Фактическое перенаправление на страницу входа при необходимости
+        // Пропускает к самой странице входа в систему
+        // Перенаправляет только если пользователь не вошел в систему
+        if(!LoginView.class.equals(event.getNavigationTarget()) && !SecurityUtils.isUserLoggedIn()) {
+            // Фактическое перенаправление на страницу входа при необходимости
+            event.rerouteTo(LoginView.class);
         }
     }
 }

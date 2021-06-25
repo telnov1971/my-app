@@ -1,14 +1,12 @@
 package com.example.application.views.safe;
 
-import com.example.application.config.CustomRequestCache;
-import com.example.application.views.demandlist.DemandList;
+import com.example.application.security.CustomRequestCache;
 import com.example.application.views.main.MainView;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.login.AbstractLogin;
-import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
+import com.vaadin.flow.component.login.LoginOverlay;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,17 +15,26 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @Tag("sa-login-view")
-@Route(value = "login", layout = MainView.class)
+@Route(value = LoginView.ROUTE) //, layout = MainView.class)
 @PageTitle("Вход в личный кабинет")
-public class LoginView extends Div  implements BeforeEnterObserver {
-    public static final CharSequence ROUTE = "login";
-    private LoginForm component = new LoginForm();
+//public class LoginView extends Div  implements BeforeEnterObserver {
+public class LoginView extends VerticalLayout implements BeforeEnterObserver {
+    public static final String ROUTE = "login";
+    private LoginOverlay login = new LoginOverlay();
 
     public LoginView(AuthenticationManager authenticationManager, // запрашивает подтверждение входа
                      CustomRequestCache requestCache) {
-        addClassName("login-view");
-        setSizeFull();
-        component.addLoginListener(e -> {
+//        addClassName("login-view");
+//        setSizeFull();
+//        setAlignItems(Alignment.CENTER);
+//        setJustifyContentMode(JustifyContentMode.CENTER);
+        login.setOpened(true);
+        login.setTitle("Вход в личный кабинет");
+        login.setI18n(createRussianLoginI18n());
+        login.setAction("login");
+        add(login);
+
+        login.addLoginListener(e -> {
             try{
                 // try to authenticate with given credentials, should always return not null or throw an {@link AuthenticationException}
                 final Authentication authentication = authenticationManager
@@ -37,14 +44,14 @@ public class LoginView extends Div  implements BeforeEnterObserver {
                         .authenticate(new UsernamePasswordAuthenticationToken(e.getUsername(),
                                 e.getPassword()));
                 // if authentication was successful we will update the security context and redirect to the page requested first
-                SecurityContextHolder.getContext().setAuthentication(authentication); // (5)
-                // component.close(); // (6)
-                UI.getCurrent().navigate(requestCache.resolveRedirectUrl()); // (7)
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                login.close();
+                UI.getCurrent().navigate(requestCache.resolveRedirectUrl());
             } catch(AuthenticationException ex) {
                 // show default error message
                 // Note: You should not expose any detailed information here like "username is known but password is wrong"
                 // as it weakens security.
-                component.setError(true);
+                login.setError(true);
             }
             /*boolean isAuthenticated = authenticate(e);
             if (isAuthenticated) {
@@ -54,9 +61,6 @@ public class LoginView extends Div  implements BeforeEnterObserver {
             }*/
         });
 
-        component.setI18n(createRussianLoginI18n());
-        component.setAction("login");
-        add(component);
     }
 
     @Override
@@ -65,13 +69,8 @@ public class LoginView extends Div  implements BeforeEnterObserver {
                 .getQueryParameters()
                 .getParameters()
                 .containsKey("error")) {
-            component.setError(true);
+            login.setError(true);
         }
-    }
-
-
-    private boolean authenticate(AbstractLogin.LoginEvent e) {
-        return true;
     }
 
     private LoginI18n createRussianLoginI18n() {

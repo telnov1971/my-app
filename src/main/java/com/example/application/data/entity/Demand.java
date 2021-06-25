@@ -59,6 +59,10 @@ public class Demand extends AbstractEntity {
     private Status status;
     private boolean done;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     public Demand() {
     }
 
@@ -193,5 +197,11 @@ public class Demand extends AbstractEntity {
     }
     public void setStatus(Status status) {
         this.status = status;
+    }
+    public User getUser() {
+        return user;
+    }
+    public void setUser(User user) {
+        this.user = user;
     }
 }

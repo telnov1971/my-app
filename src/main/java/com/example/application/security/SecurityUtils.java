@@ -1,4 +1,4 @@
-package com.example.application.config;
+package com.example.application.security;
 
 import com.vaadin.flow.shared.ApplicationConstants;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -21,11 +21,10 @@ public final class SecurityUtils {
 
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();     // Получает токен аутентификации из контекста безопасности
-        boolean result = authentication != null                             // Ошибка, если аутентификация недоступна
+        return authentication != null                                       // Ошибка, если аутентификация недоступна
             && !(authentication instanceof AnonymousAuthenticationToken)    // Сбой для токенов анонимной аутентификации. Spring Security добавит этот тип
                                                                             // токена, если все остальные механизмы аутентификации по умолчанию не сработали.
             && authentication.isAuthenticated();                            // Ошибка, если токен аутентификации доступен, но не аутентифицирован.
-        return result;
     }
 
     /**
@@ -37,8 +36,16 @@ public final class SecurityUtils {
      */
     static boolean isFrameworkInternalRequest(HttpServletRequest request) {
         final String parameterValue = request.getParameter(ApplicationConstants.REQUEST_TYPE_PARAMETER);
-        return parameterValue != null
-                && Stream.of(RequestType.values()).anyMatch(r -> r.getIdentifier().equals(parameterValue));
+        String referer = request.getHeader("Referer");
+        boolean isServiceWorkInitiated = (referer != null
+                && referer.endsWith(".js"));
+        return isServiceWorkInitiated
+                || parameterValue != null
+                && Stream.of(RequestType.values())
+                .anyMatch(r -> r.getIdentifier().equals(parameterValue));
+//        return parameterValue != null
+//                && Stream.of(RequestType.values())
+//                .anyMatch(r -> r.getIdentifier().equals(parameterValue));
     }
 
 

@@ -1,18 +1,20 @@
-package com.example.application.config;
+package com.example.application.security;
 
+import com.example.application.data.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private static final String LOGIN_URL="/login";
@@ -29,7 +31,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         // использовать обычный HTML для страницы входа в систему
         http.csrf().disable() // Vaadin уже имеет встроенную поддержкумежсайтовых запросов.
         // Зарегистрируйте кэш пользовательских запросов,
-        // который сохранит запросы несанкционированного доступа,
+        // который сохранит неавторизованные запросы,
         // чтобы перенаправить после входа в систему.
         .requestCache().requestCache(new CustomRequestCache())
         // Ограничим доступ к нашему приложению
@@ -62,6 +64,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/manifest.webmanifest",
                 "/sw.js",
                 "/offline-page.html",
+                "/sw-runtime-resources-precache.js",
         // (development mode) Разрешает доступ к веб-ресурсам в режиме разработки
                 "/frontend/**",
         // (development mode) webjars Разрешает доступ к веб-ресурсам в режиме разработки
@@ -81,15 +84,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new CustomRequestCache();
     }
 
-    @Bean
-    @Override
-    public UserDetailsService userDetailsService() {
-        UserDetails user =
-                User.withUsername("user")
-                        .password("{noop}password")
-                        .roles("USER")
-                        .build();
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserService userService;
 
-        return new InMemoryUserDetailsManager(user);
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userService)
+                .passwordEncoder(passwordEncoder);
     }
+
 }

@@ -1,4 +1,4 @@
-package com.example.application.config;
+package com.example.application.security;
 
 import com.example.application.views.safe.LoginView;
 import com.vaadin.flow.server.VaadinServletRequest;
@@ -23,14 +23,15 @@ public class CustomRequestCache extends HttpSessionRequestCache {
                 getRequest(VaadinServletRequest.getCurrent().getHttpServletRequest(),
                         VaadinServletResponse.getCurrent().getHttpServletResponse());
         if(savedRequest instanceof DefaultSavedRequest) {
-            final String requestURI = ((DefaultSavedRequest) savedRequest).getRequestURI(); // (1)
-            // check for valid URI and prevent redirecting to the login view
-            if(requestURI != null&& !requestURI.isEmpty() &&!
-                    requestURI.contains(LoginView.ROUTE)) { // (2)
-                return requestURI.startsWith("/") ? requestURI.substring(1) : requestURI; // (3)
+            // получить сохраненный URL-адрес перенаправления
+            final String requestURI = ((DefaultSavedRequest) savedRequest).getRequestURI();
+            // проверить правильность URI и запретить перенаправление на вход в систему
+            if(requestURI != null && !requestURI.isEmpty() && !requestURI.contains(LoginView.ROUTE)) {
+                // вернуть адрес без начальной '/'
+                return requestURI.startsWith("/") ? requestURI.substring(1) : requestURI;
             }
         }
-// if everything fails, redirect to the main view
-        return"";
+        // если ничего не получилось, перенаправьте на основную страницу
+        return "";
     }
 }

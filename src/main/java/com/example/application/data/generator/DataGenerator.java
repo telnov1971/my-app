@@ -5,6 +5,7 @@ import com.example.application.data.service.*;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +29,23 @@ public class DataGenerator {
                                       SafetyRepository safetyRepository,
                                       SendRepository sendRepository,
                                       StatusRepository statusRepository,
-                                      VoltageRepository voltageRepository) {
+                                      VoltageRepository voltageRepository,
+                                      UserRepository userRepository) {
         return args -> {
             Logger logger = LoggerFactory.getLogger(getClass());
+            if(userRepository.count() != 0L) {
+                logger.info("Using existing 'Demand' table");
+                return;
+            } else {
+                try {
+                    userRepository.save(
+                            new User("user", "",true, Collections.singleton(Role.USER)));
+                    userRepository.save(
+                            new User("admin", "",true, Collections.singleton(Role.USER)));
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+            }
             if (demandRepository.count() != 0L) {
                 logger.info("Using existing 'Demand' table");
                 return;
