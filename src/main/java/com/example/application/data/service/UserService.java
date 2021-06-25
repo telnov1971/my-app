@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
+import java.util.Optional;
+
 @Service
 public class UserService extends CrudService<User, Long> implements UserDetailsService {
     private final UserRepository userRepository;
@@ -24,5 +26,13 @@ public class UserService extends CrudService<User, Long> implements UserDetailsS
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
         return userRepository.findByUsername(s);
+    }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    public Optional<User> findById(Long aLong) {
+        return userRepository.findById(aLong);
     }
 }

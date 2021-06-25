@@ -36,6 +36,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .requestCache().requestCache(new CustomRequestCache())
         // Ограничим доступ к нашему приложению
         .and().authorizeRequests()
+                .antMatchers("/login","/logout",
+                        "/profile",
+                        "/static/**",
+                        "/icons",
+                        "/activate/**").permitAll()
         // Разрешим все внутренние запросы потока связанных с Vaadin.
         .requestMatchers(SecurityUtils::isFrameworkInternalRequest).permitAll()
         // Разрешим все запросы пользователей, вошедших в систему.
@@ -57,7 +62,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         // Vaadin Flow статические ресурсы
                 "/VAADIN/**",
         // стандартная favicon URI
-                "/favicon.ico",
+                "/icon.ico",
         // the robots exclusion standard
                 "/robots.txt",
         // web application manifest при разработке прогрессивного веб-приложения

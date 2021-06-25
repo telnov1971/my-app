@@ -2,9 +2,12 @@ package com.example.application.views.main;
 
 import java.util.Optional;
 
+import com.example.application.data.entity.User;
+import com.example.application.data.service.UserService;
 import com.example.application.views.demandedit.DemandEditTo15;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.safe.LoginView;
+import com.example.application.views.safe.Profile;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
@@ -22,19 +25,23 @@ import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * The main view is a top-level placeholder for other views.
  */
 //@PWA(name = "Личный кабинет", shortName = "Кабинет")
 public class MainView extends AppLayout {
+    private final UserService userService;
 
     //private final Tabs menu;
     private final MenuBar menuBar = new MenuBar();
 
-    public MainView() {
+    public MainView(UserService userService) {
+        this.userService = userService;
         HorizontalLayout header = createHeader();
 
         //menu = createMenuTabs();
@@ -60,8 +67,11 @@ public class MainView extends AppLayout {
         editors.getSubMenu().addItem("Для энергогенерации", e -> {
             UI.getCurrent().navigate(DemandEditTo15.class);
         } );
-        menuBar.addItem("Login", e ->{
-            UI.getCurrent().navigate(LoginView.class);
+        menuBar.addItem("Профиль", e ->{
+            String username =SecurityContextHolder.getContext().getAuthentication().getName();
+            User user = userService.findByUsername(username);
+            UI.getCurrent().navigate(Profile.class, new RouteParameters("userID",
+                    String.valueOf(user.getId())));
         });
     }
 
