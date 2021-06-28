@@ -2,7 +2,9 @@ package com.example.application.views.main;
 
 import com.example.application.data.entity.User;
 import com.example.application.data.service.UserService;
+import com.example.application.views.demandedit.DemandEditTemporary;
 import com.example.application.views.demandedit.DemandEditTo15;
+import com.example.application.views.demandedit.DemandEditTo150;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.users.Profile;
 import com.vaadin.flow.component.Component;
@@ -42,6 +44,12 @@ public class MainView extends AppLayout {
         //menu = createMenuTabs();
         menuBar.setOpenOnHover(true);
         createMenuBar(menuBar);
+        if(SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal() == "anonymousUser") {
+            menuBar.setVisible(false);
+        } else {
+            menuBar.setVisible(true);
+        }
         addToNavbar(createTopMenuBar(header, menuBar));
 //        if(!SecurityContextHolder.getContext().getAuthentication().isAuthenticated()){
 //            menuBar.setVisible(false);
@@ -59,10 +67,10 @@ public class MainView extends AppLayout {
             UI.getCurrent().navigate(DemandEditTo15.class);
         } );
         editors.getSubMenu().addItem("До 150 кВт", e -> {
-            UI.getCurrent().navigate(DemandEditTo15.class);
+            UI.getCurrent().navigate(DemandEditTo150.class);
         } );
         editors.getSubMenu().addItem("Временное подключение", e -> {
-            UI.getCurrent().navigate(DemandEditTo15.class);
+            UI.getCurrent().navigate(DemandEditTemporary.class);
         } );
         editors.getSubMenu().addItem("Для энергогенерации", e -> {
             UI.getCurrent().navigate(DemandEditTo15.class);

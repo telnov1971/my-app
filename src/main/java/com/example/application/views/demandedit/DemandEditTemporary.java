@@ -12,43 +12,31 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.upload.Receiver;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.FileData;
 import com.vaadin.flow.component.upload.receivers.MultiFileBuffer;
-import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.internal.MessageDigestUtil;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.server.StreamResource;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import javax.swing.text.html.HTML;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-@Route(value = "demandto15/:demandID?", layout = MainView.class)
-@RouteAlias(value ="demandto15")
+@Route(value = "demandtemporary/:demandID?", layout = MainView.class)
+@RouteAlias(value ="demandtemporary")
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
-@PageTitle("Редактор заявки до 15 кВт")
-public class DemandEditTo15 extends Div implements BeforeEnterObserver {
+@PageTitle("Редактор заявки на временное подключение")
+public class DemandEditTemporary extends Div implements BeforeEnterObserver {
 
     @Value("${upload.path.windows}")
     private String uploadPathWindows;
@@ -93,14 +81,14 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private final GarantService garantService;
     private final PointService pointService;
 
-    public DemandEditTo15(DemandService demandService,
-                          DemandTypeService demandTypeService,
-                          StatusService statusService,
-                          GarantService garantService,
-                          PointService pointService,
-                          VoltageService voltageService,
-                          SafetyService safetyService,
-                          Component... components) {
+    public DemandEditTemporary(DemandService demandService,
+                               DemandTypeService demandTypeService,
+                               StatusService statusService,
+                               GarantService garantService,
+                               PointService pointService,
+                               VoltageService voltageService,
+                               SafetyService safetyService,
+                               Component... components) {
         super(components);
         this.demandService = demandService;
         this.demandTypeService = demandTypeService;

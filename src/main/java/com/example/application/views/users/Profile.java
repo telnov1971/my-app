@@ -10,6 +10,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -19,10 +20,11 @@ import com.vaadin.flow.router.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Route(value = "profile/:userID?", layout = MainView.class)
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
-@PageTitle("Редактор заявки")
+@PageTitle("Редактор профиля пользователя")
 public class Profile extends Div implements BeforeEnterObserver {
     private final UserService userService;
     private final String USER_ID = "userID";
@@ -132,6 +134,11 @@ public class Profile extends Div implements BeforeEnterObserver {
                 //Notification.Position.BOTTOM_START);
                 clearForm();
             }
+        } else {
+//            Stream<Component> components = getParent().get().getChildren();
+//            components.filter(c ->
+//                    c.getClass().equals(MenuBar.class))
+//                    .forEach(c -> c.setVisible(false));
         }
     }
 
