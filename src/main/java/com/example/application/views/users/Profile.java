@@ -8,7 +8,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -17,6 +16,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.router.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -37,30 +37,76 @@ public class Profile extends Div implements BeforeEnterObserver {
     private EmailField email;
     private Label notyfy;
     private Button save = new Button("Зарегистрировать");
+    private Button recover = new Button("Восстановить");
     private Button reset = new Button("Отменить");
+    private Label note = new Label("Для регистрации введите логин, е-майл и пароль. Для " +
+            "восстановления пароля введите логин или е-майл. Для активации аккаунта необходимо " +
+            "перейти по ссылке в присланом письме.");
+    private final PasswordEncoder passwordEncoder;
 
-    public Profile(UserService userService, Component... components) {
+    public Profile(UserService userService, PasswordEncoder passwordEncoder, Component... components) {
         super(components);
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
 
+        notyfy = new Label("");
+        notyfy.setVisible(false);
+        notyfy.addClassName("warning");
         username = new TextField("Логин");
         password = new PasswordField("Пароль");
         passwordVerify = new PasswordField("Проверка пароля");
         email = new EmailField("E-mail");
         userBinder.bindInstanceFields(this);
         save.addClickListener(event -> {
-            if(userService.findByUsername(user.getUsername())!=null){
+            if(username.getValue().equals("")) {
+                notyfy.setText("Имя пользователя не может быть пустым");
+                notyfy.setVisible(true);
+                return;
+            }
+            if(password.getValue().equals("")) {
+                notyfy.setText("Пароль не может быть пустым");
+                notyfy.setVisible(true);
+                return;
+            }
+            if(email.getValue().equals("")) {
+                notyfy.setText("Почта не может быть пустой");
+                notyfy.setVisible(true);
+                return;
+            }
+            if(password.getValue().equals(passwordVerify.getValue())) {
+                if(userService.findByUsername(user.getUsername())==null){
+                    //user.setPassword(passwordEncoder.encode(password.getValue()));
+                    userBinder.writeBeanIfValid(user);
+                    user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+
+                    userService.update(this.user);
+                    UI.getCurrent().navigate("/");
+                } else {
+                    notyfy.setText("Такой пользователь уже существует");
+                    notyfy.setVisible(true);
+                }
+            } else {
+                notyfy.setText("Пароли не совпадают");
+                notyfy.setVisible(true);
+            }
+        });
+        recover.addClickListener(event -> {
+            if((userService.findByUsername(user.getUsername())!=null) ||
+                    (userService.findByEmail(user.getEmail())!=null)) {
                 userBinder.writeBeanIfValid(user);
+                user.setPassword(this.passwordEncoder.encode(user.getPassword()));
 
                 userService.update(this.user);
                 UI.getCurrent().navigate("/");
             } else {
-                notyfy.setText("Такой пользователь уже есть");
+                notyfy.setText("Такой пользователь уже существует");
+                notyfy.setVisible(true);
             }
         });
         reset.addClickListener(event -> {
             // clear fields by setting null
             userBinder.readBean(null);
+            notyfy.setVisible(false);
             UI.getCurrent().navigate("/");
         });
 
@@ -68,10 +114,10 @@ public class Profile extends Div implements BeforeEnterObserver {
         buttonBar.setSpacing(true);
         reset.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonBar.add(save,reset);
+        buttonBar.add(save,recover, reset);
 
         userForm.add(username, email, password, passwordVerify);
-        add(userForm, buttonBar);
+        add(notyfy, userForm, buttonBar, note);
     }
 
     @Override
@@ -91,6 +137,7 @@ public class Profile extends Div implements BeforeEnterObserver {
 
     private void clearForm() {
         populateForm(null);
+        notyfy.setVisible(false);
     }
 
     private void populateForm(User value) {

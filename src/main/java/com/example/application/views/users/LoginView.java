@@ -1,12 +1,16 @@
 package com.example.application.views.users;
 
 import com.example.application.security.CustomRequestCache;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,20 +24,25 @@ import org.springframework.security.core.context.SecurityContextHolder;
 //public class LoginView extends Div  implements BeforeEnterObserver {
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     public static final String ROUTE = "login";
-    private LoginOverlay login = new LoginOverlay();
+    private LoginForm login = new LoginForm();
 
     public LoginView(AuthenticationManager authenticationManager, // запрашивает подтверждение входа
                      CustomRequestCache requestCache) {
-//        addClassName("login-view");
-//        setSizeFull();
-//        setAlignItems(Alignment.CENTER);
-//        setJustifyContentMode(JustifyContentMode.CENTER);
-        login.setOpened(true);
-        login.setTitle("Вход в личный кабинет");
+        addClassName("login-view");
+        setSizeFull();
+        //setAlignItems(Alignment.CENTER);
+        setJustifyContentMode(JustifyContentMode.CENTER);
+        setHorizontalComponentAlignment(Alignment.CENTER);
+        //login.setOpened(true);
+        //login.setTitle("Вход в личный кабинет");
         login.setI18n(createRussianLoginI18n());
         login.setAction("login");
-        Anchor registration = new Anchor("/profile","Зарегистрироваться");
-        add(login, registration);
+        login.addForgotPasswordListener(event -> {
+            //login.close();
+            UI.getCurrent().navigate(Profile.class);
+        });
+
+        add(login);
 
         login.addLoginListener(e -> {
             try{
@@ -46,7 +55,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
                                 e.getPassword()));
                 // if authentication was successful we will update the security context and redirect to the page requested first
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                login.close();
+                //login.close();
                 UI.getCurrent().navigate(requestCache.resolveRedirectUrl());
             } catch(AuthenticationException ex) {
                 // show default error message
@@ -54,12 +63,6 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
                 // as it weakens security.
                 login.setError(true);
             }
-            /*boolean isAuthenticated = authenticate(e);
-            if (isAuthenticated) {
-                UI.getCurrent().navigate(DemandList.class);
-            } else {
-                component.setError(true);
-            }*/
         });
 
     }
@@ -84,7 +87,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         i18n.getForm().setTitle("");
         i18n.getForm().setSubmit("Войти");
         i18n.getForm().setPassword("Пароль");
-        i18n.getForm().setForgotPassword("Востановить пароль");
+        i18n.getForm().setForgotPassword("Зарегистрироваться / Восстановить пароль");
         i18n.getErrorMessage().setTitle("Неверное имя/пароль");
         i18n.getErrorMessage()
                 .setMessage("Проверьте имя/пароль и попробуйте ещё раз.");

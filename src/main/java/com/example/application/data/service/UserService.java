@@ -35,4 +35,8 @@ public class UserService extends CrudService<User, Long> implements UserDetailsS
     public Optional<User> findById(Long aLong) {
         return userRepository.findById(aLong);
     }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 }
