@@ -107,7 +107,7 @@ public class DemandEditTemporary extends Div implements BeforeEnterObserver {
         List<DemandType> demandTypeList = demandTypeService.findAll();
         demandType.setItemLabelGenerator(DemandType::getName);
         demandType.setItems(demandTypeList);
-        demandType.setValue(demandTypeService.findById(demandTypeService.TEMPORARY).get());
+        demandType.setValue(demandTypeService.findById(DemandType.TEMPORARY).get());
         demandType.setReadOnly(true);
 
         object = new TextField("Объект");

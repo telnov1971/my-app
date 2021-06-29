@@ -1,8 +1,12 @@
 package com.example.application.views.demandlist;
 
 import com.example.application.data.entity.Demand;
+import com.example.application.data.entity.DemandType;
 import com.example.application.data.service.DemandService;
+import com.example.application.views.demandedit.DemandEditTemporary;
 import com.example.application.views.demandedit.DemandEditTo15;
+import com.example.application.views.demandedit.DemandEditTo150;
+import com.example.application.views.demandedit.DemandEditenergyReceive;
 import com.example.application.views.main.MainView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
@@ -52,8 +56,22 @@ public class DemandList extends Div {
         grid.setHeightFull();
 
         grid.addItemDoubleClickListener(event ->{
-            UI.getCurrent().navigate(DemandEditTo15.class, new RouteParameters("demandID",
-                    String.valueOf(event.getItem().getId())));
+            if (event.getItem().getDemandType().getId() == DemandType.TO15) {
+                UI.getCurrent().navigate(DemandEditTo15.class, new RouteParameters("demandID",
+                        String.valueOf(event.getItem().getId())));
+            }
+            if (event.getItem().getDemandType().getId() == DemandType.TO150) {
+                UI.getCurrent().navigate(DemandEditTo150.class, new RouteParameters("demandID",
+                        String.valueOf(event.getItem().getId())));
+            }
+            if (event.getItem().getDemandType().getId() == DemandType.TEMPORARY) {
+                UI.getCurrent().navigate(DemandEditTemporary.class, new RouteParameters("demandID",
+                        String.valueOf(event.getItem().getId())));
+            }
+            if (event.getItem().getDemandType().getId() == DemandType.RECIVER) {
+                UI.getCurrent().navigate(DemandEditenergyReceive.class, new RouteParameters("demandID",
+                        String.valueOf(event.getItem().getId())));
+            }
         });
 
         add(grid);

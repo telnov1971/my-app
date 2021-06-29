@@ -10,10 +10,6 @@ import java.util.Optional;
 
 @Service
 public class DemandTypeService extends CrudService<DemandType, Long> {
-    public static final Long TO15 = 1L;
-    public static final Long TO150 = 2L;
-    public static final Long TEMPORARY = 3L;
-    public static final Long RECIVER = 5L;
     private final DemandTypeRepository demandTypeRepository;
 
     public DemandTypeService(DemandTypeRepository demandTypeRepository) {

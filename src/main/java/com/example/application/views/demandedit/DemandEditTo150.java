@@ -107,7 +107,7 @@ public class DemandEditTo150 extends Div implements BeforeEnterObserver {
         List<DemandType> demandTypeList = demandTypeService.findAll();
         demandType.setItemLabelGenerator(DemandType::getName);
         demandType.setItems(demandTypeList);
-        demandType.setValue(demandTypeService.findById(demandTypeService.TO150).get());
+        demandType.setValue(demandTypeService.findById(DemandType.TO150).get());
         demandType.setReadOnly(true);
 
         object = new TextField("Объект");

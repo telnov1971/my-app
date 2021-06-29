@@ -121,7 +121,7 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         List<DemandType> demandTypeList = demandTypeService.findAll();
         demandType.setItemLabelGenerator(DemandType::getName);
         demandType.setItems(demandTypeList);
-        demandType.setValue(demandTypeService.findById(demandTypeService.TO15).get());
+        demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
         demandType.setReadOnly(true);
 
         demander = new TextArea("Заявитель");
@@ -351,7 +351,11 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         if(value != null) {
             demandType.setReadOnly(true);
             createdate.setReadOnly(true);
-            point = pointService.findAllByDemand(demand).get(0);
+            if(pointService.findAllByDemand(demand).isEmpty()) {
+                point = new Point();
+            } else {
+                point = pointService.findAllByDemand(demand).get(0);
+            }
         }
         binderPoints.readBean(this.point);
     }

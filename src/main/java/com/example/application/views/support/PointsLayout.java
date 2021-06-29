@@ -19,7 +19,7 @@ import java.util.*;
 
 public class PointsLayout extends VerticalLayout {
     private HorizontalLayout pointsButtonLayout = new HorizontalLayout();
-    private List<Point> points = new ArrayList<>();
+    private List<Point> points;
     private Grid<Point> pointGrid = new Grid<>(Point.class, false);
     private ListDataProvider<Point> pointDataProvider;
     private Binder<Point> binderPoints = new Binder<>(Point.class);
@@ -36,6 +36,7 @@ public class PointsLayout extends VerticalLayout {
         this.voltageService = voltageService;
         this.safetyService = safetyService;
         pointGrid.setHeightByRows(true);
+        points = new ArrayList<>();
 
         Grid.Column<Point> columnPowerDemand =
                 pointGrid.addColumn(Point::getPowerDemand)
@@ -119,15 +120,24 @@ public class PointsLayout extends VerticalLayout {
         add(pointGrid,pointsButtonLayout);
     }
 
+    public void pointsClean() {
+        points = new ArrayList<>();
+    }
+
     public void pointAdd(Point point) {
         points.add(point);
         pointGrid.setItems(points);
         pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
-
     }
 
     public void findAllByDemand(Demand demand) {
         points = pointService.findAllByDemand(demand);
+        if(points.isEmpty()) {
+            pointAdd(new Point(0.0,
+                    0.0,
+                    voltageService.findById(1L).get(),
+                    safetyService.findById(1L).get()));
+        }
         pointGrid.setItems(points);
         pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
     }

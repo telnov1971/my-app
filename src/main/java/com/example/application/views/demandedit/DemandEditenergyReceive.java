@@ -36,7 +36,7 @@ import java.util.*;
 @Route(value = "demandreciver/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandreciver")
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
-@PageTitle("Редактор заявки до 15 кВт")
+@PageTitle("Редактор заявки на энергопринимающие устройства")
 public class DemandEditenergyReceive extends Div implements BeforeEnterObserver {
 
     @Value("${upload.path.windows}")
@@ -52,7 +52,6 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
     private Demand demand = new Demand();
     private HorizontalLayout buttonBar = new HorizontalLayout();
     private PointsLayout pointsLayout;
-//    private HorizontalLayout pointsButtonLayout = new HorizontalLayout();
 
     private DatePicker createdate;
     private Select<DemandType> demandType;
@@ -60,11 +59,6 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
     private TextField address;
     private Select<Garant> garant;
     private Select<Status> status;
-//    private List<Point> points = new ArrayList<>();
-//    private Grid<Point> pointGrid = new Grid<>(Point.class, false);
-//    private ListDataProvider<Point> pointDataProvider;
-//    private Binder<Point> binderPoints = new Binder<>(Point.class);
-//    private Editor<Point> editorPoints;
 
     private Button save = new Button("Сохранить");
     private Button reset = new Button("Отменить");
@@ -72,7 +66,6 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
     MultiFileBuffer buffer = new MultiFileBuffer();
     Upload multiUpload = new Upload(buffer);
     private String originalFileName;
-    private String mimeType;
 
     private final DemandService demandService;
     private final DemandTypeService demandTypeService;
@@ -108,7 +101,7 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
         List<DemandType> demandTypeList = demandTypeService.findAll();
         demandType.setItemLabelGenerator(DemandType::getName);
         demandType.setItems(demandTypeList);
-        demandType.setValue(demandTypeService.findById(demandTypeService.RECIVER).get());
+        demandType.setValue(demandTypeService.findById(DemandType.RECIVER).get());
         demandType.setReadOnly(true);
 
         object = new TextField("Объект");
@@ -129,14 +122,6 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
 
 
         binder.bindInstanceFields(this);
-        /*
-        binder.forField(createdate).bind(Demand::getCreatedate,Demand::setCreatedate);
-        binder.forField(demandType).bind(Demand::getDemandType,Demand::setDemandType);
-        binder.forField(object).bind(Demand::getObject,Demand::setObject);
-        binder.forField(address).bind(Demand::getAddress,Demand::setAddress);
-        binder.forField(garant).bind(Demand::getGarant,Demand::setGarant);
-        binder.forField(status).bind(Demand::getStatus,Demand::setStatus);
-        */
         save.addClickListener(event -> {
             binder.writeBeanIfValid(demand);
             demandService.update(this.demand);
@@ -288,7 +273,7 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
             //file.deleteOnExit();
             //buffer.receiveUpload(this.originalFileName, event.getMIMEType());
             output.removeAll();
-            output.add(new Text("Uploaded: "+originalFileName+" to "+ resultFilename+ " | Type: "+mimeType));
+            output.add(new Text("Uploaded: "+originalFileName+" to "+ resultFilename));
             //output.add(new Image(new StreamResource(this.originalFileName,this::loadFile),"Uploaded image"));
 
             //showOutput(event.getFileName(), output);
@@ -367,6 +352,7 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
     }
 
     private void clearForm() {
+        pointsLayout.pointsClean();
         pointsLayout.pointAdd(new Point(0.0,
                 0.0,
                 voltageService.findById(1L).get(),
@@ -380,18 +366,10 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
         if(value != null) {
             demandType.setReadOnly(true);
             createdate.setReadOnly(true);
+            status.setReadOnly(true);
 
             pointsLayout.findAllByDemand(demand);
         }
-/*
-        pointGrid.addColumn(Point::getPowerDemanded).setHeader("Мощность заявленная");
-        pointGrid.addColumn(Point::getPowerCurrent).setAutoWidth(true).setHeader("Мощность текущая");
-        pointGrid.addColumn(Point::getPowerMaximum).setAutoWidth(true).setHeader("Мощность максимальная");
-        pointGrid.addColumn(point -> point.getSafety().getName()).setAutoWidth(true).setHeader("Категория надёжности");
-        pointGrid.addColumn(point -> point.getVoltage().getName()).setAutoWidth(true).setHeader("Уровень напряжения");
-*/
-//        pointGrid.setItems(points);
-//        pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
     }
 
     private void showOutput(String text,
