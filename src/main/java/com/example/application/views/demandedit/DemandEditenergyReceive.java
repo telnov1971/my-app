@@ -4,6 +4,7 @@ import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
+import com.example.application.views.support.PointsLayout;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -45,15 +46,13 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
 
 
     private final String DEMAND_ID = "demandID";
-    private final VoltageService voltageService;
-    private final SafetyService safetyService;
 
     private FormLayout formDemand = new FormLayout();
     private BeanValidationBinder<Demand> binder = new BeanValidationBinder<>(Demand.class);
     private Demand demand = new Demand();
     private HorizontalLayout buttonBar = new HorizontalLayout();
-    private VerticalLayout pointsLayout = new VerticalLayout();
-    private HorizontalLayout pointsButtonLayout = new HorizontalLayout();
+    private PointsLayout pointsLayout;
+//    private HorizontalLayout pointsButtonLayout = new HorizontalLayout();
 
     private DatePicker createdate;
     private Select<DemandType> demandType;
@@ -61,11 +60,11 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
     private TextField address;
     private Select<Garant> garant;
     private Select<Status> status;
-    private List<Point> points = new ArrayList<>();
-    private Grid<Point> pointGrid = new Grid<>(Point.class, false);
-    private ListDataProvider<Point> pointDataProvider;
-    private Binder<Point> binderPoints = new Binder<>(Point.class);
-    private Editor<Point> editorPoints;
+//    private List<Point> points = new ArrayList<>();
+//    private Grid<Point> pointGrid = new Grid<>(Point.class, false);
+//    private ListDataProvider<Point> pointDataProvider;
+//    private Binder<Point> binderPoints = new Binder<>(Point.class);
+//    private Editor<Point> editorPoints;
 
     private Button save = new Button("Сохранить");
     private Button reset = new Button("Отменить");
@@ -80,6 +79,8 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
     private final StatusService statusService;
     private final GarantService garantService;
     private final PointService pointService;
+    private final VoltageService voltageService;
+    private final SafetyService safetyService;
 
     public DemandEditenergyReceive(DemandService demandService,
                                    DemandTypeService demandTypeService,
@@ -157,96 +158,101 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
 
         buttonBar.add(save,reset);
 
-        createPointsLayout();
+        pointsLayout = new PointsLayout(pointService
+                ,voltageService
+                ,safetyService);
         createUploadLayout();
 
-        add(formDemand, buttonBar, pointsLayout, multiUpload);
+        add(formDemand
+                , buttonBar
+                , pointsLayout
+                , multiUpload);
     }
 
-    private void createPointsLayout() {
-        pointGrid.setHeightByRows(true);
-
-        Grid.Column<Point> columnPowerDemand =
-                pointGrid.addColumn(Point::getPowerDemand)
-                        .setHeader("Мощ. заяв.")
-                        .setAutoWidth(true);
-        Grid.Column<Point> columnPowerCurrent =
-                pointGrid.addColumn(Point::getPowerCurrent).
-                        setAutoWidth(true).
-                        setHeader("Мощ. тек. ");
-        pointGrid.addColumn(Point::getPowerMaximum).
-                setAutoWidth(true).
-                setHeader("Мощ. мак. ");
-        Grid.Column<Point> columnSafety =
-                pointGrid.addColumn(point -> point.getSafety().getName())
-                        .setAutoWidth(true)
-                        .setHeader("Кат. надёж.");
-        Grid.Column<Point> columnVoltage =
-                pointGrid.addColumn(point -> point.getVoltage().getName())
-                        .setAutoWidth(true)
-                        .setHeader("Ур. напр. ");
-        points.add(new Point());
-        pointGrid.setItems(points);
-        pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
-        points.remove(points.size() - 1);
-
-        Button addButton = new Button("Добавить точку", event -> {
-            pointDataProvider.getItems().add(new Point(0.0,
-                    0.0,
-                    voltageService.findById(1L).get(),
-                    safetyService.findById(1L).get()
-            ));
-            pointDataProvider.refreshAll();
-            //pointGrid.getDataProvider().refreshAll();
-        });
-
-        Button removeButton = new Button("Удалить последнюю", event -> {
-            this.points.remove(points.size() - 1);
-            pointDataProvider.refreshAll();
-            //pointGrid.getDataProvider().refreshAll();
-        });
-
-        editorPoints = pointGrid.getEditor();
-        editorPoints.setBinder(binderPoints);
-        editorPoints.setBuffered(true);
-
-        NumberField fieldPowerDemand = new NumberField();
-        fieldPowerDemand.setValue(1d);
-        fieldPowerDemand.setHasControls(true);
-        fieldPowerDemand.setMin(0);
-        binderPoints.forField(fieldPowerDemand).bind("powerDemand");
-        columnPowerDemand.setEditorComponent(fieldPowerDemand);
-
-        Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
-        Grid.Column<Point> editorColumn = pointGrid.addComponentColumn(points -> {
-            Button edit = new Button("Редактировать");
-            edit.addClassName("edit");
-            edit.addClickListener(e -> {
-                editorPoints.editItem(points);
-                fieldPowerDemand.focus();
-            });
-            edit.setEnabled(!editorPoints.isOpen());
-            editButtons.add(edit);
-            return edit;
-        }).setAutoWidth(true);
-
-        editorPoints.addOpenListener(e -> editButtons.stream()
-                .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
-        editorPoints.addCloseListener(e -> editButtons.stream()
-                .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
-        Button save = new Button("Сохранить", e -> editorPoints.save());
-        save.addClassName("save");
-        Button cancel = new Button("Отменить", e -> editorPoints.cancel());
-        cancel.addClassName("cancel");
-        Div divSave = new Div(save);
-        Div divCancel = new Div(cancel);
-        Div buttons = new Div(divSave, divCancel);
-        editorColumn.setEditorComponent(buttons);
-
-
-        pointsButtonLayout.add(addButton,removeButton);
-        pointsLayout.add(pointGrid,pointsButtonLayout);
-    }
+//    private void createPointsLayout() {
+//        pointGrid.setHeightByRows(true);
+//
+//        Grid.Column<Point> columnPowerDemand =
+//                pointGrid.addColumn(Point::getPowerDemand)
+//                        .setHeader("Мощ. заяв.")
+//                        .setAutoWidth(true);
+//        Grid.Column<Point> columnPowerCurrent =
+//                pointGrid.addColumn(Point::getPowerCurrent).
+//                        setAutoWidth(true).
+//                        setHeader("Мощ. тек. ");
+//        pointGrid.addColumn(Point::getPowerMaximum).
+//                setAutoWidth(true).
+//                setHeader("Мощ. мак. ");
+//        Grid.Column<Point> columnSafety =
+//                pointGrid.addColumn(point -> point.getSafety().getName())
+//                        .setAutoWidth(true)
+//                        .setHeader("Кат. надёж.");
+//        Grid.Column<Point> columnVoltage =
+//                pointGrid.addColumn(point -> point.getVoltage().getName())
+//                        .setAutoWidth(true)
+//                        .setHeader("Ур. напр. ");
+//        points.add(new Point());
+//        pointGrid.setItems(points);
+//        pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
+//        points.remove(points.size() - 1);
+//
+//        Button addButton = new Button("Добавить точку", event -> {
+//            pointDataProvider.getItems().add(new Point(0.0,
+//                    0.0,
+//                    voltageService.findById(1L).get(),
+//                    safetyService.findById(1L).get()
+//            ));
+//            pointDataProvider.refreshAll();
+//            //pointGrid.getDataProvider().refreshAll();
+//        });
+//
+//        Button removeButton = new Button("Удалить последнюю", event -> {
+//            this.points.remove(points.size() - 1);
+//            pointDataProvider.refreshAll();
+//            //pointGrid.getDataProvider().refreshAll();
+//        });
+//
+//        editorPoints = pointGrid.getEditor();
+//        editorPoints.setBinder(binderPoints);
+//        editorPoints.setBuffered(true);
+//
+//        NumberField fieldPowerDemand = new NumberField();
+//        fieldPowerDemand.setValue(1d);
+//        fieldPowerDemand.setHasControls(true);
+//        fieldPowerDemand.setMin(0);
+//        binderPoints.forField(fieldPowerDemand).bind("powerDemand");
+//        columnPowerDemand.setEditorComponent(fieldPowerDemand);
+//
+//        Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
+//        Grid.Column<Point> editorColumn = pointGrid.addComponentColumn(points -> {
+//            Button edit = new Button("Редактировать");
+//            edit.addClassName("edit");
+//            edit.addClickListener(e -> {
+//                editorPoints.editItem(points);
+//                fieldPowerDemand.focus();
+//            });
+//            edit.setEnabled(!editorPoints.isOpen());
+//            editButtons.add(edit);
+//            return edit;
+//        }).setAutoWidth(true);
+//
+//        editorPoints.addOpenListener(e -> editButtons.stream()
+//                .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
+//        editorPoints.addCloseListener(e -> editButtons.stream()
+//                .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
+//        Button save = new Button("Сохранить", e -> editorPoints.save());
+//        save.addClassName("save");
+//        Button cancel = new Button("Отменить", e -> editorPoints.cancel());
+//        cancel.addClassName("cancel");
+//        Div divSave = new Div(save);
+//        Div divCancel = new Div(cancel);
+//        Div buttons = new Div(divSave, divCancel);
+//        editorColumn.setEditorComponent(buttons);
+//
+//
+//        pointsButtonLayout.add(addButton,removeButton);
+//        pointsLayout.add(pointGrid,pointsButtonLayout);
+//    }
 
     private void createUploadLayout() {
         Div output = new Div();
@@ -361,12 +367,11 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
     }
 
     private void clearForm() {
-        points.add(new Point(0.0,
+        pointsLayout.pointAdd(new Point(0.0,
                 0.0,
                 voltageService.findById(1L).get(),
                 safetyService.findById(1L).get()));
         populateForm(null);
-
     }
 
     private void populateForm(Demand value) {
@@ -376,7 +381,7 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
             demandType.setReadOnly(true);
             createdate.setReadOnly(true);
 
-            points = pointService.findAllByDemand(demand);
+            pointsLayout.findAllByDemand(demand);
         }
 /*
         pointGrid.addColumn(Point::getPowerDemanded).setHeader("Мощность заявленная");
@@ -385,8 +390,8 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
         pointGrid.addColumn(point -> point.getSafety().getName()).setAutoWidth(true).setHeader("Категория надёжности");
         pointGrid.addColumn(point -> point.getVoltage().getName()).setAutoWidth(true).setHeader("Уровень напряжения");
 */
-        pointGrid.setItems(points);
-        pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
+//        pointGrid.setItems(points);
+//        pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
     }
 
     private void showOutput(String text,

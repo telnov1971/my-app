@@ -52,11 +52,6 @@ public class MainView extends AppLayout {
             menuBar.setVisible(true);
         }
         addToNavbar(createTopMenuBar(header, menuBar));
-//        if(!SecurityContextHolder.getContext().getAuthentication().isAuthenticated()){
-//            menuBar.setVisible(false);
-//        } else {
-//            menuBar.setVisible(true);
-//        }
     }
 
     private void createMenuBar(MenuBar menuBar) {

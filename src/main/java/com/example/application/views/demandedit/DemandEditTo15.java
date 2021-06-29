@@ -5,23 +5,21 @@ import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileBuffer;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.*;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -50,21 +48,19 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private Demand demand = new Demand();
 
     private HorizontalLayout buttonBar = new HorizontalLayout();
-    private VerticalLayout pointsLayout = new VerticalLayout();
-    private HorizontalLayout pointsButtonLayout = new HorizontalLayout();
 
     private DatePicker createdate;
     private Select<DemandType> demandType;
-    private TextField demander;
+    private TextArea demander;
     private TextField contact;
     private TextField passportSerries;
     private TextField passportNumber;
-    private TextField pasportIssued;
+    private TextArea pasportIssued;
     private TextField addressRegistration;
     private TextField addressActual;
-    private TextField reason;
-    private TextField object;
-    private TextField address;
+    private TextArea reason;
+    private TextArea object;
+    private TextArea address;
 
     private Point point = new Point();
     private NumberField powerDemand;
@@ -73,6 +69,8 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private Select<Voltage> voltage;
     private Select<Safety> safety;
 
+    private Select<Plan> plan;
+    private Select<Price> price;
     private Select<Garant> garant;
 
     private Select<Status> status;
@@ -92,6 +90,8 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private final StatusService statusService;
     private final GarantService garantService;
     private final PointService pointService;
+    private final PlanService planService;
+    private final PriceService priceService;
 
     public DemandEditTo15(DemandService demandService,
                           DemandTypeService demandTypeService,
@@ -100,7 +100,7 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
                           PointService pointService,
                           VoltageService voltageService,
                           SafetyService safetyService,
-                          Component... components) {
+                          PlanService planService, PriceService priceService, Component... components) {
         super(components);
         this.demandService = demandService;
         this.demandTypeService = demandTypeService;
@@ -109,6 +109,8 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         this.pointService = pointService;
         this.voltageService = voltageService;
         this.safetyService = safetyService;
+        this.planService = planService;
+        this.priceService = priceService;
 
         createdate = new DatePicker("Дата создания");
         createdate.setValue(LocalDate.now());
@@ -122,16 +124,16 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         demandType.setValue(demandTypeService.findById(demandTypeService.TO15).get());
         demandType.setReadOnly(true);
 
-        demander = new TextField("Заявитель");
+        demander = new TextArea("Заявитель");
         contact = new TextField("Контактный телефон");
         passportSerries = new TextField("Паспорт серия");
         passportNumber = new TextField("Паспорт номер");
-        pasportIssued = new TextField("Паспорт выдан");
+        pasportIssued = new TextArea("Паспорт выдан");
         addressRegistration = new TextField("Адрес регистрации");
         addressActual = new TextField("Адрес фактический");
-        reason = new TextField("Причина подключения");
-        object = new TextField("Объект");
-        address = new TextField("Адрес объекта");
+        reason = new TextArea("Причина подключения");
+        object = new TextArea("Объект");
+        address = new TextArea("Адрес объекта");
 
         powerDemand = new NumberField("Мощность заявленная");
         powerCurrent = new NumberField("Мощность текущая");
@@ -153,6 +155,18 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         garant.setItemLabelGenerator(Garant::getName);
         garant.setItems(garantList);
 
+        plan = new Select<>();
+        plan.setLabel("Рассрочка платежа");
+        List<Plan> plantList = planService.findAll();
+        plan.setItemLabelGenerator(Plan::getName);
+        plan.setItems(plantList);
+
+        price = new Select<>();
+        price.setLabel("Ценовая категория");
+        List<Price> pricetList = priceService.findAll();
+        price.setItemLabelGenerator(Price::getName);
+        price.setItems(pricetList);
+
         status = new Select<>();
         status.setLabel("Статус");
         List<Status> statusList = statusService.findAll();
@@ -163,15 +177,6 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
 
         binderDemand.bindInstanceFields(this);
         binderPoints.bindInstanceFields(this);
-
-        /*
-        binder.forField(createdate).bind(Demand::getCreatedate,Demand::setCreatedate);
-        binder.forField(demandType).bind(Demand::getDemandType,Demand::setDemandType);
-        binder.forField(object).bind(Demand::getObject,Demand::setObject);
-        binder.forField(address).bind(Demand::getAddress,Demand::setAddress);
-        binder.forField(garant).bind(Demand::getGarant,Demand::setGarant);
-        binder.forField(status).bind(Demand::getStatus,Demand::setStatus);
-        */
 
         save.addClickListener(event -> {
             binderDemand.writeBeanIfValid(demand);
@@ -192,10 +197,10 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         });
 
         formDemand.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("25em", 1),
-                new FormLayout.ResponsiveStep("32em", 2),
-                new FormLayout.ResponsiveStep("40em", 3),
-                new FormLayout.ResponsiveStep("50em", 4)
+                new FormLayout.ResponsiveStep("1em", 1),
+                new FormLayout.ResponsiveStep("40em", 2),
+                new FormLayout.ResponsiveStep("50em", 3),
+                new FormLayout.ResponsiveStep("68em", 4)
         );
 
         Component[] fields = new Component[]{
@@ -207,11 +212,10 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
                 ,powerDemand,powerCurrent,powerMaximum,voltage,safety
                 ,garant};
         formDemand.add(fields);
-//        formDemand.setColspan(demander, 2);
-//        formDemand.setColspan(reason, 3);
-//        formDemand.setColspan(object, 2);
-//        formDemand.setColspan(address, 2);
-//        formDemand.setColspan(garant, 1);
+        formDemand.setColspan(demander, 2);
+        formDemand.setColspan(reason, 2);
+        formDemand.setColspan(object, 2);
+        formDemand.setColspan(address, 2);
 
         buttonBar.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
         buttonBar.setSpacing(true);
@@ -223,6 +227,7 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         //createPointsLayout();
         createUploadLayout();
 
+        this.getElement().getStyle().set("margin","15px");
         add(formDemand,multiUpload,buttonBar);
     }
 
@@ -269,11 +274,9 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
             output.removeAll();
             output.add(new Text("Upload failed: " + event.getReason()));
         });
-        /*
-        upload.addFileRejectedListener(event -> {
+        multiUpload.addFileRejectedListener(event -> {
             showOutput(event.getErrorMessage(), output);
         });
-        */
 
         //upload.setAutoUpload(false);
         multiUpload.setUploadButton(new Button("Загрузить файл"));
