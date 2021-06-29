@@ -10,6 +10,8 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.NativeButton;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -191,9 +193,43 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
 
         reset.addClickListener(event -> {
             // clear fields by setting null
-            binderDemand.readBean(null);
-            binderPoints.readBean(null);
+            //binderDemand.readBean(null);
+            //binderPoints.readBean(null);
             UI.getCurrent().navigate(DemandList.class);
+        });
+
+        powerDemand.addValueChangeListener(e -> {
+            if((powerCurrent.getValue() != null) &&
+                    (powerCurrent.getValue() > 0.0)){
+                powerMaximum.setValue(powerCurrent.getValue() +
+                        powerDemand.getValue());
+            } else {
+                powerMaximum.setValue(powerDemand.getValue());
+            }
+            if(powerMaximum.getValue() > 15.0) {
+                Notification notification = new Notification(
+                        "Максимальная мощность не может быть 15 кВт", 3000,
+                        Notification.Position.TOP_START);
+                notification.open();
+                powerDemand.setValue(15.0 - powerCurrent.getValue());
+            }
+        });
+
+        powerCurrent.addValueChangeListener(e -> {
+            if((powerDemand.getValue() != null) &&
+                    (powerDemand.getValue() > 0.0)){
+                powerMaximum.setValue(powerCurrent.getValue() +
+                        powerDemand.getValue());
+            } else {
+                powerMaximum.setValue(powerCurrent.getValue());
+            }
+            if(powerMaximum.getValue() > 15.0) {
+                Notification notification = new Notification(
+                        "Максимальная мощность не может быть 15 кВт", 3000,
+                        Notification.Position.TOP_START);
+                notification.open();
+                powerCurrent.setValue(15.0 - powerDemand.getValue());
+            }
         });
 
         formDemand.setResponsiveSteps(
@@ -342,6 +378,8 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     }
 
     private void clearForm() {
+        binderDemand.readBean(null);
+        binderPoints.readBean(null);
         populateForm(null);
     }
 
