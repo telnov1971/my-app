@@ -18,6 +18,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import java.util.*;
 
 public class PointsLayout extends VerticalLayout {
+    private Demand demand;
     private HorizontalLayout pointsButtonLayout = new HorizontalLayout();
     private List<Point> points;
     private Grid<Point> pointGrid = new Grid<>(Point.class, false);
@@ -140,5 +141,16 @@ public class PointsLayout extends VerticalLayout {
         }
         pointGrid.setItems(points);
         pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
+    }
+
+    public void setDemand(Demand demand) {
+        this.demand = demand;
+    }
+
+    public void savePoints() {
+        for(Point point : points) {
+            point.setDemand(demand);
+            pointService.update(point);
+        }
     }
 }

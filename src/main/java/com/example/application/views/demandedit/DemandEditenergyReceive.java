@@ -17,6 +17,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileBuffer;
@@ -38,7 +39,6 @@ import java.util.*;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки на энергопринимающие устройства")
 public class DemandEditenergyReceive extends Div implements BeforeEnterObserver {
-
     @Value("${upload.path.windows}")
     private String uploadPathWindows;
     @Value("${upload.path.linux}")
@@ -48,16 +48,28 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
     private final String DEMAND_ID = "demandID";
 
     private FormLayout formDemand = new FormLayout();
-    private BeanValidationBinder<Demand> binder = new BeanValidationBinder<>(Demand.class);
+    private BeanValidationBinder<Demand> binderDemand = new BeanValidationBinder<>(Demand.class);
     private Demand demand = new Demand();
+
     private HorizontalLayout buttonBar = new HorizontalLayout();
-    private PointsLayout pointsLayout;
 
     private DatePicker createdate;
     private Select<DemandType> demandType;
-    private TextField object;
-    private TextField address;
+    private TextArea demander;
+    private TextField contact;
+    private TextField passportSerries;
+    private TextField passportNumber;
+    private TextArea pasportIssued;
+    private TextField addressRegistration;
+    private TextField addressActual;
+    private TextArea reason;
+    private TextArea object;
+    private TextArea address;
+
+    private Select<Plan> plan;
+    private Select<Price> price;
     private Select<Garant> garant;
+
     private Select<Status> status;
 
     private Button save = new Button("Сохранить");
@@ -66,23 +78,30 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
     MultiFileBuffer buffer = new MultiFileBuffer();
     Upload multiUpload = new Upload(buffer);
     private String originalFileName;
+    private String mimeType;
 
     private final DemandService demandService;
     private final DemandTypeService demandTypeService;
     private final StatusService statusService;
     private final GarantService garantService;
     private final PointService pointService;
+    private final PlanService planService;
+    private final PriceService priceService;
     private final VoltageService voltageService;
     private final SafetyService safetyService;
 
-    public DemandEditenergyReceive(DemandService demandService,
-                                   DemandTypeService demandTypeService,
-                                   StatusService statusService,
-                                   GarantService garantService,
-                                   PointService pointService,
-                                   VoltageService voltageService,
-                                   SafetyService safetyService,
-                                   Component... components) {
+    private PointsLayout pointsLayout;
+
+    public DemandEditenergyReceive(DemandService demandService
+            ,DemandTypeService demandTypeService
+            ,StatusService statusService
+            ,GarantService garantService
+            ,PointService pointService
+            ,VoltageService voltageService
+            ,SafetyService safetyService
+            ,PlanService planService
+            , PriceService priceService
+            , Component... components) {
         super(components);
         this.demandService = demandService;
         this.demandTypeService = demandTypeService;
@@ -91,6 +110,8 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
         this.pointService = pointService;
         this.voltageService = voltageService;
         this.safetyService = safetyService;
+        this.planService = planService;
+        this.priceService = priceService;
 
         createdate = new DatePicker("Дата создания");
         createdate.setValue(LocalDate.now());
@@ -101,12 +122,19 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
         List<DemandType> demandTypeList = demandTypeService.findAll();
         demandType.setItemLabelGenerator(DemandType::getName);
         demandType.setItems(demandTypeList);
-        demandType.setValue(demandTypeService.findById(DemandType.RECIVER).get());
+        demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
         demandType.setReadOnly(true);
 
-        object = new TextField("Объект");
-
-        address = new TextField("Адрес");
+        demander = new TextArea("Заявитель");
+        contact = new TextField("Контактный телефон");
+        passportSerries = new TextField("Паспорт серия");
+        passportNumber = new TextField("Паспорт номер");
+        pasportIssued = new TextArea("Паспорт выдан");
+        addressRegistration = new TextField("Адрес регистрации");
+        addressActual = new TextField("Адрес фактический");
+        reason = new TextArea("Причина подключения");
+        object = new TextArea("Объект");
+        address = new TextArea("Адрес объекта");
 
         garant = new Select<>();
         garant.setLabel("Гарантирующий поставщик");
@@ -114,44 +142,85 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
         garant.setItemLabelGenerator(Garant::getName);
         garant.setItems(garantList);
 
+        plan = new Select<>();
+        plan.setLabel("Рассрочка платежа");
+        List<Plan> plantList = planService.findAll();
+        plan.setItemLabelGenerator(Plan::getName);
+        plan.setItems(plantList);
+
+        price = new Select<>();
+        price.setLabel("Ценовая категория");
+        List<Price> pricetList = priceService.findAll();
+        price.setItemLabelGenerator(Price::getName);
+        price.setItems(pricetList);
+
         status = new Select<>();
         status.setLabel("Статус");
         List<Status> statusList = statusService.findAll();
         status.setItemLabelGenerator(Status::getName);
         status.setItems(statusList);
+        status.setValue(statusService.findById(1L).get());
+        status.setReadOnly(true);
 
+        binderDemand.bindInstanceFields(this);
+//        binderPoints.bindInstanceFields(this);
 
-        binder.bindInstanceFields(this);
         save.addClickListener(event -> {
-            binder.writeBeanIfValid(demand);
+            binderDemand.writeBeanIfValid(demand);
             demandService.update(this.demand);
+
+            //binderPoints.writeBeanIfValid(point);
+            pointsLayout.setDemand(demand);
+            pointsLayout.savePoints();
+
             UI.getCurrent().navigate(DemandList.class);
         });
 
         reset.addClickListener(event -> {
             // clear fields by setting null
-            binder.readBean(null);
+            binderDemand.readBean(null);
+            pointsLayout.pointsClean();
             UI.getCurrent().navigate(DemandList.class);
         });
 
-        Component[] fields = new Component[]{createdate,demandType,object,address,garant,status};
+        formDemand.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("1em", 1),
+                new FormLayout.ResponsiveStep("40em", 2),
+                new FormLayout.ResponsiveStep("50em", 3),
+                new FormLayout.ResponsiveStep("68em", 4)
+        );
+
+        Component[] fields = new Component[]{
+                createdate,demandType,status
+                ,demander,contact
+                ,passportSerries,passportNumber,pasportIssued
+                ,addressRegistration,addressActual,
+                reason,object,address
+                ,garant};
         formDemand.add(fields);
+        formDemand.setColspan(demander, 2);
+        formDemand.setColspan(reason, 2);
+        formDemand.setColspan(object, 2);
+        formDemand.setColspan(address, 2);
+
         buttonBar.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
         buttonBar.setSpacing(true);
         reset.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         buttonBar.add(save,reset);
-
+        createUploadLayout();
         pointsLayout = new PointsLayout(pointService
                 ,voltageService
                 ,safetyService);
         createUploadLayout();
 
+        this.getElement().getStyle().set("margin","15px");
         add(formDemand
+                ,pointsLayout
+                , multiUpload
                 , buttonBar
-                , pointsLayout
-                , multiUpload);
+        );
     }
 
 //    private void createPointsLayout() {
@@ -362,7 +431,7 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
 
     private void populateForm(Demand value) {
         demand = value;
-        binder.readBean(this.demand);
+        binderDemand.readBean(this.demand);
         if(value != null) {
             demandType.setReadOnly(true);
             createdate.setReadOnly(true);

@@ -40,8 +40,6 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
 
 
     private final String DEMAND_ID = "demandID";
-    private final VoltageService voltageService;
-    private final SafetyService safetyService;
 
     private FormLayout formDemand = new FormLayout();
     private BeanValidationBinder<Demand> binderDemand = new BeanValidationBinder<>(Demand.class);
@@ -92,6 +90,8 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private final PointService pointService;
     private final PlanService planService;
     private final PriceService priceService;
+    private final VoltageService voltageService;
+    private final SafetyService safetyService;
 
     public DemandEditTo15(DemandService demandService,
                           DemandTypeService demandTypeService,
