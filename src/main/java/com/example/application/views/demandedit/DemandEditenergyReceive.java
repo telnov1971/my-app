@@ -32,11 +32,11 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.*;
 
-@Route(value = "demandtemporary/:demandID?", layout = MainView.class)
-@RouteAlias(value ="demandtemporary")
+@Route(value = "demandreciver/:demandID?", layout = MainView.class)
+@RouteAlias(value ="demandreciver")
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
-@PageTitle("Редактор заявки на временное подключение")
-public class DemandEditTemporary extends Div implements BeforeEnterObserver {
+@PageTitle("Редактор заявки до 15 кВт")
+public class DemandEditenergyReceive extends Div implements BeforeEnterObserver {
 
     @Value("${upload.path.windows}")
     private String uploadPathWindows;
@@ -81,14 +81,14 @@ public class DemandEditTemporary extends Div implements BeforeEnterObserver {
     private final GarantService garantService;
     private final PointService pointService;
 
-    public DemandEditTemporary(DemandService demandService,
-                               DemandTypeService demandTypeService,
-                               StatusService statusService,
-                               GarantService garantService,
-                               PointService pointService,
-                               VoltageService voltageService,
-                               SafetyService safetyService,
-                               Component... components) {
+    public DemandEditenergyReceive(DemandService demandService,
+                                   DemandTypeService demandTypeService,
+                                   StatusService statusService,
+                                   GarantService garantService,
+                                   PointService pointService,
+                                   VoltageService voltageService,
+                                   SafetyService safetyService,
+                                   Component... components) {
         super(components);
         this.demandService = demandService;
         this.demandTypeService = demandTypeService;
@@ -107,7 +107,7 @@ public class DemandEditTemporary extends Div implements BeforeEnterObserver {
         List<DemandType> demandTypeList = demandTypeService.findAll();
         demandType.setItemLabelGenerator(DemandType::getName);
         demandType.setItems(demandTypeList);
-        demandType.setValue(demandTypeService.findById(demandTypeService.TEMPORARY).get());
+        demandType.setValue(demandTypeService.findById(demandTypeService.RECIVER).get());
         demandType.setReadOnly(true);
 
         object = new TextField("Объект");

@@ -9,11 +9,11 @@ import javax.persistence.*;
 public class Point extends AbstractEntity {
     @ManyToOne
     private Demand demand;
-    @Column(name = "powDem")
+    @Column(name = "pow_dem")
     private Double powerDemand = 0.0;
-    @Column(name = "powCur")
+    @Column(name = "pow_cur")
     private Double powerCurrent = 0.0;
-    @Column(name = "powMax")
+    @Column(name = "pow_max")
     private Double powerMaximum = 0.0;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "volt_id")
@@ -34,6 +34,12 @@ public class Point extends AbstractEntity {
         this.safety = safety;
     }
 
+    public Demand getDemand() {
+        return demand;
+    }
+    public void setDemand(Demand demand) {
+        this.demand = demand;
+    }
     public Double getPowerDemand() {
         return powerDemand;
     }

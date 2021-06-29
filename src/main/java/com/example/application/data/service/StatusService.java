@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StatusService extends CrudService<Status, Long> {
@@ -22,5 +23,9 @@ public class StatusService extends CrudService<Status, Long> {
 
     public List<Status> findAll() {
         return statusRepository.findAll();
+    }
+
+    public Optional<Status> findById(long l) {
+        return statusRepository.findById(l);
     }
 }

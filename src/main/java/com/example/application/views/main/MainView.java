@@ -5,6 +5,7 @@ import com.example.application.data.service.UserService;
 import com.example.application.views.demandedit.DemandEditTemporary;
 import com.example.application.views.demandedit.DemandEditTo15;
 import com.example.application.views.demandedit.DemandEditTo150;
+import com.example.application.views.demandedit.DemandEditenergyReceive;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.users.Profile;
 import com.vaadin.flow.component.Component;
@@ -72,8 +73,8 @@ public class MainView extends AppLayout {
         editors.getSubMenu().addItem("Временное подключение", e -> {
             UI.getCurrent().navigate(DemandEditTemporary.class);
         } );
-        editors.getSubMenu().addItem("Для энергогенерации", e -> {
-            UI.getCurrent().navigate(DemandEditTo15.class);
+        editors.getSubMenu().addItem("Энергопринимающие устройства", e -> {
+            UI.getCurrent().navigate(DemandEditenergyReceive.class);
         } );
         menuBar.addItem("Профиль", e ->{
             String username =SecurityContextHolder.getContext().getAuthentication().getName();

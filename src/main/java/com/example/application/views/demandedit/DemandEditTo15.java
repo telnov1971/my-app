@@ -5,44 +5,29 @@ import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
 import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.upload.Receiver;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.FileData;
 import com.vaadin.flow.component.upload.receivers.MultiFileBuffer;
-import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.internal.MessageDigestUtil;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.server.StreamResource;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import javax.swing.text.html.HTML;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Route(value = "demandto15/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandto15")
@@ -61,23 +46,38 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private final SafetyService safetyService;
 
     private FormLayout formDemand = new FormLayout();
-    private BeanValidationBinder<Demand> binder = new BeanValidationBinder<>(Demand.class);
+    private BeanValidationBinder<Demand> binderDemand = new BeanValidationBinder<>(Demand.class);
     private Demand demand = new Demand();
+
     private HorizontalLayout buttonBar = new HorizontalLayout();
     private VerticalLayout pointsLayout = new VerticalLayout();
     private HorizontalLayout pointsButtonLayout = new HorizontalLayout();
 
     private DatePicker createdate;
     private Select<DemandType> demandType;
+    private TextField demander;
+    private TextField contact;
+    private TextField passportSerries;
+    private TextField passportNumber;
+    private TextField pasportIssued;
+    private TextField addressRegistration;
+    private TextField addressActual;
+    private TextField reason;
     private TextField object;
     private TextField address;
+
+    private Point point = new Point();
+    private NumberField powerDemand;
+    private NumberField powerCurrent;
+    private NumberField powerMaximum;
+    private Select<Voltage> voltage;
+    private Select<Safety> safety;
+
     private Select<Garant> garant;
+
     private Select<Status> status;
-    private List<Point> points = new ArrayList<>();
-    private Grid<Point> pointGrid = new Grid<>(Point.class, false);
-    private ListDataProvider<Point> pointDataProvider;
+
     private Binder<Point> binderPoints = new Binder<>(Point.class);
-    private Editor<Point> editorPoints;
 
     private Button save = new Button("Сохранить");
     private Button reset = new Button("Отменить");
@@ -119,10 +119,33 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         List<DemandType> demandTypeList = demandTypeService.findAll();
         demandType.setItemLabelGenerator(DemandType::getName);
         demandType.setItems(demandTypeList);
+        demandType.setValue(demandTypeService.findById(demandTypeService.TO15).get());
+        demandType.setReadOnly(true);
 
+        demander = new TextField("Заявитель");
+        contact = new TextField("Контактный телефон");
+        passportSerries = new TextField("Паспорт серия");
+        passportNumber = new TextField("Паспорт номер");
+        pasportIssued = new TextField("Паспорт выдан");
+        addressRegistration = new TextField("Адрес регистрации");
+        addressActual = new TextField("Адрес фактический");
+        reason = new TextField("Причина подключения");
         object = new TextField("Объект");
+        address = new TextField("Адрес объекта");
 
-        address = new TextField("Адрес");
+        powerDemand = new NumberField("Мощность заявленная");
+        powerCurrent = new NumberField("Мощность текущая");
+        powerMaximum = new NumberField("Мощность максимальная");
+        voltage = new Select<>();
+        voltage.setLabel("Уровень напряжения");
+        List<Voltage> voltageList = voltageService.findAll();
+        voltage.setItemLabelGenerator(Voltage::getName);
+        voltage.setItems(voltageList);
+        safety = new Select<>();
+        safety.setLabel("Категория надежности");
+        List<Safety> safetyList = safetyService.findAll();
+        safety.setItemLabelGenerator(Safety::getName);
+        safety.setItems(safetyList);
 
         garant = new Select<>();
         garant.setLabel("Гарантирующий поставщик");
@@ -135,9 +158,12 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         List<Status> statusList = statusService.findAll();
         status.setItemLabelGenerator(Status::getName);
         status.setItems(statusList);
+        status.setValue(statusService.findById(1L).get());
+        status.setReadOnly(true);
 
+        binderDemand.bindInstanceFields(this);
+        binderPoints.bindInstanceFields(this);
 
-        binder.bindInstanceFields(this);
         /*
         binder.forField(createdate).bind(Demand::getCreatedate,Demand::setCreatedate);
         binder.forField(demandType).bind(Demand::getDemandType,Demand::setDemandType);
@@ -146,20 +172,47 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         binder.forField(garant).bind(Demand::getGarant,Demand::setGarant);
         binder.forField(status).bind(Demand::getStatus,Demand::setStatus);
         */
+
         save.addClickListener(event -> {
-            binder.writeBeanIfValid(demand);
+            binderDemand.writeBeanIfValid(demand);
             demandService.update(this.demand);
+
+            binderPoints.writeBeanIfValid(point);
+            point.setDemand(demand);
+            pointService.update(this.point);
+
             UI.getCurrent().navigate(DemandList.class);
         });
 
         reset.addClickListener(event -> {
             // clear fields by setting null
-            binder.readBean(null);
+            binderDemand.readBean(null);
+            binderPoints.readBean(null);
             UI.getCurrent().navigate(DemandList.class);
         });
 
-        Component[] fields = new Component[]{createdate,demandType,object,address,garant,status};
+        formDemand.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("25em", 1),
+                new FormLayout.ResponsiveStep("32em", 2),
+                new FormLayout.ResponsiveStep("40em", 3),
+                new FormLayout.ResponsiveStep("50em", 4)
+        );
+
+        Component[] fields = new Component[]{
+                createdate,demandType,status
+                ,demander,contact
+                ,passportSerries,passportNumber,pasportIssued
+                ,addressRegistration,addressActual,
+                reason,object,address
+                ,powerDemand,powerCurrent,powerMaximum,voltage,safety
+                ,garant};
         formDemand.add(fields);
+//        formDemand.setColspan(demander, 2);
+//        formDemand.setColspan(reason, 3);
+//        formDemand.setColspan(object, 2);
+//        formDemand.setColspan(address, 2);
+//        formDemand.setColspan(garant, 1);
+
         buttonBar.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
         buttonBar.setSpacing(true);
         reset.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -167,95 +220,10 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
 
         buttonBar.add(save,reset);
 
-        createPointsLayout();
+        //createPointsLayout();
         createUploadLayout();
 
-        add(formDemand, buttonBar, pointsLayout, multiUpload);
-    }
-
-    private void createPointsLayout() {
-        pointGrid.setHeightByRows(true);
-
-        Grid.Column<Point> columnPowerDemand =
-                pointGrid.addColumn(Point::getPowerDemand)
-                        .setHeader("Мощ. заяв.")
-                        .setAutoWidth(true);
-        Grid.Column<Point> columnPowerCurrent =
-                pointGrid.addColumn(Point::getPowerCurrent).
-                        setAutoWidth(true).
-                        setHeader("Мощ. тек. ");
-        pointGrid.addColumn(Point::getPowerMaximum).
-                setAutoWidth(true).
-                setHeader("Мощ. мак. ");
-        Grid.Column<Point> columnSafety =
-                pointGrid.addColumn(point -> point.getSafety().getName())
-                        .setAutoWidth(true)
-                        .setHeader("Кат. надёж.");
-        Grid.Column<Point> columnVoltage =
-                pointGrid.addColumn(point -> point.getVoltage().getName())
-                        .setAutoWidth(true)
-                        .setHeader("Ур. напр. ");
-        points.add(new Point());
-        pointGrid.setItems(points);
-        pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
-        points.remove(points.size() - 1);
-
-        Button addButton = new Button("Добавить точку", event -> {
-            pointDataProvider.getItems().add(new Point(0.0,
-                    0.0,
-                    voltageService.findById(1L).get(),
-                    safetyService.findById(1L).get()
-            ));
-            pointDataProvider.refreshAll();
-            //pointGrid.getDataProvider().refreshAll();
-        });
-
-        Button removeButton = new Button("Удалить последнюю", event -> {
-            this.points.remove(points.size() - 1);
-            pointDataProvider.refreshAll();
-            //pointGrid.getDataProvider().refreshAll();
-        });
-
-        editorPoints = pointGrid.getEditor();
-        editorPoints.setBinder(binderPoints);
-        editorPoints.setBuffered(true);
-
-        NumberField fieldPowerDemand = new NumberField();
-        fieldPowerDemand.setValue(1d);
-        fieldPowerDemand.setHasControls(true);
-        fieldPowerDemand.setMin(0);
-        binderPoints.forField(fieldPowerDemand).bind("powerDemand");
-        columnPowerDemand.setEditorComponent(fieldPowerDemand);
-
-        Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
-        Grid.Column<Point> editorColumn = pointGrid.addComponentColumn(points -> {
-            Button edit = new Button("Редактировать");
-            edit.addClassName("edit");
-            edit.addClickListener(e -> {
-                editorPoints.editItem(points);
-                fieldPowerDemand.focus();
-            });
-            edit.setEnabled(!editorPoints.isOpen());
-            editButtons.add(edit);
-            return edit;
-        }).setAutoWidth(true);
-
-        editorPoints.addOpenListener(e -> editButtons.stream()
-                .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
-        editorPoints.addCloseListener(e -> editButtons.stream()
-                .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
-        Button save = new Button("Сохранить", e -> editorPoints.save());
-        save.addClassName("save");
-        Button cancel = new Button("Отменить", e -> editorPoints.cancel());
-        cancel.addClassName("cancel");
-        Div divSave = new Div(save);
-        Div divCancel = new Div(cancel);
-        Div buttons = new Div(divSave, divCancel);
-        editorColumn.setEditorComponent(buttons);
-
-
-        pointsButtonLayout.add(addButton,removeButton);
-        pointsLayout.add(pointGrid,pointsButtonLayout);
+        add(formDemand,multiUpload,buttonBar);
     }
 
     private void createUploadLayout() {
@@ -371,32 +339,18 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     }
 
     private void clearForm() {
-        points.add(new Point(0.0,
-                0.0,
-                voltageService.findById(1L).get(),
-                safetyService.findById(1L).get()));
         populateForm(null);
-
     }
 
     private void populateForm(Demand value) {
         demand = value;
-        binder.readBean(this.demand);
+        binderDemand.readBean(this.demand);
         if(value != null) {
             demandType.setReadOnly(true);
             createdate.setReadOnly(true);
-
-            points = pointService.findAllByDemand(demand);
+            point = pointService.findAllByDemand(demand).get(0);
         }
-/*
-        pointGrid.addColumn(Point::getPowerDemanded).setHeader("Мощность заявленная");
-        pointGrid.addColumn(Point::getPowerCurrent).setAutoWidth(true).setHeader("Мощность текущая");
-        pointGrid.addColumn(Point::getPowerMaximum).setAutoWidth(true).setHeader("Мощность максимальная");
-        pointGrid.addColumn(point -> point.getSafety().getName()).setAutoWidth(true).setHeader("Категория надёжности");
-        pointGrid.addColumn(point -> point.getVoltage().getName()).setAutoWidth(true).setHeader("Уровень напряжения");
-*/
-        pointGrid.setItems(points);
-        pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
+        binderPoints.readBean(this.point);
     }
 
     private void showOutput(String text,
