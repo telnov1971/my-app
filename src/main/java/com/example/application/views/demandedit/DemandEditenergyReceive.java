@@ -4,6 +4,7 @@ import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
+import com.example.application.views.support.FilesLayout;
 import com.example.application.views.support.PointsLayout;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
@@ -89,18 +90,21 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
     private final PriceService priceService;
     private final VoltageService voltageService;
     private final SafetyService safetyService;
+    private final FileStoredService fileStoredService;
 
     private PointsLayout pointsLayout;
+    private FilesLayout filesLayout;
 
     public DemandEditenergyReceive(DemandService demandService
-            ,DemandTypeService demandTypeService
-            ,StatusService statusService
-            ,GarantService garantService
-            ,PointService pointService
-            ,VoltageService voltageService
-            ,SafetyService safetyService
-            ,PlanService planService
+            , DemandTypeService demandTypeService
+            , StatusService statusService
+            , GarantService garantService
+            , PointService pointService
+            , VoltageService voltageService
+            , SafetyService safetyService
+            , PlanService planService
             , PriceService priceService
+            , FileStoredService fileStoredService
             , Component... components) {
         super(components);
         this.demandService = demandService;
@@ -112,6 +116,7 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
         this.safetyService = safetyService;
         this.planService = planService;
         this.priceService = priceService;
+        this.fileStoredService = fileStoredService;
 
         createdate = new DatePicker("Дата создания");
         createdate.setValue(LocalDate.now());
@@ -215,9 +220,14 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
                 ,safetyService);
         createUploadLayout();
 
+        filesLayout = new FilesLayout(this.fileStoredService
+                , voltageService
+                , safetyService);
+
         this.getElement().getStyle().set("margin","15px");
         add(formDemand
                 ,pointsLayout
+                ,filesLayout
                 , multiUpload
                 , buttonBar
         );
@@ -438,6 +448,7 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
             status.setReadOnly(true);
 
             pointsLayout.findAllByDemand(demand);
+            filesLayout.findAllByDemand(demand);
         }
     }
 

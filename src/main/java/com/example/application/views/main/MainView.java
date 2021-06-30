@@ -26,19 +26,58 @@ import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.server.RequestHandler;
+import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinResponse;
+import com.vaadin.flow.server.VaadinSession;
+import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.io.*;
 
 /**
  * The main view is a top-level placeholder for other views.
  */
 //@PWA(name = "Личный кабинет", shortName = "Кабинет")
 public class MainView extends AppLayout {
+    @Value("${upload.path.windows}")
+    private String uploadPathWindows;
+    @Value("${upload.path.linux}")
+    private String uploadPathLinux;
+
     private final UserService userService;
 
     //private final Tabs menu;
     private final MenuBar menuBar = new MenuBar();
 
     public MainView(UserService userService) {
+//        VaadinSession.getCurrent().addRequestHandler(
+//                new RequestHandler() {
+//                    @Override
+//                    public boolean handleRequest(VaadinSession session,
+//                                              VaadinRequest request,
+//                                              VaadinResponse response)
+//                            throws IOException {
+//                        if (request.getPathInfo().contains("/files/")) {
+//                            response.setContentType("text/plain");
+//                            String uploadPath = new String();
+//                            String osName = System.getProperty("os.name");
+//                            if(osName.contains("Windows")) uploadPath = uploadPathWindows;
+//                            if(osName.contains("Linux")) uploadPath = uploadPathLinux;
+//
+//                            String filename = request.getPathInfo().substring(7);
+//                            //response.setContentType("application/octet-stream");
+//                            File file = new File(uploadPath + filename);
+//                            InputStream inputStream = new FileInputStream(file);
+//                            response.getOutputStream().write(inputStream.readAllBytes());
+//                            return true;
+//                        }
+//                        return false;
+//                    }
+//                }
+//        );
+
         this.userService = userService;
         HorizontalLayout header = createHeader();
 

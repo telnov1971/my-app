@@ -1,4 +1,4 @@
-package com.example.application.views.demandedit;
+package com.example.application.views.support;
 
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
@@ -11,10 +11,8 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -24,32 +22,27 @@ import com.vaadin.flow.component.upload.receivers.MultiFileBuffer;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.*;
-import org.hibernate.service.Service;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-@Route(value = "demandto15/:demandID?", layout = MainView.class)
-@RouteAlias(value ="demandto15")
-//@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
-@PageTitle("Редактор заявки до 15 кВт")
-public class DemandEditTo15 extends Div implements BeforeEnterObserver {
+public class GeneralForm extends Div {
 
     @Value("${upload.path.windows}")
     private String uploadPathWindows;
     @Value("${upload.path.linux}")
     private String uploadPathLinux;
 
-
-    private final String DEMAND_ID = "demandID";
-
     private FormLayout formDemand = new FormLayout();
     private BeanValidationBinder<Demand> binderDemand = new BeanValidationBinder<>(Demand.class);
     private Demand demand = new Demand();
-
-    private HorizontalLayout buttonBar = new HorizontalLayout();
 
     private DatePicker createdate;
     private Select<DemandType> demandType;
@@ -80,9 +73,6 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
 
     private Binder<Point> binderPoints = new Binder<>(Point.class);
 
-    private Button save = new Button("Сохранить");
-    private Button reset = new Button("Отменить");
-
     MultiFileBuffer buffer = new MultiFileBuffer();
     Upload multiUpload = new Upload(buffer);
     private String originalFileName;
@@ -99,14 +89,17 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
     private final SafetyService safetyService;
     private final SendService sendService;
 
-    public DemandEditTo15(DemandService demandService,
-                          DemandTypeService demandTypeService,
-                          StatusService statusService,
-                          GarantService garantService,
-                          PointService pointService,
-                          VoltageService voltageService,
-                          SafetyService safetyService,
-                          PlanService planService, PriceService priceService, SendService sendService, Component... components) {
+    public GeneralForm(DemandService demandService,
+                       DemandTypeService demandTypeService,
+                       StatusService statusService,
+                       GarantService garantService,
+                       PointService pointService,
+                       VoltageService voltageService,
+                       SafetyService safetyService,
+                       PlanService planService,
+                       PriceService priceService,
+                       SendService sendService,
+                       Component... components) {
         super(components);
         // сервисы
         {
@@ -202,15 +195,6 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         binderPoints.bindInstanceFields(this);
 
         // события формы
-        save.addClickListener(event -> {
-            save();
-        });
-        reset.addClickListener(event -> {
-            // clear fields by setting null
-            //binderDemand.readBean(null);
-            //binderPoints.readBean(null);
-            UI.getCurrent().navigate(DemandList.class);
-        });
         powerDemand.addValueChangeListener(e -> {
             if((powerCurrent.getValue() != null) &&
                     (powerCurrent.getValue() > 0.0)){
@@ -290,20 +274,14 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
             formDemand.setColspan(address, 4);
         }
 
-        buttonBar.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
-        buttonBar.setSpacing(true);
-        reset.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonBar.add(save,reset);
-
         createUploadLayout();
 
         this.getElement().getStyle().set("margin","15px");
 
-        add(formDemand,multiUpload,buttonBar);
+        add(formDemand,multiUpload);
     }
 
-    private void save() {
+    public void save() {
         binderDemand.writeBeanIfValid(demand);
         demandService.update(this.demand);
 
@@ -366,70 +344,13 @@ public class DemandEditTo15 extends Div implements BeforeEnterObserver {
         add(multiUpload, output);
     }
 
-    /* Load a file from local filesystem.
-     *
-    public InputStream loadFile() {
-        try {
-            return new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failed to create InputStream for: '" + this.file.getAbsolutePath(), e);
-        }
-        return null;
-    }
-
-    //Receive a uploaded file to a file.
-
-    @Override
-    public OutputStream receiveUpload(String originalFileName, String MIMEType) {
-        this.originalFileName = originalFileName;
-        this.mimeType = MIMEType;
-        try {
-            String file2 = "";
-            String uploadPath = new String();
-            String osName = System.getProperty("os.name");
-            if(osName.contains("Windows")) uploadPath = uploadPathWindows;
-            if(osName.contains("Linux")) uploadPath = uploadPathLinux;
-            File uploadDir = new File(uploadPath);
-
-            String uuidFile = UUID.randomUUID().toString();
-            if(this.originalFileName.lastIndexOf(".") != -1 &&
-                    this.originalFileName.lastIndexOf(".") != 0)
-                // то вырезаем все знаки после последней точки в названии файла, то есть ХХХХХ.txt -> txt
-                file2 = this.originalFileName.substring(this.originalFileName.lastIndexOf(".")+1);
-            String resultFilename = uuidFile + "." + file2;
-
-            this.file = new File(uploadPath + "/" + resultFilename);
-
-            file.deleteOnExit();
-            return new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failed to create InputStream for: '" + this.file.getAbsolutePath(), e);
-        }
-        return null;
-    }*/
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        Optional<Long> demandId = event.getRouteParameters().getLong(DEMAND_ID);
-        if (demandId.isPresent()) {
-            Optional<Demand> demandFromBackend = demandService.get(demandId.get());
-            if (demandFromBackend.isPresent()) {
-                populateForm(demandFromBackend.get());
-            } else {
-                //Notification.show(String.format("The requested demand was not found, ID = %d", demandId.get()), 3000,
-                        //Notification.Position.BOTTOM_START);
-                clearForm();
-            }
-        }
-    }
-
-    private void clearForm() {
+    public void clearForm() {
         binderDemand.readBean(null);
         binderPoints.readBean(null);
         populateForm(null);
     }
 
-    private void populateForm(Demand value) {
+    public void populateForm(Demand value) {
         demand = value;
         binderDemand.readBean(this.demand);
         if(value != null) {
