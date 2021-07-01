@@ -31,6 +31,7 @@ public class FileStored extends AbstractEntity {
 
     public FileStored(String name, String link, Demand demand) {
         createdate = LocalDate.now();
+        this.load1c = false;
         this.name = name;
         this.link = link;
         this.demand = demand;

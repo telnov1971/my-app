@@ -4,6 +4,7 @@ import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
+import com.example.application.views.support.FilesLayout;
 import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
@@ -13,6 +14,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -38,6 +40,13 @@ import java.util.*;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки до 150 кВт")
 public class DemandEditTo150 extends Div implements BeforeEnterObserver {
+    @Value("${upload.path.windows}")
+    private String uploadPathWindows;
+    @Value("${upload.path.linux}")
+    private String uploadPathLinux;
+    public static String uploadPath = "";
+
+    private Demand demand = new Demand();
     private final DemandService demandService;
     private final DemandTypeService demandTypeService;
     private final StatusService statusService;
@@ -55,6 +64,12 @@ public class DemandEditTo150 extends Div implements BeforeEnterObserver {
     private Button reset = new Button("Отменить");
     GeneralForm generalForm;
 
+    MultiFileBuffer buffer = new MultiFileBuffer();
+    Upload multiUpload = new Upload(buffer);
+    private String originalFileName;
+    private final FileStoredService fileStoredService;
+    private FilesLayout filesLayout;
+
     public DemandEditTo150(DemandService demandService
             , DemandTypeService demandTypeService
             , StatusService statusService
@@ -65,7 +80,7 @@ public class DemandEditTo150 extends Div implements BeforeEnterObserver {
             , PlanService planService
             , PriceService priceService
             , SendService sendService
-            ,Component... components) {
+            , FileStoredService fileStoredService, Component... components) {
         super(components);
         this.demandService = demandService;
         this.demandTypeService = demandTypeService;
@@ -77,18 +92,32 @@ public class DemandEditTo150 extends Div implements BeforeEnterObserver {
         this.voltageService = voltageService;
         this.safetyService = safetyService;
         this.sendService = sendService;
+        this.fileStoredService = fileStoredService;
 
         generalForm = new GeneralForm(demandService,demandTypeService,statusService
                 ,garantService,pointService,voltageService,safetyService,planService
-                ,priceService,sendService);
+                ,priceService,sendService,DemandType.TO150);
+
+        filesLayout = new FilesLayout(this.fileStoredService
+                , voltageService
+                , safetyService
+                , uploadPathWindows
+                , uploadPathLinux);
 
         save.addClickListener(event -> {
             generalForm.save();
+
+            filesLayout.setDemand(demand);
+            filesLayout.saveFiles();
+
+            UI.getCurrent().navigate(DemandList.class);
         });
         reset.addClickListener(event -> {
-            // clear fields by setting null
-            //binderDemand.readBean(null);
-            //binderPoints.readBean(null);
+            try {
+                filesLayout.deleteFiles();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             UI.getCurrent().navigate(DemandList.class);
         });
 
@@ -98,7 +127,7 @@ public class DemandEditTo150 extends Div implements BeforeEnterObserver {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonBar.add(save,reset);
 
-        add(generalForm,buttonBar);
+        add(generalForm,filesLayout,buttonBar);
     }
 
     @Override
@@ -107,12 +136,18 @@ public class DemandEditTo150 extends Div implements BeforeEnterObserver {
         if (demandId.isPresent()) {
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());
             if (demandFromBackend.isPresent()) {
-                generalForm.populateForm(demandFromBackend.get());
+                demand = demandFromBackend.get();
+                generalForm.populateForm(demand);
+                filesLayout.findAllByDemand(demand);
             } else {
-                //Notification.show(String.format("The requested demand was not found, ID = %d", demandId.get()), 3000,
-                //Notification.Position.BOTTOM_START);
+                Notification.show(String.format("Заявка с ID = %d не найдена", demandId.get()), 3000,
+                        Notification.Position.BOTTOM_START);
                 generalForm.clearForm();
             }
         }
+        uploadPath = "";
+        String osName = System.getProperty("os.name");
+        if(osName.contains("Windows")) uploadPath = uploadPathWindows;
+        if(osName.contains("Linux")) uploadPath = uploadPathLinux;
     }
 }

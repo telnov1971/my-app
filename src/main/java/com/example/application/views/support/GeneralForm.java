@@ -34,7 +34,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class GeneralForm extends Div {
-
     @Value("${upload.path.windows}")
     private String uploadPathWindows;
     @Value("${upload.path.linux}")
@@ -73,11 +72,6 @@ public class GeneralForm extends Div {
 
     private Binder<Point> binderPoints = new Binder<>(Point.class);
 
-    MultiFileBuffer buffer = new MultiFileBuffer();
-    Upload multiUpload = new Upload(buffer);
-    private String originalFileName;
-    private String mimeType;
-
     private final DemandService demandService;
     private final DemandTypeService demandTypeService;
     private final StatusService statusService;
@@ -99,6 +93,7 @@ public class GeneralForm extends Div {
                        PlanService planService,
                        PriceService priceService,
                        SendService sendService,
+                       Long demandTypeID,
                        Component... components) {
         super(components);
         // сервисы
@@ -126,7 +121,7 @@ public class GeneralForm extends Div {
         List<DemandType> demandTypeList = demandTypeService.findAll();
         demandType.setItemLabelGenerator(DemandType::getName);
         demandType.setItems(demandTypeList);
-        demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
+        demandType.setValue(demandTypeService.findById(demandTypeID).get());
         demandType.setReadOnly(true);
 
         demander = new TextArea("Заявитель");
@@ -274,11 +269,9 @@ public class GeneralForm extends Div {
             formDemand.setColspan(address, 4);
         }
 
-        createUploadLayout();
-
         this.getElement().getStyle().set("margin","15px");
 
-        add(formDemand,multiUpload);
+        add(formDemand);
     }
 
     public void save() {
@@ -290,58 +283,6 @@ public class GeneralForm extends Div {
         pointService.update(this.point);
 
         UI.getCurrent().navigate(DemandList.class);
-    }
-
-    private void createUploadLayout() {
-        Div output = new Div();
-        //Upload upload = new Upload(this::receiveUpload);
-
-        multiUpload.addSucceededListener(event -> {
-
-            this.originalFileName = event.getFileName();
-            String file2 = "";
-            String uploadPath = new String();
-            String osName = System.getProperty("os.name");
-            if(osName.contains("Windows")) uploadPath = uploadPathWindows;
-            if(osName.contains("Linux")) uploadPath = uploadPathLinux;
-            //File uploadDir = new File(uploadPath);
-
-            String uuidFile = UUID.randomUUID().toString();
-            if(this.originalFileName.lastIndexOf(".") != -1 &&
-                    this.originalFileName.lastIndexOf(".") != 0)
-                // то вырезаем все знаки после последней точки в названии файла, то есть ХХХХХ.txt -> txt
-                file2 = this.originalFileName.substring(this.originalFileName.lastIndexOf(".")+1);
-            String resultFilename = uploadPath + uuidFile + "." + file2;
-
-            try {
-                FileOutputStream fileOutputStream = new FileOutputStream(resultFilename);
-                InputStream inputStream = buffer.getInputStream(event.getFileName());
-                fileOutputStream.write(inputStream.readAllBytes());
-                fileOutputStream.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //file.deleteOnExit();
-            //buffer.receiveUpload(this.originalFileName, event.getMIMEType());
-            output.removeAll();
-            output.add(new Text("Uploaded: "+originalFileName+" to "+ resultFilename+ " | Type: "+mimeType));
-            //output.add(new Image(new StreamResource(this.originalFileName,this::loadFile),"Uploaded image"));
-
-            //showOutput(event.getFileName(), output);
-        });
-        multiUpload.addFailedListener(event -> {
-            output.removeAll();
-            output.add(new Text("Upload failed: " + event.getReason()));
-        });
-        multiUpload.addFileRejectedListener(event -> {
-            showOutput(event.getErrorMessage(), output);
-        });
-
-        //upload.setAutoUpload(false);
-        multiUpload.setUploadButton(new Button("Загрузить файл"));
-        add(multiUpload, output);
     }
 
     public void clearForm() {
@@ -363,12 +304,5 @@ public class GeneralForm extends Div {
             }
         }
         binderPoints.readBean(this.point);
-    }
-
-    private void showOutput(String text,
-                            HasComponents outputContainer) {
-        HtmlComponent p = new HtmlComponent(Tag.P);
-        p.getElement().setText(text);
-        outputContainer.add(p);
     }
 }
