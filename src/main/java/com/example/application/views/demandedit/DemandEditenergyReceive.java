@@ -162,6 +162,7 @@ public class DemandEditenergyReceive extends Div implements BeforeEnterObserver 
             if (demandFromBackend.isPresent()) {
                 demand = demandFromBackend.get();
                 generalForm.populateForm(demand);
+                pointsLayout.findAllByDemand(demand);
                 filesLayout.findAllByDemand(demand);
             } else {
                 Notification.show(String.format("Заявка с ID = %d не найдена", demandId.get()), 3000,
