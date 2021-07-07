@@ -88,13 +88,16 @@ public class Demand extends AbstractEntity {
     @JoinColumn(name = "status_id")
     private Status status;
     // выполнена
+    @Column(name = "it_done")
     private boolean done;
     // пользователь
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
+    @Column(name = "it_load1c")
     private boolean load1c;
-    private boolean update;
+    @Column(name = "it_change")
+    private boolean change;
 
     public Demand() {
     }
@@ -273,10 +276,10 @@ public class Demand extends AbstractEntity {
     public void setLoad1c(boolean load1c) {
         this.load1c = load1c;
     }
-    public boolean isUpdate() {
-        return update;
+    public boolean isChange() {
+        return change;
     }
-    public void setUpdate(boolean update) {
-        this.update = update;
+    public void setChange(boolean update) {
+        this.change = update;
     }
 }
