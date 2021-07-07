@@ -11,6 +11,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -57,7 +58,7 @@ public class GeneralForm extends Div {
 
     protected Point point = new Point();
     protected Binder<Point> pointBinder = new Binder<>(Point.class);
-    protected NumberField countPoints;
+    protected IntegerField countPoints;
     protected NumberField powerDemand;
     protected NumberField powerCurrent;
     protected NumberField powerMaximum;
@@ -158,7 +159,7 @@ public class GeneralForm extends Div {
         address = new TextArea("Адрес объекта");
         specification = new TextArea("Характер нагрузки");
 
-        countPoints = new NumberField("Кол-во точек подключения");
+        countPoints = new IntegerField("Кол-во точек подключения");
         powerDemand = new NumberField("Мощность заявленная");
         powerCurrent = new NumberField("Мощность текущая");
         powerMaximum = new NumberField("Мощность максимальная");
@@ -216,6 +217,7 @@ public class GeneralForm extends Div {
 
         binderDemand.bindInstanceFields(this);
         pointBinder.bindInstanceFields(this);
+        generalBinder.bindInstanceFields(this);
 
         // события формы
         powerDemand.addValueChangeListener(e -> {
@@ -326,39 +328,6 @@ public class GeneralForm extends Div {
             field.setVisible(false);
         }
         this.getElement().getStyle().set("margin", "15px");
-    }
-
-    public void save() {
-        binderDemand.writeBeanIfValid(demand);
-        demandService.update(this.demand);
-
-            pointBinder.writeBeanIfValid(point);
-            point.setDemand(demand);
-            pointService.update(this.point);
-        UI.getCurrent().navigate(DemandList.class);
-    }
-
-    public void clearForm() {
-        binderDemand.readBean(null);
-        pointBinder.readBean(null);
-        populateForm(null);
-    }
-
-    public void populateForm(Demand value) {
-        this.demand = value;
-        binderDemand.readBean(this.demand);
-            if(value != null) {
-                demandType.setReadOnly(true);
-                createdate.setReadOnly(true);
-                if(pointService.findAllByDemand(demand).isEmpty()) {
-                    point = new Point();
-                } else {
-                    point = pointService.findAllByDemand(demand).get(0);
-                }
-            }
-            pointBinder.readBean(this.point);
-            point = new Point();
-            pointBinder.readBean(this.point);
     }
 }
 

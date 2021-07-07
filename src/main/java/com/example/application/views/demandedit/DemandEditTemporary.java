@@ -132,4 +132,39 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
             }
         }
     }
+
+    public void populateForm(Demand value) {
+        this.demand = value;
+        binderDemand.readBean(this.demand);
+        generalBinder.readBean(null);
+        if(value != null) {
+            demandType.setReadOnly(true);
+            createdate.setReadOnly(true);
+            if(pointService.findAllByDemand(demand).isEmpty()) {
+                point = new Point();
+            } else {
+                point = pointService.findAllByDemand(demand).get(0);
+            }
+            filesLayout.findAllByDemand(demand);
+        }
+        pointBinder.readBean(this.point);
+    }
+    public void save() {
+        binderDemand.writeBeanIfValid(demand);
+        demandService.update(this.demand);
+
+        pointBinder.writeBeanIfValid(point);
+        point.setDemand(demand);
+        pointService.update(this.point);
+
+        UI.getCurrent().navigate(DemandList.class);
+    }
+
+    public void clearForm() {
+        binderDemand.readBean(null);
+        pointBinder.readBean(null);
+        generalBinder.readBean(null);
+        populateForm(null);
+    }
+
 }

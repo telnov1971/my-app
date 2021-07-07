@@ -123,4 +123,35 @@ public class DemandEditTo15 extends GeneralForm implements BeforeEnterObserver {
         if(osName.contains("Windows")) uploadPath = uploadPathWindows;
         if(osName.contains("Linux")) uploadPath = uploadPathLinux;
     }
+    public void populateForm(Demand value) {
+        this.demand = value;
+        binderDemand.readBean(this.demand);
+        if(value != null) {
+            demandType.setReadOnly(true);
+            createdate.setReadOnly(true);
+            if(pointService.findAllByDemand(demand).isEmpty()) {
+                point = new Point();
+            } else {
+                point = pointService.findAllByDemand(demand).get(0);
+            }
+        }
+        pointBinder.readBean(this.point);
+        point = new Point();
+        pointBinder.readBean(this.point);
+    }
+    public void save() {
+        binderDemand.writeBeanIfValid(demand);
+        demandService.update(this.demand);
+
+        pointBinder.writeBeanIfValid(point);
+        point.setDemand(demand);
+        pointService.update(this.point);
+        UI.getCurrent().navigate(DemandList.class);
+    }
+
+    public void clearForm() {
+        binderDemand.readBean(null);
+        pointBinder.readBean(null);
+        //populateForm(null);
+    }
 }
