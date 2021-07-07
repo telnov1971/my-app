@@ -10,67 +10,100 @@ import java.util.List;
 @Entity
 public class Demand extends AbstractEntity {
 
-    private LocalDate createdate;
+    @Column(name = "create_date")
+    private LocalDate createDate;
 
+    // заявитель
     private String demander;
-    @Column(name = "pasSer")
+    // паспорт серия
+    @Column(name = "pas_ser")
     private String passportSerries;
-    @Column(name = "pasNum")
+    // пасорт номер
+    @Column(name = "pas_num")
     private String passportNumber;
-    @Column(name = "pasIss")
+    // пасорт выдан
+    @Column(name = "pas_iss")
     private String pasportIssued;
+    // госрегистрация
     private String inn;
-    @Column(name = "addReg")
+    // госрегистрация дата
+    @Column(name = "inn_date")
+    private LocalDate inndate;
+    // адрес регистрации
+    @Column(name = "add_reg")
     private String addressRegistration;
-    @Column(name = "addAct")
+    // адрес фактический
+    @Column(name = "add_act")
     private String addressActual;
+    // номер договора
     private String contact;
 
+    // причина подключения
     private String reason;
+    // объект подключения
     private String object;
+    // адрес подключения
     private String address;
+    // характер нагрузки
+    private String specification;
 
+    // точки подключения
     @OneToMany(mappedBy = "demand", cascade = CascadeType.ALL)
     private List<Point> points = new ArrayList<>();
 
+    // сроки этапов
     @OneToMany(mappedBy = "demand", cascade = CascadeType.ALL)
     private List<Expiration> expirations = new ArrayList<>();
 
-    private Integer count;
+    // гарантирующий поставщик
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "garant_id")
     private Garant garant;
 
+    // план рассчётов
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "plan_id")
     private Plan plan;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "price_id")
-    private Price price;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "price_id")
+//    private Price price;
+
+    // временный срок
+    @Column(name = "period_connection")
+    private String period;
+
+    // реквизиты договора
+    private String contract;
+
+    // способ передачи
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "send_id")
     private Send send;
-
+    // тип заявки
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "dtype_id")
     private DemandType demandType;
+    // статус
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "status_id")
     private Status status;
+    // выполнена
     private boolean done;
-
+    // пользователь
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
+    private boolean load1c;
+    private boolean update;
 
     public Demand() {
     }
 
-    public LocalDate getCreatedate() {
-        return createdate;
+    public LocalDate getCreateDate() {
+        return createDate;
     }
-    public void setCreatedate(LocalDate createdate) {
-        this.createdate = createdate;
+    public void setCreateDate(LocalDate createdate) {
+        this.createDate = createdate;
     }
     public String getObject() {
         return object;
@@ -156,12 +189,12 @@ public class Demand extends AbstractEntity {
     public void setExpirations(List<Expiration> expirations) {
         this.expirations = expirations;
     }
-    public Integer getCount() {
-        return count;
-    }
-    public void setCount(Integer count) {
-        this.count = count;
-    }
+//    public Integer getCount() {
+//        return count;
+//    }
+//    public void setCount(Integer count) {
+//        this.count = count;
+//    }
     public Garant getGarant() {
         return garant;
     }
@@ -174,18 +207,18 @@ public class Demand extends AbstractEntity {
     public void setDemandType(DemandType demandType) {
         this.demandType = demandType;
     }
-    public Plan getPlan() {
-        return plan;
-    }
-    public void setPlan(Plan plan) {
-        this.plan = plan;
-    }
-    public Price getPrice() {
-        return price;
-    }
-    public void setPrice(Price price) {
-        this.price = price;
-    }
+//    public Plan getPlan() {
+//        return plan;
+//    }
+//    public void setPlan(Plan plan) {
+//        this.plan = plan;
+//    }
+//    public Price getPrice() {
+//        return price;
+//    }
+//    public void setPrice(Price price) {
+//        this.price = price;
+//    }
     public Send getSend() {
         return send;
     }
@@ -203,5 +236,47 @@ public class Demand extends AbstractEntity {
     }
     public void setUser(User user) {
         this.user = user;
+    }
+    public LocalDate getInndate() {
+        return inndate;
+    }
+    public void setInndate(LocalDate inndate) {
+        this.inndate = inndate;
+    }
+    public String getSpecification() {
+        return specification;
+    }
+    public void setSpecification(String specification) {
+        this.specification = specification;
+    }
+    public Plan getPlan() {
+        return plan;
+    }
+    public void setPlan(Plan plan) {
+        this.plan = plan;
+    }
+    public String getPeriod() {
+        return period;
+    }
+    public void setPeriod(String period) {
+        this.period = period;
+    }
+    public String getContract() {
+        return contract;
+    }
+    public void setContract(String contract) {
+        this.contract = contract;
+    }
+    public boolean isLoad1c() {
+        return load1c;
+    }
+    public void setLoad1c(boolean load1c) {
+        this.load1c = load1c;
+    }
+    public boolean isUpdate() {
+        return update;
+    }
+    public void setUpdate(boolean update) {
+        this.update = update;
     }
 }

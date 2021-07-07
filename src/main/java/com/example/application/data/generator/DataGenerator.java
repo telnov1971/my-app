@@ -124,7 +124,7 @@ public class DataGenerator {
             logger.info("... generating 100 Demand entities...");
             ExampleDataGenerator<Demand> demandRepositoryGenerator = new ExampleDataGenerator<>(Demand.class,
                     LocalDateTime.of(2021, 6, 16, 0, 0, 0));
-            demandRepositoryGenerator.setData(Demand::setCreatedate, DataType.DATE_LAST_7_DAYS);
+            demandRepositoryGenerator.setData(Demand::setCreateDate, DataType.DATE_LAST_7_DAYS);
             demandRepositoryGenerator.setData(Demand::setDemander, DataType.WORD);
             demandRepositoryGenerator.setData(Demand::setAddressRegistration, DataType.ADDRESS);
             demandRepositoryGenerator.setData(Demand::setAddressActual, DataType.ADDRESS);

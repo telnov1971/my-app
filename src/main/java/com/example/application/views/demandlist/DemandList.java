@@ -37,7 +37,7 @@ public class DemandList extends Div {
         addClassNames("master-detail-view", "flex", "flex-col", "h-full");
 
         // Configure Grid
-        grid.addColumn("createdate").setAutoWidth(true).setHeader("Дата создания");
+        grid.addColumn("createDate").setAutoWidth(true).setHeader("Дата создания");
         grid.addColumn("demandType.name").setAutoWidth(true).setHeader("Тип");
         grid.addColumn("object").setAutoWidth(true).setHeader("Объект");
         grid.addColumn("address").setAutoWidth(true).setHeader("Адрес объекта");

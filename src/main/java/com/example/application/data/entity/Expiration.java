@@ -2,23 +2,24 @@ package com.example.application.data.entity;
 
 import com.example.application.data.AbstractEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDate;
 
 @Table(name = "EXPIRATION")
 @Entity
 public class Expiration extends AbstractEntity {
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "demand_id")
     private Demand demand;
 
     private String step;
+    @Column(name = "project_date")
     private LocalDate projectDate;
+    @Column(name = "usage_date")
     private LocalDate usageDate;
+    @Column(name = "power_max")
     private Double powerMax;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "safety_id")
     private Safety safety;
 
