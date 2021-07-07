@@ -23,11 +23,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class GeneralForm extends Div {
-    @Value("${upload.path.windows}")
-    protected String uploadPathWindows;
-    @Value("${upload.path.linux}")
-    protected String uploadPathLinux;
-
     protected FormLayout formDemand = new FormLayout();
     protected BeanValidationBinder<Demand> binderDemand = new BeanValidationBinder<>(Demand.class);
     protected Demand demand = new Demand();

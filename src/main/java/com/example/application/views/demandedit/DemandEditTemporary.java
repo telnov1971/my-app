@@ -14,6 +14,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -126,8 +127,8 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
             if (demandFromBackend.isPresent()) {
                 populateForm(demandFromBackend.get());
             } else {
-                //Notification.show(String.format("The requested demand was not found, ID = %d", demandId.get()), 3000,
-                        //Notification.Position.BOTTOM_START);
+                Notification.show(String.format("Заявка с ID = %d не найдена", demandId.get()), 3000,
+                        Notification.Position.BOTTOM_START);
                 clearForm();
             }
         }
@@ -137,9 +138,9 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
         this.demand = value;
         binderDemand.readBean(this.demand);
         generalBinder.readBean(null);
+        demandType.setReadOnly(true);
+        createdate.setReadOnly(true);
         if(value != null) {
-            demandType.setReadOnly(true);
-            createdate.setReadOnly(true);
             if(pointService.findAllByDemand(demand).isEmpty()) {
                 point = new Point();
             } else {

@@ -26,9 +26,9 @@ import java.util.*;
 @PageTitle("Редактор заявки до 15 кВт")
 public class DemandEditTo15 extends GeneralForm implements BeforeEnterObserver {
     @Value("${upload.path.windows}")
-    protected String uploadPathWindows;
+    private String uploadPathWindows;
     @Value("${upload.path.linux}")
-    protected String uploadPathLinux;
+    private String uploadPathLinux;
     public static String uploadPath = "";
 
     private final String DEMAND_ID = "demandID";
@@ -109,34 +109,30 @@ public class DemandEditTo15 extends GeneralForm implements BeforeEnterObserver {
         if (demandId.isPresent()) {
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());
             if (demandFromBackend.isPresent()) {
-                demand = demandFromBackend.get();
-                populateForm(demand);
-                filesLayout.findAllByDemand(demand);
+                populateForm(demandFromBackend.get());
             } else {
                 Notification.show(String.format("Заявка с ID = %d не найдена", demandId.get()), 3000,
                         Notification.Position.BOTTOM_START);
                 clearForm();
             }
         }
-        uploadPath = "";
-        String osName = System.getProperty("os.name");
-        if(osName.contains("Windows")) uploadPath = uploadPathWindows;
-        if(osName.contains("Linux")) uploadPath = uploadPathLinux;
     }
     public void populateForm(Demand value) {
+//        Notification.show(String.format("Path %s не найден", uploadPathWindows), 3000,
+//                Notification.Position.BOTTOM_START);
         this.demand = value;
         binderDemand.readBean(this.demand);
+        generalBinder.readBean(null);
+        demandType.setReadOnly(true);
+        createdate.setReadOnly(true);
         if(value != null) {
-            demandType.setReadOnly(true);
-            createdate.setReadOnly(true);
             if(pointService.findAllByDemand(demand).isEmpty()) {
                 point = new Point();
             } else {
                 point = pointService.findAllByDemand(demand).get(0);
             }
+            filesLayout.findAllByDemand(demand);
         }
-        pointBinder.readBean(this.point);
-        point = new Point();
         pointBinder.readBean(this.point);
     }
     public void save() {
@@ -146,12 +142,14 @@ public class DemandEditTo15 extends GeneralForm implements BeforeEnterObserver {
         pointBinder.writeBeanIfValid(point);
         point.setDemand(demand);
         pointService.update(this.point);
+
         UI.getCurrent().navigate(DemandList.class);
     }
 
     public void clearForm() {
         binderDemand.readBean(null);
         pointBinder.readBean(null);
-        //populateForm(null);
+        generalBinder.readBean(null);
+        populateForm(null);
     }
 }

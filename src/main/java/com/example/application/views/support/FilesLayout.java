@@ -11,6 +11,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
@@ -29,9 +30,9 @@ import java.util.*;
 import static com.example.application.views.demandedit.DemandEditeGeneral.uploadPath;
 
 public class FilesLayout extends VerticalLayout {
-    @Value("${upload.path.windows}")
+//    @Value("${upload.path.windows}")
     private String uploadPathWindows;
-    @Value("${upload.path.linux}")
+//    @Value("${upload.path.linux}")
     private String uploadPathLinux;
 
     private Demand demand;
@@ -166,22 +167,10 @@ public class FilesLayout extends VerticalLayout {
         add(multiUpload, output);
     }
 
-
-//    public void pointsClean() {
-//        files = new ArrayList<>();
-//    }
-//
-    public void fileAdd(FileStored fileStored) {
-        files.add(fileStored);
-        fileStoredGrid.setItems(files);
-        fileStoredListDataProvider = (ListDataProvider<FileStored>) fileStoredGrid.getDataProvider();
-    }
-
     public void findAllByDemand(Demand demand) {
+//        Notification.show(String.format("Path %s не найден", uploadPathWindows), 30000,
+//                Notification.Position.BOTTOM_START);
         files = fileStoredService.findAllByDemand(demand);
-//        if(files.isEmpty()) {
-//            fileAdd(new FileStored("/","_",demand));
-//        }
         fileStoredGrid.setItems(files);
         fileStoredListDataProvider = (ListDataProvider<FileStored>) fileStoredGrid.getDataProvider();
     }
