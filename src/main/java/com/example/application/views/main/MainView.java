@@ -5,7 +5,7 @@ import com.example.application.data.service.UserService;
 import com.example.application.views.demandedit.DemandEditTemporary;
 import com.example.application.views.demandedit.DemandEditTo15;
 import com.example.application.views.demandedit.DemandEditTo150;
-import com.example.application.views.demandedit.DemandEditenergyReceive;
+import com.example.application.views.demandedit.DemandEditeGeneral;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.users.Profile;
 import com.vaadin.flow.component.Component;
@@ -26,15 +26,8 @@ import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.RequestHandler;
-import com.vaadin.flow.server.VaadinRequest;
-import com.vaadin.flow.server.VaadinResponse;
-import com.vaadin.flow.server.VaadinSession;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.io.*;
 
 /**
  * The main view is a top-level placeholder for other views.
@@ -108,7 +101,7 @@ public class MainView extends AppLayout {
             UI.getCurrent().navigate(DemandEditTemporary.class);
         } );
         editors.getSubMenu().addItem("Энергопринимающие устройства", e -> {
-            UI.getCurrent().navigate(DemandEditenergyReceive.class);
+            UI.getCurrent().navigate(DemandEditeGeneral.class);
         } );
         menuBar.addItem("Профиль", e ->{
             String username =SecurityContextHolder.getContext().getAuthentication().getName();

@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static com.example.application.views.demandedit.DemandEditenergyReceive.uploadPath;
+import static com.example.application.views.demandedit.DemandEditeGeneral.uploadPath;
 
 public class FilesLayout extends VerticalLayout {
     @Value("${upload.path.windows}")

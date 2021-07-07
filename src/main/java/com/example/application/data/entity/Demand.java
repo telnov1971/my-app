@@ -192,12 +192,6 @@ public class Demand extends AbstractEntity {
     public void setExpirations(List<Expiration> expirations) {
         this.expirations = expirations;
     }
-//    public Integer getCount() {
-//        return count;
-//    }
-//    public void setCount(Integer count) {
-//        this.count = count;
-//    }
     public Garant getGarant() {
         return garant;
     }
@@ -210,12 +204,6 @@ public class Demand extends AbstractEntity {
     public void setDemandType(DemandType demandType) {
         this.demandType = demandType;
     }
-//    public Plan getPlan() {
-//        return plan;
-//    }
-//    public void setPlan(Plan plan) {
-//        this.plan = plan;
-//    }
 //    public Price getPrice() {
 //        return price;
 //    }

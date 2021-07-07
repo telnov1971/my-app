@@ -17,7 +17,6 @@ public class General extends AbstractEntity {
     private String countTransformations;
     @Column(name = "count_generations")
     private String countGenerations;
-    private String description;
     private String techminGeneration;
     private String reservation;
 
@@ -46,12 +45,6 @@ public class General extends AbstractEntity {
     }
     public void setCountGenerations(String countGenerations) {
         this.countGenerations = countGenerations;
-    }
-    public String getDescription() {
-        return description;
-    }
-    public void setDescription(String description) {
-        this.description = description;
     }
     public String getTechminGeneration() {
         return techminGeneration;

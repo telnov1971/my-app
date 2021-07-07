@@ -6,14 +6,13 @@ import com.example.application.data.service.DemandService;
 import com.example.application.views.demandedit.DemandEditTemporary;
 import com.example.application.views.demandedit.DemandEditTo15;
 import com.example.application.views.demandedit.DemandEditTo150;
-import com.example.application.views.demandedit.DemandEditenergyReceive;
+import com.example.application.views.demandedit.DemandEditeGeneral;
 import com.example.application.views.main.MainView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
@@ -68,8 +67,8 @@ public class DemandList extends Div {
                 UI.getCurrent().navigate(DemandEditTemporary.class, new RouteParameters("demandID",
                         String.valueOf(event.getItem().getId())));
             }
-            if (event.getItem().getDemandType().getId() == DemandType.RECIVER) {
-                UI.getCurrent().navigate(DemandEditenergyReceive.class, new RouteParameters("demandID",
+            if (event.getItem().getDemandType().getId() == DemandType.GENERAL) {
+                UI.getCurrent().navigate(DemandEditeGeneral.class, new RouteParameters("demandID",
                         String.valueOf(event.getItem().getId())));
             }
         });
