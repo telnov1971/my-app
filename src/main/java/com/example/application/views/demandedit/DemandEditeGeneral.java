@@ -1,5 +1,6 @@
 package com.example.application.views.demandedit;
 
+import com.example.application.config.AppEnv;
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
@@ -12,10 +13,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MultiFileBuffer;
 import com.vaadin.flow.router.*;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.util.*;

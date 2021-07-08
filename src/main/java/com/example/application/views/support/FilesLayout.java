@@ -1,5 +1,6 @@
 package com.example.application.views.support;
 
+import com.example.application.config.AppEnv;
 import com.example.application.data.entity.Demand;
 import com.example.application.data.entity.FileStored;
 import com.example.application.data.service.FileStoredService;
@@ -18,7 +19,9 @@ import com.vaadin.flow.component.upload.receivers.MultiFileBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.server.StreamResource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -27,7 +30,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class FilesLayout extends VerticalLayout {
-    private String uploadPath = "";
+    private String uploadPath;
 
     private Demand demand;
     private HorizontalLayout pointsButtonLayout = new HorizontalLayout();
@@ -51,11 +54,10 @@ public class FilesLayout extends VerticalLayout {
     public FilesLayout(FileStoredService fileStoredService
             , VoltageService voltageService
             , SafetyService safetyService) {
+        this.uploadPath = AppEnv.getUploadPath();
         this.fileStoredService = fileStoredService;
         this.voltageService = voltageService;
         this.safetyService = safetyService;
-        //this.uploadPathWindows = uploadPathWindows;
-        //this.uploadPathLinux = uploadPathLinux;
 
         fileStoredGrid.setHeightByRows(true);
         files = new ArrayList<>();
@@ -184,12 +186,8 @@ public class FilesLayout extends VerticalLayout {
             Files.delete(fileToDeletePath);        }
     }
 
-    public void setUploadPath(@Value("${upload.path.windows:/}") String uploadPathWindows
-            , @Value("${upload.path.linux:/}") String uploadPathLinux) {
-        String osName = System.getProperty("os.name");
-        if(osName.contains("Windows")) uploadPath = uploadPathWindows;
-        if(osName.contains("Linux")) uploadPath = uploadPathLinux;
-
-        this.uploadPath = uploadPath;
+    @Autowired
+    public void setUploadPath(AppEnv appEnv) {
+        this.uploadPath = appEnv.getUploadPath();
     }
 }
