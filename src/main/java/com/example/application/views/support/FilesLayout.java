@@ -118,9 +118,6 @@ public class FilesLayout extends VerticalLayout {
     }
 
     private void createUploadLayout() {
-        Div output = new Div();
-        //Upload upload = new Upload(this::receiveUpload);
-
         multiUpload.addSucceededListener(event -> {
             this.originalFileName = event.getFileName();
             String fileExt = ".txt";
@@ -143,22 +140,18 @@ public class FilesLayout extends VerticalLayout {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            output.removeAll();
-            output.add(new Text("Uploaded: "+originalFileName+" to "+ resultFilename));
             filesToSave.put(newFile,this.originalFileName);
         });
         multiUpload.addFailedListener(event -> {
-            output.removeAll();
-            output.add(new Text("Upload failed: " + event.getReason()));
+
         });
         multiUpload.addFileRejectedListener(event -> {
-            output.removeAll();
-            output.add(new Text(event.getErrorMessage()));
+
         });
 
         //upload.setAutoUpload(false);
         multiUpload.setUploadButton(new Button("Загрузить файл"));
-        add(multiUpload, output);
+        add(multiUpload);
     }
 
     public void findAllByDemand(Demand demand) {
@@ -182,12 +175,7 @@ public class FilesLayout extends VerticalLayout {
     public void deleteFiles() throws IOException {
         for(Map.Entry<String, String> entry: filesToSave.entrySet()) {
 
-            Path fileToDeletePath = Paths.get(uploadPath + entry.getValue());
+            Path fileToDeletePath = Paths.get(uploadPath + entry.getKey());
             Files.delete(fileToDeletePath);        }
-    }
-
-    @Autowired
-    public void setUploadPath(AppEnv appEnv) {
-        this.uploadPath = appEnv.getUploadPath();
     }
 }
