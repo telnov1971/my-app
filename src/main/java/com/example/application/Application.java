@@ -3,6 +3,7 @@ package com.example.application;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.server.PWA;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
@@ -21,9 +22,7 @@ import com.vaadin.flow.theme.Theme;
 @Theme(value = "myapp")
 @PWA(name = "Личный кабинет", shortName = "Личный кабинет", offlineResources = {"images/logo.png"})
 public class Application extends SpringBootServletInitializer implements AppShellConfigurator {
-
     public static void main(String[] args) {
         LaunchUtil.launchBrowserInDevelopmentMode(SpringApplication.run(Application.class, args));
     }
-
 }

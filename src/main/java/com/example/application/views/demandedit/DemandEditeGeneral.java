@@ -69,9 +69,7 @@ public class DemandEditeGeneral extends GeneralForm implements BeforeEnterObserv
 
         filesLayout = new FilesLayout(this.fileStoredService
                 , voltageService
-                , safetyService
-                , uploadPathWindows
-                , uploadPathLinux);
+                , safetyService);
 
         pointsLayout = new PointsLayout(pointService
                 ,voltageService

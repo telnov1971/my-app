@@ -9,7 +9,6 @@ import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.upload.Upload;
@@ -25,20 +24,11 @@ import java.util.*;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки до 150 кВт")
 public class DemandEditTo150 extends GeneralForm implements BeforeEnterObserver {
-    @Value("${upload.path.windows}")
-    protected String uploadPathWindows;
-    @Value("${upload.path.linux}")
-    protected String uploadPathLinux;
-    public static String uploadPath = "";
-
     private final String DEMAND_ID = "demandID";
     private HorizontalLayout buttonBar = new HorizontalLayout();
     private Button save = new Button("Сохранить");
     private Button reset = new Button("Отменить");
 
-    MultiFileBuffer buffer = new MultiFileBuffer();
-    Upload multiUpload = new Upload(buffer);
-    private String originalFileName;
     private final FileStoredService fileStoredService;
     private FilesLayout filesLayout;
 
@@ -66,9 +56,7 @@ public class DemandEditTo150 extends GeneralForm implements BeforeEnterObserver 
 
         filesLayout = new FilesLayout(this.fileStoredService
                 , voltageService
-                , safetyService
-                , uploadPathWindows
-                , uploadPathLinux);
+                , safetyService);
 
         save.addClickListener(event -> {
             save();
@@ -108,34 +96,28 @@ public class DemandEditTo150 extends GeneralForm implements BeforeEnterObserver 
         if (demandId.isPresent()) {
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());
             if (demandFromBackend.isPresent()) {
-                demand = demandFromBackend.get();
-                populateForm(demand);
-                filesLayout.findAllByDemand(demand);
+                populateForm(demandFromBackend.get());
             } else {
                 Notification.show(String.format("Заявка с ID = %d не найдена", demandId.get()), 3000,
                         Notification.Position.BOTTOM_START);
                 clearForm();
             }
         }
-        uploadPath = "";
-        String osName = System.getProperty("os.name");
-        if(osName.contains("Windows")) uploadPath = uploadPathWindows;
-        if(osName.contains("Linux")) uploadPath = uploadPathLinux;
     }
     public void populateForm(Demand value) {
         this.demand = value;
         binderDemand.readBean(this.demand);
+        generalBinder.readBean(null);
+        demandType.setReadOnly(true);
+        createdate.setReadOnly(true);
         if(value != null) {
-            demandType.setReadOnly(true);
-            createdate.setReadOnly(true);
             if(pointService.findAllByDemand(demand).isEmpty()) {
                 point = new Point();
             } else {
                 point = pointService.findAllByDemand(demand).get(0);
             }
+            filesLayout.findAllByDemand(demand);
         }
-        pointBinder.readBean(this.point);
-        point = new Point();
         pointBinder.readBean(this.point);
     }
     public void save() {
@@ -145,12 +127,14 @@ public class DemandEditTo150 extends GeneralForm implements BeforeEnterObserver 
         pointBinder.writeBeanIfValid(point);
         point.setDemand(demand);
         pointService.update(this.point);
+
         UI.getCurrent().navigate(DemandList.class);
     }
 
     public void clearForm() {
         binderDemand.readBean(null);
         pointBinder.readBean(null);
-        //populateForm(null);
+        generalBinder.readBean(null);
+        populateForm(null);
     }
 }

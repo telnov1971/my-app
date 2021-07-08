@@ -9,13 +9,11 @@ import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileBuffer;
 import com.vaadin.flow.router.*;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.*;
 import java.util.*;
@@ -25,20 +23,11 @@ import java.util.*;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки до 15 кВт")
 public class DemandEditTo15 extends GeneralForm implements BeforeEnterObserver {
-    @Value("${upload.path.windows}")
-    private String uploadPathWindows;
-    @Value("${upload.path.linux}")
-    private String uploadPathLinux;
-    public static String uploadPath = "";
-
     private final String DEMAND_ID = "demandID";
     private HorizontalLayout buttonBar = new HorizontalLayout();
     private Button save = new Button("Сохранить");
     private Button reset = new Button("Отменить");
 
-    MultiFileBuffer buffer = new MultiFileBuffer();
-    Upload multiUpload = new Upload(buffer);
-    private String originalFileName;
     private final FileStoredService fileStoredService;
     private FilesLayout filesLayout;
 
@@ -67,9 +56,7 @@ public class DemandEditTo15 extends GeneralForm implements BeforeEnterObserver {
 
         filesLayout = new FilesLayout(this.fileStoredService
                 , voltageService
-                , safetyService
-                , uploadPathWindows
-                , uploadPathLinux);
+                , safetyService);
 
         save.addClickListener(event -> {
             save();
@@ -118,8 +105,6 @@ public class DemandEditTo15 extends GeneralForm implements BeforeEnterObserver {
         }
     }
     public void populateForm(Demand value) {
-//        Notification.show(String.format("Path %s не найден", uploadPathWindows), 3000,
-//                Notification.Position.BOTTOM_START);
         this.demand = value;
         binderDemand.readBean(this.demand);
         generalBinder.readBean(null);

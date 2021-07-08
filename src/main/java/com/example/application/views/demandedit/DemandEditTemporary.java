@@ -9,30 +9,13 @@ import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.editor.Editor;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.textfield.NumberField;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileBuffer;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.*;
-import org.springframework.beans.factory.annotation.Value;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.time.LocalDate;
 import java.util.*;
 
 @Route(value = "demandtemporary/:demandID?", layout = MainView.class)
@@ -40,21 +23,11 @@ import java.util.*;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки на временное подключение")
 public class DemandEditTemporary extends GeneralForm implements BeforeEnterObserver {
-    @Value("${upload.path.windows}")
-    private String uploadPathWindows;
-    @Value("${upload.path.linux}")
-    private String uploadPathLinux;
-    public static String uploadPath = "";
-
-
     private final String DEMAND_ID = "demandID";
     private HorizontalLayout buttonBar = new HorizontalLayout();
     private Button save = new Button("Сохранить");
     private Button reset = new Button("Отменить");
 
-    MultiFileBuffer buffer = new MultiFileBuffer();
-    Upload multiUpload = new Upload(buffer);
-    private String originalFileName;
     private final FileStoredService fileStoredService;
     private FilesLayout filesLayout;
 
@@ -82,9 +55,7 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
 
         filesLayout = new FilesLayout(this.fileStoredService
                 , voltageService
-                , safetyService
-                , uploadPathWindows
-                , uploadPathLinux);
+                , safetyService);
 
         save.addClickListener(event -> {
             save();

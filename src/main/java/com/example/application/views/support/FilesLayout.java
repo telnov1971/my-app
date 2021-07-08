@@ -11,7 +11,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
@@ -27,13 +26,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static com.example.application.views.demandedit.DemandEditeGeneral.uploadPath;
-
 public class FilesLayout extends VerticalLayout {
-//    @Value("${upload.path.windows}")
-    private String uploadPathWindows;
-//    @Value("${upload.path.linux}")
-    private String uploadPathLinux;
+    private String uploadPath = "";
 
     private Demand demand;
     private HorizontalLayout pointsButtonLayout = new HorizontalLayout();
@@ -56,14 +50,12 @@ public class FilesLayout extends VerticalLayout {
 
     public FilesLayout(FileStoredService fileStoredService
             , VoltageService voltageService
-            , SafetyService safetyService
-            , String uploadPathWindows
-            , String uploadPathLinux) {
+            , SafetyService safetyService) {
         this.fileStoredService = fileStoredService;
         this.voltageService = voltageService;
         this.safetyService = safetyService;
-        this.uploadPathWindows = uploadPathWindows;
-        this.uploadPathLinux = uploadPathLinux;
+        //this.uploadPathWindows = uploadPathWindows;
+        //this.uploadPathLinux = uploadPathLinux;
 
         fileStoredGrid.setHeightByRows(true);
         files = new ArrayList<>();
@@ -168,8 +160,6 @@ public class FilesLayout extends VerticalLayout {
     }
 
     public void findAllByDemand(Demand demand) {
-//        Notification.show(String.format("Path %s не найден", uploadPathWindows), 30000,
-//                Notification.Position.BOTTOM_START);
         files = fileStoredService.findAllByDemand(demand);
         fileStoredGrid.setItems(files);
         fileStoredListDataProvider = (ListDataProvider<FileStored>) fileStoredGrid.getDataProvider();
@@ -189,7 +179,17 @@ public class FilesLayout extends VerticalLayout {
 
     public void deleteFiles() throws IOException {
         for(Map.Entry<String, String> entry: filesToSave.entrySet()) {
+
             Path fileToDeletePath = Paths.get(uploadPath + entry.getValue());
             Files.delete(fileToDeletePath);        }
+    }
+
+    public void setUploadPath(@Value("${upload.path.windows:/}") String uploadPathWindows
+            , @Value("${upload.path.linux:/}") String uploadPathLinux) {
+        String osName = System.getProperty("os.name");
+        if(osName.contains("Windows")) uploadPath = uploadPathWindows;
+        if(osName.contains("Linux")) uploadPath = uploadPathLinux;
+
+        this.uploadPath = uploadPath;
     }
 }
