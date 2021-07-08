@@ -25,20 +25,11 @@ import java.util.*;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки на энергопринимающие устройства")
 public class DemandEditeGeneral extends GeneralForm implements BeforeEnterObserver {
-    @Value("${upload.path.windows}")
-    protected String uploadPathWindows;
-    @Value("${upload.path.linux}")
-    protected String uploadPathLinux;
-    public static String uploadPath = "";
-
     private final String DEMAND_ID = "demandID";
     private HorizontalLayout buttonBar = new HorizontalLayout();
     private Button save = new Button("Сохранить");
     private Button reset = new Button("Отменить");
 
-    MultiFileBuffer buffer = new MultiFileBuffer();
-    Upload multiUpload = new Upload(buffer);
-    private String originalFileName;
     private final FileStoredService fileStoredService;
     private FilesLayout filesLayout;
 
@@ -98,7 +89,7 @@ public class DemandEditeGeneral extends GeneralForm implements BeforeEnterObserv
             UI.getCurrent().navigate(DemandList.class);
         });
 
-        Component fields[] = {inn, innDate, countPoints, specification, countTransformations,
+        Component fields[] = {inn, innDate, countPoints, accordionPoints, specification, countTransformations,
                 countGenerations, techminGeneration, reservation};
         for(Component field : fields){
             field.setVisible(true);
@@ -110,7 +101,8 @@ public class DemandEditeGeneral extends GeneralForm implements BeforeEnterObserv
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonBar.add(save,reset);
 
-        add(formDemand, pointsLayout, filesLayout,buttonBar);
+        accordionPoints.add("Точки подключения", this.pointsLayout);
+        add(formDemand, filesLayout, buttonBar);
     }
 
     @Override
@@ -119,50 +111,46 @@ public class DemandEditeGeneral extends GeneralForm implements BeforeEnterObserv
         if (demandId.isPresent()) {
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());
             if (demandFromBackend.isPresent()) {
-                demand = demandFromBackend.get();
-                populateForm(demand);
-                pointsLayout.findAllByDemand(demand);
-                filesLayout.findAllByDemand(demand);
+                populateForm(demandFromBackend.get());
             } else {
                 Notification.show(String.format("Заявка с ID = %d не найдена", demandId.get()), 3000,
-                Notification.Position.BOTTOM_START);
+                        Notification.Position.BOTTOM_START);
                 clearForm();
             }
         }
-        uploadPath = "";
-        String osName = System.getProperty("os.name");
-        if(osName.contains("Windows")) uploadPath = uploadPathWindows;
-        if(osName.contains("Linux")) uploadPath = uploadPathLinux;
     }
     public void populateForm(Demand value) {
         this.demand = value;
         binderDemand.readBean(this.demand);
+        generalBinder.readBean(null);
+        demandType.setReadOnly(true);
+        createdate.setReadOnly(true);
         if(value != null) {
-            demandType.setReadOnly(true);
-            createdate.setReadOnly(true);
-            if(pointService.findAllByDemand(demand).isEmpty()) {
-                point = new Point();
+            if(generalService.findAllByDemand(demand).isEmpty()) {
+                general = new General();
             } else {
-                point = pointService.findAllByDemand(demand).get(0);
+                general = generalService.findAllByDemand(demand).get(0);
             }
+            pointsLayout.findAllByDemand(demand);
+            filesLayout.findAllByDemand(demand);
         }
-        pointBinder.readBean(this.point);
-        point = new Point();
-        pointBinder.readBean(this.point);
+        generalBinder.readBean(general);
     }
     public void save() {
         binderDemand.writeBeanIfValid(demand);
         demandService.update(this.demand);
 
-        pointBinder.writeBeanIfValid(point);
-        point.setDemand(demand);
-        pointService.update(this.point);
+        generalBinder.writeBeanIfValid(general);
+        general.setDemand(demand);
+        generalService.update(this.general);
+
         UI.getCurrent().navigate(DemandList.class);
     }
 
     public void clearForm() {
         binderDemand.readBean(null);
         pointBinder.readBean(null);
-        //populateForm(null);
+        generalBinder.readBean(null);
+        populateForm(null);
     }
 }

@@ -51,6 +51,7 @@ public class GeneralForm extends Div {
     protected TextArea address;
     protected TextArea specification;
 
+    protected Accordion accordionPoints = new Accordion();
     protected Point point = new Point();
     protected Binder<Point> pointBinder = new Binder<>(Point.class);
     protected IntegerField countPoints;
@@ -277,11 +278,14 @@ public class GeneralForm extends Div {
         formDemander.setColspan(addressActual, 4);
         accordionDemander.add("Данные заявителя", formDemander);
 
+        //accordionPoints.add("Точки подключения", pointsLayout);
+
         formDemand.add(createdate, demandType, status, label);
         formDemand.add(demander);
         formDemand.add(accordionDemander);
         formDemand.add(reason, object, address, specification,label);
-        formDemand.add(countPoints, powerDemand, powerCurrent, powerMaximum, voltage, safety, label);
+        formDemand.add(countPoints, accordionPoints, powerDemand, powerCurrent
+                , powerMaximum, voltage, safety, label);
         formDemand.add(countTransformations,countGenerations,techminGeneration,reservation);
         formDemand.add(period,contract);
         formDemand.add(garant, plan, send);
@@ -299,6 +303,7 @@ public class GeneralForm extends Div {
         formDemand.setColspan(specification, 4);
 
         formDemand.setColspan(countPoints, 1);
+        formDemand.setColspan(accordionPoints, 4);
         formDemand.setColspan(powerDemand, 1);
         formDemand.setColspan(powerCurrent, 1);
         formDemand.setColspan(powerMaximum, 1);
@@ -316,7 +321,7 @@ public class GeneralForm extends Div {
         formDemand.setColspan(plan, 1);
         formDemand.setColspan(send, 1);
 
-        Component fields[] = {inn, innDate, countPoints, powerDemand, powerCurrent,
+        Component fields[] = {inn, innDate, countPoints, accordionPoints, powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, specification, countTransformations,
                 countGenerations, techminGeneration, reservation, plan, period, contract};
         for(Component field : fields){
