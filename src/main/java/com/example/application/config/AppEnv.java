@@ -1,5 +1,6 @@
 package com.example.application.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,7 +13,6 @@ public class AppEnv {
     public static String getUploadPath() {
         return uploadPath;
     }
-
     public static void setUploadPath(String Path) {
         uploadPath = Path;
     }

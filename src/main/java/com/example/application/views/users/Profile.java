@@ -1,6 +1,7 @@
 package com.example.application.views.users;
 
 import com.example.application.data.entity.User;
+import com.example.application.data.service.MailSenderService;
 import com.example.application.data.service.UserService;
 import com.example.application.views.main.MainView;
 import com.vaadin.flow.component.Component;
@@ -10,16 +11,17 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.server.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Route(value = "profile/:userID?", layout = MainView.class)
@@ -27,6 +29,8 @@ import java.util.stream.Stream;
 @PageTitle("Редактор профиля пользователя")
 public class Profile extends Div implements BeforeEnterObserver {
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+    private final MailSenderService mailSenderService;
     private final String USER_ID = "userID";
     private User user = new User();
     private BeanValidationBinder<User> userBinder = new BeanValidationBinder<>(User.class);
@@ -44,12 +48,12 @@ public class Profile extends Div implements BeforeEnterObserver {
     private Label note = new Label("Для регистрации введите логин, е-майл и пароль. Для " +
             "восстановления пароля введите логин или е-майл. Для активации аккаунта необходимо " +
             "перейти по ссылке в присланом письме.");
-    private final PasswordEncoder passwordEncoder;
 
-    public Profile(UserService userService, PasswordEncoder passwordEncoder, Component... components) {
+    public Profile(UserService userService, PasswordEncoder passwordEncoder, MailSenderService mailSenderService, Component... components) {
         super(components);
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.mailSenderService = mailSenderService;
 
         notyfy = new Label("");
         notyfy.setVisible(false);
@@ -80,6 +84,9 @@ public class Profile extends Div implements BeforeEnterObserver {
                     //user.setPassword(passwordEncoder.encode(password.getValue()));
                     userBinder.writeBeanIfValid(user);
                     user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+                    user.setActive(false);
+                    user.setActivationCode(UUID.randomUUID().toString());
+                    sendMessage(user);
 
                     userService.update(this.user);
                     UI.getCurrent().navigate("/");
@@ -97,6 +104,7 @@ public class Profile extends Div implements BeforeEnterObserver {
                     (userService.findByEmail(user.getEmail())!=null)) {
                 userBinder.writeBeanIfValid(user);
                 user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+                user.setActive(false);
 
                 userService.update(this.user);
                 UI.getCurrent().navigate("/");
@@ -155,4 +163,21 @@ public class Profile extends Div implements BeforeEnterObserver {
         userBinder.readBean(user);
     }
 
+    private void sendMessage(User user){
+        String host = "http://" + VaadinRequest.getCurrent().getHeader("host");
+                //VaadinService.getCurrentRequest().getPathInfo();
+        if (!user.getEmail().isEmpty()) {
+            String message = String.format(
+                    "Здравствуйте, %s! \n" +
+                            "Добро пожаловать в Личный кабинет АО Омскэлектро.\n" +
+                            "Пожалуйста перейдите по ссылке: %s/activate/%s\n" +
+                            "для активации вашей регистрации.",
+                    user.getUsername(),
+                    host,
+                    user.getActivationCode()
+            );
+            mailSenderService.send(user.getEmail(), "Activation code", message);
+        }
+
+    }
 }

@@ -20,7 +20,6 @@ public class MailSenderService {
     @Value("${spring.mail.port}")
     private String port;
 
-
     public void send(String emailTo, String subject, String message) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
 

@@ -6,8 +6,10 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class AppEnvConfig {
-    @Value("${upload.path.windows:/}") String uploadPathWindows;
-    @Value("${upload.path.linux:/}") String uploadPathLinux;
+    @Value("${upload.path.windows:/}")
+    public String uploadPathWindows;
+    @Value("${upload.path.linux:/}")
+    public String uploadPathLinux;
     @Bean
     public void getAppEnv() {
         String osName = System.getProperty("os.name");
