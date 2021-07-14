@@ -2,6 +2,8 @@ package com.example.application.views.support;
 
 import com.example.application.data.entity.Demand;
 import com.example.application.data.entity.Point;
+import com.example.application.data.entity.Safety;
+import com.example.application.data.entity.Voltage;
 import com.example.application.data.service.PointService;
 import com.example.application.data.service.SafetyService;
 import com.example.application.data.service.VoltageService;
@@ -11,6 +13,7 @@ import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -85,10 +88,28 @@ public class PointsLayout extends VerticalLayout {
 
         NumberField fieldPowerDemand = new NumberField();
         fieldPowerDemand.setValue(1d);
-        fieldPowerDemand.setHasControls(true);
+        //fieldPowerDemand.setHasControls(true);
         fieldPowerDemand.setMin(0);
         binderPoints.forField(fieldPowerDemand).bind("powerDemand");
         columnPowerDemand.setEditorComponent(fieldPowerDemand);
+
+        NumberField fieldPowerCurrent = new NumberField();
+        fieldPowerCurrent.setValue(1d);
+        fieldPowerCurrent.setMin(0);
+        binderPoints.forField(fieldPowerCurrent).bind("powerCurrent");
+        columnPowerCurrent.setEditorComponent(fieldPowerCurrent);
+
+        Select<Safety> selectSafety = new Select();
+        selectSafety.setItems(safetyService.findAll());
+        selectSafety.setItemLabelGenerator(Safety::getName);
+        binderPoints.forField(selectSafety).bind("safety");
+        columnSafety.setEditorComponent(selectSafety);
+
+        Select<Voltage> selectVoltage = new Select();
+        selectVoltage.setItems(voltageService.findAll());
+        selectVoltage.setItemLabelGenerator(Voltage::getName);
+        binderPoints.forField(selectVoltage).bind("voltage");
+        columnVoltage.setEditorComponent(selectVoltage);
 
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
         Grid.Column<Point> editorColumn = pointGrid.addComponentColumn(points -> {
