@@ -16,6 +16,7 @@ import com.vaadin.flow.router.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.util.*;
 
 @Route(value = "demandto15/:demandID?", layout = MainView.class)
@@ -99,8 +100,7 @@ public class DemandEditTo15 extends GeneralForm implements BeforeEnterObserver {
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());
             if (demandFromBackend.isPresent()) {
                 if (demandFromBackend.get().getUser().equals(userService.findByUsername(
-                        SecurityContextHolder.getContext().getAuthentication().getName()
-                ))) {
+                        SecurityContextHolder.getContext().getAuthentication().getName()))) {
                     populateForm(demandFromBackend.get());
                 } else {
                     Notification.show(String.format("Заявка с ID = %d не Ваша", demandId.get()), 3000,
@@ -132,6 +132,14 @@ public class DemandEditTo15 extends GeneralForm implements BeforeEnterObserver {
     }
     public void save() {
         binderDemand.writeBeanIfValid(demand);
+        if(demand.getUser()==null){
+            demand.setUser(userService.findByUsername(
+                SecurityContextHolder.getContext().getAuthentication().getName()));
+            demand.setCreateDate(LocalDate.now());
+            demand.setLoad1c(false);
+            demand.setChange(false);
+            demand.setDone(false);
+        }
         demandService.update(this.demand);
 
         pointBinder.writeBeanIfValid(point);

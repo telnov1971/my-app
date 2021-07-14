@@ -16,6 +16,7 @@ import com.vaadin.flow.router.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 
 @Route(value = "demandtemporary/:demandID?", layout = MainView.class)
@@ -133,6 +134,14 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
     }
     public void save() {
         binderDemand.writeBeanIfValid(demand);
+        if(demand.getUser()==null){
+            demand.setUser(userService.findByUsername(
+                    SecurityContextHolder.getContext().getAuthentication().getName()));
+            demand.setCreateDate(LocalDate.now());
+            demand.setLoad1c(false);
+            demand.setChange(false);
+            demand.setDone(false);
+        }
         demandService.update(this.demand);
 
         pointBinder.writeBeanIfValid(point);

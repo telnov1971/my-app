@@ -1,8 +1,12 @@
 package com.example.application.data.entity;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import com.example.application.data.AbstractEntity;
+import org.hibernate.annotations.ColumnDefault;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,18 +14,27 @@ import java.util.List;
 @Entity
 public class Demand extends AbstractEntity {
 
+    @NotNull
     @Column(name = "create_date")
     private LocalDate createDate;
 
     // заявитель
+    @NotNull
+    @NotEmpty
     private String demander;
     // паспорт серия
+    @NotNull
+    @NotEmpty
     @Column(name = "pas_ser")
     private String passportSerries;
     // пасорт номер
+    @NotNull
+    @NotEmpty
     @Column(name = "pas_num")
     private String passportNumber;
     // пасорт выдан
+    @NotNull
+    @NotEmpty
     @Column(name = "pas_iss")
     private String pasportIssued;
     // госрегистрация
@@ -33,6 +46,8 @@ public class Demand extends AbstractEntity {
     @Column(name = "add_reg")
     private String addressRegistration;
     // адрес фактический
+    @NotNull
+    @NotEmpty
     @Column(name = "add_act")
     private String addressActual;
     // номер договора
@@ -41,8 +56,12 @@ public class Demand extends AbstractEntity {
     // причина подключения
     private String reason;
     // объект подключения
+    @NotNull
+    @NotEmpty
     private String object;
     // адрес подключения
+    @NotNull
+    @NotEmpty
     private String address;
     // характер нагрузки
     private String specification;
@@ -88,18 +107,25 @@ public class Demand extends AbstractEntity {
     @JoinColumn(name = "status_id")
     private Status status;
     // выполнена
+    @ColumnDefault("false")
     @Column(name = "it_done")
-    private boolean done;
+    private boolean done = false;
     // пользователь
+    @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
+    @ColumnDefault("false")
     @Column(name = "it_load1c")
-    private boolean load1c;
+    private boolean load1c = false;
+    @ColumnDefault("false")
     @Column(name = "it_change")
-    private boolean change;
+    private boolean change = false;
 
     public Demand() {
+        this.createDate = LocalDate.now();
+        this.points = new ArrayList<>();
+        this.expirations = new ArrayList<>();
     }
 
     public LocalDate getCreateDate() {
