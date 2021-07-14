@@ -111,10 +111,9 @@ public class DemandEditeGeneral extends GeneralForm implements BeforeEnterObserv
         if (demandId.isPresent()) {
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());
             if (demandFromBackend.isPresent()) {
-                if (demandFromBackend.get().getUser() ==
-                        userService.findByUsername(
-                                SecurityContextHolder.getContext().getAuthentication().getName()
-                        )) {
+                if (demandFromBackend.get().getUser().equals(userService.findByUsername(
+                        SecurityContextHolder.getContext().getAuthentication().getName()
+                ))) {
                     populateForm(demandFromBackend.get());
                 } else {
                     Notification.show(String.format("Заявка с ID = %d не Ваша", demandId.get()), 3000,
