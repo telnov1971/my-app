@@ -11,6 +11,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -113,7 +115,7 @@ public class PointsLayout extends VerticalLayout {
 
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
         Grid.Column<Point> editorColumn = pointGrid.addComponentColumn(points -> {
-            Button edit = new Button("Редактировать");
+            Button edit = new Button(new Icon(VaadinIcon.EDIT));
             edit.addClassName("edit");
             edit.addClickListener(e -> {
                 editorPoints.editItem(points);
@@ -128,9 +130,9 @@ public class PointsLayout extends VerticalLayout {
                 .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
         editorPoints.addCloseListener(e -> editButtons.stream()
                 .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
-        Button save = new Button("Сохранить", e -> editorPoints.save());
+        Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> editorPoints.save());
         save.addClassName("save");
-        Button cancel = new Button("Отменить", e -> editorPoints.cancel());
+        Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> editorPoints.cancel());
         cancel.addClassName("cancel");
         Div divSave = new Div(save);
         Div divCancel = new Div(cancel);

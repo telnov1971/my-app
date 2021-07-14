@@ -3,6 +3,7 @@ package com.example.application.views.demandlist;
 import com.example.application.data.entity.Demand;
 import com.example.application.data.entity.DemandType;
 import com.example.application.data.service.DemandService;
+import com.example.application.data.service.UserService;
 import com.example.application.views.demandedit.DemandEditTemporary;
 import com.example.application.views.demandedit.DemandEditTo15;
 import com.example.application.views.demandedit.DemandEditTo150;
@@ -20,6 +21,7 @@ import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route(value = "demandlist", layout = MainView.class)
 @RouteAlias(value = "", layout = MainView.class)
@@ -29,10 +31,12 @@ public class DemandList extends Div {
 
     private BeanValidationBinder<Demand> binder;
     private final DemandService demandService;
+    private final UserService userService;
 
     @Autowired
-    public DemandList(DemandService demandService) {
+    public DemandList(DemandService demandService, UserService userService) {
         this.demandService = demandService;
+        this.userService = userService;
         addClassNames("master-detail-view", "flex", "flex-col", "h-full");
 
         // Configure Grid
@@ -48,9 +52,13 @@ public class DemandList extends Div {
         grid.addColumn(doneRenderer).setHeader("Завершено").setAutoWidth(true);
          */
 
-        grid.setItems(query -> demandService.list(
-                PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
-                .stream());
+//        grid.setItems(query -> demandService.list(
+//                PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
+//                .stream());
+        grid.setItems(demandService.findAllByUser(
+                this.userService.findByUsername(
+                        SecurityContextHolder.getContext().getAuthentication().getName()
+                )));
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
 

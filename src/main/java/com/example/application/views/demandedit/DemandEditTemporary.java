@@ -13,6 +13,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
 import java.util.*;
@@ -28,6 +29,7 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
     private Button reset = new Button("Отменить");
 
     private final FileStoredService fileStoredService;
+    private final UserService userService;
     private FilesLayout filesLayout;
 
     public DemandEditTemporary(DemandService demandService,
@@ -37,7 +39,7 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
                                PointService pointService,
                                GeneralService generalService,
                                ExpirationService expirationService,
-                               VoltageService voltageService,
+                               UserService userService, VoltageService voltageService,
                                SafetyService safetyService,
                                PlanService planService,
                                PriceService priceService,
@@ -48,6 +50,7 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
                 pointService,generalService,expirationService,voltageService,
                 safetyService,planService,priceService,sendService,
                 components);
+        this.userService = userService;
         this.fileStoredService = fileStoredService;
         this.MaxPower = 1000000000.0;
         demandType.setValue(demandTypeService.findById(DemandType.TEMPORARY).get());
@@ -95,7 +98,16 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
         if (demandId.isPresent()) {
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());
             if (demandFromBackend.isPresent()) {
-                populateForm(demandFromBackend.get());
+                if (demandFromBackend.get().getUser() ==
+                        userService.findByUsername(
+                                SecurityContextHolder.getContext().getAuthentication().getName()
+                        )) {
+                    populateForm(demandFromBackend.get());
+                } else {
+                    Notification.show(String.format("Заявка с ID = %d не Ваша", demandId.get()), 3000,
+                            Notification.Position.BOTTOM_START);
+                    clearForm();
+                }
             } else {
                 Notification.show(String.format("Заявка с ID = %d не найдена", demandId.get()), 3000,
                         Notification.Position.BOTTOM_START);

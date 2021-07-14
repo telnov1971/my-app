@@ -11,6 +11,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -18,6 +19,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -136,7 +138,14 @@ public class Profile extends Div implements BeforeEnterObserver {
         if (userId.isPresent()) {
             Optional<User> userFromBackend = userService.findById(userId.get());
             if (userFromBackend.isPresent()) {
-                populateForm(userFromBackend.get());
+                if (userFromBackend.get().getUsername().
+                        equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
+                    populateForm(userFromBackend.get());
+                } else {
+                    Notification.show("Это не Вы :(", 3000,
+                            Notification.Position.BOTTOM_START);
+                    clearForm();
+                }
             } else {
                 //Notification.show(String.format("The requested demand was not found, ID = %d", demandId.get()), 3000,
                 //Notification.Position.BOTTOM_START);
@@ -157,9 +166,11 @@ public class Profile extends Div implements BeforeEnterObserver {
 
     private void populateForm(User value) {
         userFromDB = value;
-        user.setId(userFromDB.getId());
-        user.setUsername(userFromDB.getUsername());
-        user.setEmail(userFromDB.getEmail());
+        if(userFromDB != null) {
+            user.setId(userFromDB.getId());
+            user.setUsername(userFromDB.getUsername());
+            user.setEmail(userFromDB.getEmail());
+        }
         userBinder.readBean(user);
     }
 
