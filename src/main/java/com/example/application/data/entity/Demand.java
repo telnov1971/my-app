@@ -1,8 +1,7 @@
 package com.example.application.data.entity;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 
 import com.example.application.data.AbstractEntity;
 import org.hibernate.annotations.ColumnDefault;
@@ -26,11 +25,13 @@ public class Demand extends AbstractEntity {
     @NotNull
     @NotEmpty
     @Column(name = "pas_ser")
+    @Size(min=4,max=4,message="Серия паспорта состоит из 4 цифр")
     private String passportSerries;
     // пасорт номер
     @NotNull
     @NotEmpty
     @Column(name = "pas_num")
+    @Size(min=6,max=6,message="Номер паспорта состоит из 6 цифр")
     private String passportNumber;
     // пасорт выдан
     @NotNull
@@ -38,6 +39,7 @@ public class Demand extends AbstractEntity {
     @Column(name = "pas_iss")
     private String pasportIssued;
     // госрегистрация
+    // @Size(min=10,max=12,message="ИНН содержит от 10 до 12 цифр")
     private String inn;
     // госрегистрация дата
     @Column(name = "inn_date")

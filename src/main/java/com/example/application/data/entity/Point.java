@@ -3,6 +3,7 @@ package com.example.application.data.entity;
 import com.example.application.data.AbstractEntity;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 
 @Table(name = "POINT")
 @Entity
@@ -10,10 +11,13 @@ public class Point extends AbstractEntity {
     @ManyToOne
     private Demand demand;
     @Column(name = "pow_dem")
+    @Min(0)
     private Double powerDemand = 0.0;
     @Column(name = "pow_cur")
+    @Min(0)
     private Double powerCurrent = 0.0;
     @Column(name = "pow_max")
+    @Min(0)
     private Double powerMaximum = 0.0;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "volt_id")
