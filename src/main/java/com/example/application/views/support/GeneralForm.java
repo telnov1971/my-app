@@ -14,10 +14,9 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.converter.StringToDoubleConverter;
+import com.vaadin.flow.data.binder.*;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
+import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 
 import java.time.LocalDate;
@@ -56,9 +55,9 @@ public class GeneralForm extends Div {
     protected Point point = new Point();
     protected Binder<Point> pointBinder = new Binder<>(Point.class);
     protected IntegerField countPoints;
-    protected TextField powerDemand;
-    protected TextField powerCurrent;
-    protected TextField powerMaximum;
+    protected NumberField powerDemand;
+    protected NumberField powerCurrent;
+    protected NumberField powerMaximum;
     protected Select<Voltage> voltage;
     protected Select<Safety> safety;
     protected PointsLayout pointsLayout;
@@ -150,9 +149,12 @@ public class GeneralForm extends Div {
         specification = new TextArea("Характер нагрузки");
 
         countPoints = new IntegerField("Кол-во точек подключения");
-        powerDemand = new TextField("Мощность заявленная","0,00 кВт");
-        powerCurrent = new TextField("Мощность текущая","0,00 кВт");
-        powerMaximum = new TextField("Мощность максимальная", "0,00 кВт");
+        powerDemand = new NumberField("Мощность заявленная","0,00 кВт");
+        powerDemand.setAutocorrect(true);
+        powerCurrent = new NumberField("Мощность текущая","0,00 кВт");
+        powerCurrent.setAutocorrect(true);
+        powerMaximum = new NumberField("Мощность максимальная", "0,00 кВт");
+        powerMaximum.setAutocorrect(true);
 
         countTransformations = new TextArea("Кол-во и мощ-ть трансформаторов");
         countGenerations = new TextArea("Кол-во и мощ-ть генераторов");
@@ -209,27 +211,44 @@ public class GeneralForm extends Div {
                 .withValidator(
                         new StringLengthValidator(
                                 "ИНН должен содержать от 10 до 12 знаков",
-                        10,12)).bind(Demand::getInn, Demand::setInn);
+                        10,12))
+                .bind(Demand::getInn, Demand::setInn);
 
 
-        pointBinder.forMemberField(powerDemand)
-                .withConverter(new StringToDoubleConverter("Это не число"))
+        pointBinder.forField(powerDemand)
                 .withValidator(
                         new DoubleRangeValidator(
                                 "Мощность не может быть отрицательной",
                                 0.0,null))
+//                .withValidator(
+//                        new RegexpValidator("Not a valid flight number",
+//                        "[A-Z]{2}\\d{3,4}"))
+//                .withValidator((Validator<Double>) (value, context) -> {
+//
+//                    //long sumDigits = 0;
+//                    double doubleValue = 0.0;
+//
+//                    try {
+//                        doubleValue = Double.valueOf(value);
+//                        if(doubleValue < 0.0) {
+//                            return ValidationResult.error("Мощность не может быть отрицательной");
+//                        }
+//                    } catch (NumberFormatException ex) {
+//                        return ValidationResult.error("Ошибка ввода числа");
+//                    }
+//
+//                    return ValidationResult.ok();
+//                })
                 .bind(Point::getPowerDemand, Point::setPowerDemand);
 
         pointBinder.forField(powerCurrent)
-                .withConverter(new StringToDoubleConverter("Это не число"))
                 .withValidator(
                         new DoubleRangeValidator(
                                 "Мощность не может быть отрицательной",
                                 0.0,null))
                 .bind(Point::getPowerCurrent, Point::setPowerCurrent);
 
-        pointBinder.forMemberField(powerMaximum)
-                .withConverter(new StringToDoubleConverter("Это не число"))
+        pointBinder.forField(powerMaximum)
                 .withValidator(
                         new DoubleRangeValidator(
                                 "Мощность не может быть отрицательной",
@@ -241,19 +260,24 @@ public class GeneralForm extends Div {
         generalBinder.bindInstanceFields(this);
 
         // события формы
+        powerDemand.addInputListener(e->{
+            e.toString();
+            Notification notification = new Notification(
+                    e.toString(), 10000,
+                    Notification.Position.TOP_START);
+            notification.open();
+        });
         powerDemand.addValueChangeListener(e -> {
-            if(powerDemand.getValue()!=null)
-                powerDemand.setValue(powerDemand.getValue().replace(".",","));
             if ((powerCurrent.getValue() != null) &&
-                    (Double.parseDouble(powerCurrent.getValue()) > 0.0)) {
-                powerMaximum.setValue(String.valueOf(
-                        Double.parseDouble(powerCurrent.getValue()) +
-                        Double.parseDouble(powerDemand.getValue())));
+                    (powerCurrent.getValue() > 0.0)) {
+                powerMaximum.setValue(
+                        powerCurrent.getValue() +
+                        powerDemand.getValue());
             } else {
-                powerMaximum.setValue(String.valueOf(
-                        Double.parseDouble(powerDemand.getValue())));
+                powerMaximum.setValue(
+                        powerDemand.getValue());
             }
-            if (Double.parseDouble(powerMaximum.getValue()) > this.MaxPower) {
+            if (powerMaximum.getValue() > this.MaxPower) {
                 Notification notification = new Notification(
                         "Для такого типа заявки превышена макисальная мощность", 3000,
                         Notification.Position.TOP_START);
@@ -265,18 +289,16 @@ public class GeneralForm extends Div {
             }
         });
         powerCurrent.addValueChangeListener(e -> {
-            if (powerCurrent.getValue() != null)
-                powerCurrent.setValue(powerCurrent.getValue().replace(".",","));
             if ((powerDemand.getValue() != null) &&
-                    (Double.parseDouble(powerDemand.getValue()) > 0.0)) {
-                powerMaximum.setValue(String.valueOf(
-                        Double.parseDouble(powerCurrent.getValue()) +
-                                Double.parseDouble(powerDemand.getValue())));
+                    (powerDemand.getValue() > 0.0)) {
+                powerMaximum.setValue(
+                        powerCurrent.getValue() +
+                        powerDemand.getValue());
             } else {
-                powerMaximum.setValue(String.valueOf(
-                        Double.parseDouble(powerCurrent.getValue())));
+                powerMaximum.setValue(
+                        powerCurrent.getValue());
             }
-            if (Double.parseDouble(powerMaximum.getValue()) > this.MaxPower) {
+            if (powerMaximum.getValue() > this.MaxPower) {
                 Notification notification = new Notification(
                         "Максимальная мощность не может быть 15 кВт", 3000,
                         Notification.Position.TOP_START);
