@@ -19,10 +19,14 @@ import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 
 public class GeneralForm extends Div {
+    protected DecimalFormat decimalFormat;
     protected FormLayout formDemand = new FormLayout();
     protected BeanValidationBinder<Demand> binderDemand = new BeanValidationBinder<>(Demand.class);
     protected Demand demand = new Demand();
@@ -120,6 +124,9 @@ public class GeneralForm extends Div {
             this.sendService = sendService;
         }
 
+        this.decimalFormat = new DecimalFormat("###.##",
+                new DecimalFormatSymbols());
+
         Label label = new Label("                                                ");
         label.setHeight("1px");
 
@@ -150,6 +157,7 @@ public class GeneralForm extends Div {
 
         countPoints = new IntegerField("Кол-во точек подключения");
         powerDemand = new NumberField("Мощность заявленная","0,00 кВт");
+        powerDemand.setStep(0.01);
         powerDemand.setAutocorrect(true);
         powerCurrent = new NumberField("Мощность текущая","0,00 кВт");
         powerCurrent.setAutocorrect(true);
@@ -260,12 +268,14 @@ public class GeneralForm extends Div {
         generalBinder.bindInstanceFields(this);
 
         // события формы
-        powerDemand.addInputListener(e->{
-            e.toString();
-            Notification notification = new Notification(
-                    e.toString(), 10000,
-                    Notification.Position.TOP_START);
-            notification.open();
+        powerDemand.addBlurListener(e->{
+            if(powerDemand.getValue() == null){
+                Notification notification = new Notification(
+                        "Ошибка ввода числа", 10000,
+                        Notification.Position.TOP_START);
+                notification.open();
+                powerDemand.focus();
+            }
         });
         powerDemand.addValueChangeListener(e -> {
             if ((powerCurrent.getValue() != null) &&
