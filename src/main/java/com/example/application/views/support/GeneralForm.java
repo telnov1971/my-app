@@ -4,6 +4,7 @@ import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.accordion.Accordion;
+import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -17,13 +18,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.*;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
-import org.vaadin.artur.helpers.CrudService;
+import org.checkerframework.checker.units.qual.C;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class GeneralForm extends Div {
     protected DecimalFormat decimalFormat;
@@ -93,6 +93,8 @@ public class GeneralForm extends Div {
     protected final VoltageService voltageService;
     protected final SafetyService safetyService;
     protected final SendService sendService;
+
+    protected String history = "";
 
     public GeneralForm(DemandService demandService,
                        DemandTypeService demandTypeService,
@@ -222,9 +224,15 @@ public class GeneralForm extends Div {
 
         // события формы
         powerDemand.addBlurListener(e->{testPower(powerDemand);});
-        powerDemand.addValueChangeListener(e -> {changePower(powerDemand);});
+        powerDemand.addValueChangeListener(e -> {
+            changePower(powerDemand);
+            writeHistory(e, "Заявленная мощность");
+        });
         powerCurrent.addBlurListener(e->{testPower(powerCurrent);});
-        powerCurrent.addValueChangeListener(e -> {changePower(powerCurrent);});
+        powerCurrent.addValueChangeListener(e -> {
+            changePower(powerCurrent);
+            writeHistory(e,"Текущая мощность");
+        });
 
         // кол-во колонок формы от ширины окна
         setColumnCount(formDemand);
@@ -234,18 +242,8 @@ public class GeneralForm extends Div {
                 inn,innDate,label,
                 passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual);
-        formDemander.setColspan(label, 4);
-        formDemander.setColspan(contact, 1);
-        formDemander.setColspan(inn, 1);
-        formDemander.setColspan(innDate, 1);
-        formDemander.setColspan(passportNumber, 1);
-        formDemander.setColspan(passportSerries, 1);
-        formDemander.setColspan(pasportIssued, 4);
-        formDemander.setColspan(addressRegistration, 4);
-        formDemander.setColspan(addressActual, 4);
+        setWidthFormDemander();
         accordionDemander.add("Данные заявителя", formDemander);
-
-        //accordionPoints.add("Точки подключения", pointsLayout);
 
         formDemand.add(createdate, demandType, status, label);
         formDemand.add(demander);
@@ -256,9 +254,18 @@ public class GeneralForm extends Div {
         formDemand.add(countTransformations,countGenerations,techminGeneration,reservation);
         formDemand.add(period,contract);
         formDemand.add(garant, plan, send);
+        setWidthFormDemand();
 
-            //установка ширины полей
-        formDemand.setColspan(label, 4);
+        Component fields[] = {inn, innDate, countPoints, accordionPoints, powerDemand, powerCurrent,
+                powerMaximum, voltage, safety, specification, countTransformations,
+                countGenerations, techminGeneration, reservation, plan, period, contract};
+        for(Component field : fields){
+            field.setVisible(false);
+        }
+        this.getElement().getStyle().set("margin", "15px");
+    }
+
+    private void setWidthFormDemand() {
         formDemand.setColspan(createdate, 1);
         formDemand.setColspan(demandType, 1);
         formDemand.setColspan(status, 1);
@@ -286,14 +293,17 @@ public class GeneralForm extends Div {
         formDemand.setColspan(garant, 1);
         formDemand.setColspan(plan, 1);
         formDemand.setColspan(send, 1);
+    }
 
-        Component fields[] = {inn, innDate, countPoints, accordionPoints, powerDemand, powerCurrent,
-                powerMaximum, voltage, safety, specification, countTransformations,
-                countGenerations, techminGeneration, reservation, plan, period, contract};
-        for(Component field : fields){
-            field.setVisible(false);
-        }
-        this.getElement().getStyle().set("margin", "15px");
+    private void setWidthFormDemander() {
+        formDemander.setColspan(contact, 1);
+        formDemander.setColspan(inn, 1);
+        formDemander.setColspan(innDate, 1);
+        formDemander.setColspan(passportNumber, 1);
+        formDemander.setColspan(passportSerries, 1);
+        formDemander.setColspan(pasportIssued, 4);
+        formDemander.setColspan(addressRegistration, 4);
+        formDemander.setColspan(addressActual, 4);
     }
 
     private void setColumnCount(FormLayout form) {
@@ -317,10 +327,8 @@ public class GeneralForm extends Div {
     private void changePower(NumberField field) {
         Double currentP = 0.0;
         Double demandP = 0.0;
-        if(powerCurrent.getValue() != null)
-            currentP = powerCurrent.getValue();
-        if(powerDemand.getValue() != null)
-            demandP = powerDemand.getValue();
+        currentP = powerCurrent.getValue() != null ? powerCurrent.getValue(): 0.0;
+        demandP = powerDemand.getValue() != null ? powerDemand.getValue() : 0.0;
         powerMaximum.setValue(currentP + demandP);
         if (powerMaximum.getValue() > this.MaxPower) {
             Notification notification = new Notification(
@@ -338,6 +346,19 @@ public class GeneralForm extends Div {
                     Notification.Position.MIDDLE);
             notification.open();
             field.focus();
+        }
+    }
+
+    private void writeHistory(AbstractField.ComponentValueChangeEvent e, String field) {
+        if(e.getOldValue()!=null && e.getValue()!=null) {
+            if(!e.getOldValue().equals(e.getValue())) {
+                history = history + "Значение " + field + " " +
+                        e.getOldValue() + " сменилось на " + e.getValue() + "\n";
+            }
+        } else {
+            if(e.getValue()!=null)
+                history = history + "Значение " + field +
+                    " сменилось на " + e.getValue() + "\n";
         }
     }
 }
