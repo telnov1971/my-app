@@ -16,14 +16,14 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.*;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
-import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
+import org.vaadin.artur.helpers.CrudService;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
+import java.util.function.Consumer;
 
 public class GeneralForm extends Div {
     protected DecimalFormat decimalFormat;
@@ -134,11 +134,8 @@ public class GeneralForm extends Div {
         createdate.setValue(LocalDate.now());
         createdate.setReadOnly(true);
 
-        demandType = new Select<>();
-        demandType.setLabel("Тип заявки");
-        List<DemandType> demandTypeList = demandTypeService.findAll();
-        demandType.setItemLabelGenerator(DemandType::getName);
-        demandType.setItems(demandTypeList);
+        demandType = createSelect(DemandType::getName, demandTypeService.findAll(),
+                "Тип заявки", DemandType.class);
         demandType.setReadOnly(true);
 
         demander = new TextArea("Заявитель","ФИО подающего заявку");
@@ -171,47 +168,23 @@ public class GeneralForm extends Div {
         period = new TextArea("Срок подключения по временной схеме");
         contract = new TextField("Реквизиты договора");
 
-        voltage = new Select<>();
-        voltage.setLabel("Уровень напряжения");
-        List<Voltage> voltageList = voltageService.findAll();
-        voltage.setItemLabelGenerator(Voltage::getName);
-        voltage.setItems(voltageList);
+        voltage = createSelect(Voltage::getName, voltageService.findAll(),
+                "Уровень напряжения", Voltage.class);
 
-        safety = new Select<>();
-        safety.setLabel("Категория надежности");
-        List<Safety> safetyList = safetyService.findAll();
-        safety.setItemLabelGenerator(Safety::getName);
-        safety.setItems(safetyList);
+        safety = createSelect(Safety::getName, safetyService.findAll(),
+                "Категория надежности", Safety.class);
 
-        garant = new Select<>();
-        garant.setLabel("Гарантирующий поставщик");
-        List<Garant> garantList = garantService.findAll();
-        garant.setItemLabelGenerator(Garant::getName);
-        garant.setItems(garantList);
+        garant = createSelect(Garant::getName, garantService.findAll(),
+                "Гарантирующий поставщик", Garant.class);
 
-        plan = new Select<>();
-        plan.setLabel("Рассрочка платежа");
-        List<Plan> plantList = planService.findAll();
-        plan.setItemLabelGenerator(Plan::getName);
-        plan.setItems(plantList);
+        plan = createSelect(Plan::getName, planService.findAll(),
+                "Рассрочка платежа", Plan.class);
 
-//                price = new Select<>();
-//                price.setLabel("Ценовая категория");
-//                List<Price> pricetList = priceService.findAll();
-//                price.setItemLabelGenerator(Price::getName);
-//                price.setItems(pricetList);
+        send = createSelect(Send::getName, sendService.findAll(),
+                "Способ получения договора", Send.class);
 
-        send = new Select<>();
-        send.setLabel("Способ получения договора");
-        List<Send> sendList = sendService.findAll();
-        send.setItemLabelGenerator(Send::getName);
-        send.setItems(sendList);
-
-        status = new Select<>();
-        status.setLabel("Статус");
-        List<Status> statusList = statusService.findAll();
-        status.setItemLabelGenerator(Status::getName);
-        status.setItems(statusList);
+        status = createSelect(Status::getName, statusService.findAll(),
+                "Статус", Status.class);
         status.setValue(statusService.findById(1L).get());
         status.setReadOnly(true);
 
@@ -222,31 +195,11 @@ public class GeneralForm extends Div {
                         10,12))
                 .bind(Demand::getInn, Demand::setInn);
 
-
         pointBinder.forField(powerDemand)
                 .withValidator(
                         new DoubleRangeValidator(
                                 "Мощность не может быть отрицательной",
                                 0.0,null))
-//                .withValidator(
-//                        new RegexpValidator("Not a valid flight number",
-//                        "[A-Z]{2}\\d{3,4}"))
-//                .withValidator((Validator<Double>) (value, context) -> {
-//
-//                    //long sumDigits = 0;
-//                    double doubleValue = 0.0;
-//
-//                    try {
-//                        doubleValue = Double.valueOf(value);
-//                        if(doubleValue < 0.0) {
-//                            return ValidationResult.error("Мощность не может быть отрицательной");
-//                        }
-//                    } catch (NumberFormatException ex) {
-//                        return ValidationResult.error("Ошибка ввода числа");
-//                    }
-//
-//                    return ValidationResult.ok();
-//                })
                 .bind(Point::getPowerDemand, Point::setPowerDemand);
 
         pointBinder.forField(powerCurrent)
@@ -268,70 +221,14 @@ public class GeneralForm extends Div {
         generalBinder.bindInstanceFields(this);
 
         // события формы
-        powerDemand.addBlurListener(e->{
-            if(powerDemand.getValue() == null){
-                Notification notification = new Notification(
-                        "Ошибка ввода числа", 10000,
-                        Notification.Position.TOP_START);
-                notification.open();
-                powerDemand.focus();
-            }
-        });
-        powerDemand.addValueChangeListener(e -> {
-            if ((powerCurrent.getValue() != null) &&
-                    (powerCurrent.getValue() > 0.0)) {
-                powerMaximum.setValue(
-                        powerCurrent.getValue() +
-                        powerDemand.getValue());
-            } else {
-                powerMaximum.setValue(
-                        powerDemand.getValue());
-            }
-            if (powerMaximum.getValue() > this.MaxPower) {
-                Notification notification = new Notification(
-                        "Для такого типа заявки превышена макисальная мощность", 3000,
-                        Notification.Position.TOP_START);
-                notification.open();
-//                powerDemand.setValue(String.valueOf(
-//                        this.MaxPower -
-//                        Double.parseDouble(powerCurrent.getValue())));
-                powerDemand.focus();
-            }
-        });
-        powerCurrent.addValueChangeListener(e -> {
-            if ((powerDemand.getValue() != null) &&
-                    (powerDemand.getValue() > 0.0)) {
-                powerMaximum.setValue(
-                        powerCurrent.getValue() +
-                        powerDemand.getValue());
-            } else {
-                powerMaximum.setValue(
-                        powerCurrent.getValue());
-            }
-            if (powerMaximum.getValue() > this.MaxPower) {
-                Notification notification = new Notification(
-                        "Максимальная мощность не может быть 15 кВт", 3000,
-                        Notification.Position.TOP_START);
-                notification.open();
-//                powerCurrent.setValue(String.valueOf(
-//                        this.MaxPower - Double.parseDouble(powerDemand.getValue())));
-                powerCurrent.focus();
-            }
-        });
+        powerDemand.addBlurListener(e->{testPower(powerDemand);});
+        powerDemand.addValueChangeListener(e -> {changePower(powerDemand);});
+        powerCurrent.addBlurListener(e->{testPower(powerCurrent);});
+        powerCurrent.addValueChangeListener(e -> {changePower(powerCurrent);});
 
         // кол-во колонок формы от ширины окна
-        formDemand.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("1em", 1),
-                new FormLayout.ResponsiveStep("40em", 2),
-                new FormLayout.ResponsiveStep("50em", 3),
-                new FormLayout.ResponsiveStep("68em", 4)
-        );
-        formDemander.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("1em", 1),
-                new FormLayout.ResponsiveStep("40em", 2),
-                new FormLayout.ResponsiveStep("50em", 3),
-                new FormLayout.ResponsiveStep("68em", 4)
-        );
+        setColumnCount(formDemand);
+        setColumnCount(formDemander);
 
         formDemander.add(contact,label,
                 inn,innDate,label,
@@ -387,7 +284,6 @@ public class GeneralForm extends Div {
         formDemand.setColspan(period, 4);
         formDemand.setColspan(contract, 4);
         formDemand.setColspan(garant, 1);
-//            formDemand.setColspan(price, 1);
         formDemand.setColspan(plan, 1);
         formDemand.setColspan(send, 1);
 
@@ -398,6 +294,51 @@ public class GeneralForm extends Div {
             field.setVisible(false);
         }
         this.getElement().getStyle().set("margin", "15px");
+    }
+
+    private void setColumnCount(FormLayout form) {
+        form.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("1em", 1),
+                new FormLayout.ResponsiveStep("40em", 2),
+                new FormLayout.ResponsiveStep("50em", 3),
+                new FormLayout.ResponsiveStep("68em", 4)
+        );
+    }
+
+    private <C> Select<C> createSelect(ItemLabelGenerator<C> gen, List<C> list,
+                                        String label, Class<C> clazz){
+        Select<C> select = new Select<>();
+        select.setLabel(label);
+        select.setItemLabelGenerator(gen);
+        select.setItems(list);
+        return select;
+    }
+
+    private void changePower(NumberField field) {
+        Double currentP = 0.0;
+        Double demandP = 0.0;
+        if(powerCurrent.getValue() != null)
+            currentP = powerCurrent.getValue();
+        if(powerDemand.getValue() != null)
+            demandP = powerDemand.getValue();
+        powerMaximum.setValue(currentP + demandP);
+        if (powerMaximum.getValue() > this.MaxPower) {
+            Notification notification = new Notification(
+                    "Для такого типа заявки превышена макисальная мощность", 5000,
+                    Notification.Position.MIDDLE);
+            notification.open();
+            field.focus();
+        }
+    }
+
+    private void testPower(NumberField field) {
+        if(field.getValue() == null){
+            Notification notification = new Notification(
+                    "Ошибка ввода числа", 5000,
+                    Notification.Position.MIDDLE);
+            notification.open();
+            field.focus();
+        }
     }
 }
 
