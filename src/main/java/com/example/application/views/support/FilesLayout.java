@@ -83,30 +83,35 @@ public class FilesLayout extends VerticalLayout {
         //Grid.Column<FileStored> anchorColumn =
         fileStoredGrid.addComponentColumn(file -> {
             StreamResource resource = null;
+            Anchor anchor = new Anchor();
 
             String filename = file.getLink();
             File outFile = new File(uploadPath + filename);
             try {
-                InputStream inputStream = new FileInputStream(outFile);
-                resource = new StreamResource(
-                        file.getName(),
-                        () -> {
-                            try {
-                                return new ByteArrayInputStream(inputStream.readAllBytes());
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                if(outFile.exists()) {
+                    InputStream inputStream = new FileInputStream(outFile);
+                    resource = new StreamResource(
+                            file.getName(),
+                            () -> {
+                                try {
+                                    return new ByteArrayInputStream(inputStream.readAllBytes());
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                return null;
                             }
-                            return null;
-                        }
-                );
+                    );
+                }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
 
-            Anchor anchor = new Anchor(resource,file.getName());
-            anchor.addClassName("anchor");
+            if(resource!=null) {
+                anchor = new Anchor(resource, file.getName());
+                anchor.addClassName("anchor");
 
-            anchors.add(anchor);
+                anchors.add(anchor);
+            }
             return anchor;
         }).setAutoWidth(true).setHeader("Сохранённые файлы");
 
