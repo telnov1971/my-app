@@ -23,14 +23,12 @@ import java.util.*;
 @RouteAlias(value ="demandtemporary")
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки на временное подключение")
-public class DemandEditTemporary extends GeneralForm implements BeforeEnterObserver {
-    private final String DEMAND_ID = "demandID";
+public class DemandEditTemporary extends GeneralForm {
     private HorizontalLayout buttonBar = new HorizontalLayout();
     private Button save = new Button("Сохранить");
     private Button reset = new Button("Отменить");
 
     private final FileStoredService fileStoredService;
-    private final UserService userService;
     private FilesLayout filesLayout;
 
     public DemandEditTemporary(DemandService demandService,
@@ -40,7 +38,8 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
                                PointService pointService,
                                GeneralService generalService,
                                ExpirationService expirationService,
-                               UserService userService, VoltageService voltageService,
+                               UserService userService,
+                               VoltageService voltageService,
                                SafetyService safetyService,
                                PlanService planService,
                                PriceService priceService,
@@ -49,9 +48,8 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
                                Component... components) {
         super(demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,expirationService,voltageService,
-                safetyService,planService,priceService,sendService,
+                safetyService,planService,priceService,sendService,userService,
                 components);
-        this.userService = userService;
         this.fileStoredService = fileStoredService;
         this.MaxPower = 1000000000.0;
         demandType.setValue(demandTypeService.findById(DemandType.TEMPORARY).get());
@@ -61,12 +59,7 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
                 , safetyService);
 
         save.addClickListener(event -> {
-            save();
-
-            filesLayout.setDemand(demand);
-            filesLayout.saveFiles();
-
-            UI.getCurrent().navigate(DemandList.class);
+            if(save()) UI.getCurrent().navigate(DemandList.class);
         });
         reset.addClickListener(event -> {
             try {
@@ -94,28 +87,6 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
     }
 
     @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        Optional<Long> demandId = event.getRouteParameters().getLong(DEMAND_ID);
-        if (demandId.isPresent()) {
-            Optional<Demand> demandFromBackend = demandService.get(demandId.get());
-            if (demandFromBackend.isPresent()) {
-                if (demandFromBackend.get().getUser().equals(userService.findByUsername(
-                        SecurityContextHolder.getContext().getAuthentication().getName()
-                ))) {
-                    populateForm(demandFromBackend.get());
-                } else {
-                    Notification.show(String.format("Заявка с ID = %d не Ваша", demandId.get()), 3000,
-                            Notification.Position.BOTTOM_START);
-                    clearForm();
-                }
-            } else {
-                Notification.show(String.format("Заявка с ID = %d не найдена", demandId.get()), 3000,
-                        Notification.Position.BOTTOM_START);
-                clearForm();
-            }
-        }
-    }
-
     public void populateForm(Demand value) {
         this.demand = value;
         binderDemand.readBean(this.demand);
@@ -132,25 +103,17 @@ public class DemandEditTemporary extends GeneralForm implements BeforeEnterObser
         }
         pointBinder.readBean(this.point);
     }
-    public void save() {
-        binderDemand.writeBeanIfValid(demand);
-        if(demand.getUser()==null){
-            demand.setUser(userService.findByUsername(
-                    SecurityContextHolder.getContext().getAuthentication().getName()));
-            demand.setCreateDate(LocalDate.now());
-            demand.setLoad1c(false);
-            demand.setChange(false);
-            demand.setDone(false);
-        }
-        demandService.update(this.demand);
-
+    public boolean save() {
+        if(!super.save() || (pointBinder.validate().getValidationErrors().size() > 0)) return false;
         pointBinder.writeBeanIfValid(point);
         point.setDemand(demand);
         pointService.update(this.point);
-
-        UI.getCurrent().navigate(DemandList.class);
+        filesLayout.setDemand(demand);
+        filesLayout.saveFiles();
+        return true;
     }
 
+    @Override
     public void clearForm() {
         binderDemand.readBean(null);
         pointBinder.readBean(null);

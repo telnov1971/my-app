@@ -131,7 +131,7 @@ public class DataGenerator {
             demandRepositoryGenerator.setData(Demand::setContact, DataType.PHONE_NUMBER);
             demandRepositoryGenerator.setData(Demand::setObject, DataType.WORD);
             demandRepositoryGenerator.setData(Demand::setAddress, DataType.ADDRESS);
-            demandRepositoryGenerator.setData(Demand::setDone, DataType.BOOLEAN_50_50);
+            demandRepositoryGenerator.setData(Demand::setExecuted, DataType.BOOLEAN_50_50);
             demandRepository.saveAll(demandRepositoryGenerator.create(10, seed));
 
             logger.info("Generated demo data");

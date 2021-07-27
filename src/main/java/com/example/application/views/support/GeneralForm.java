@@ -4,7 +4,6 @@ import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.accordion.Accordion;
-import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -18,14 +17,18 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.*;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
-import org.checkerframework.checker.units.qual.C;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
-public class GeneralForm extends Div {
+public abstract class GeneralForm extends Div implements BeforeEnterObserver {
+    protected final String DEMAND_ID = "demandID";
     protected DecimalFormat decimalFormat;
     protected FormLayout formDemand = new FormLayout();
     protected BeanValidationBinder<Demand> binderDemand = new BeanValidationBinder<>(Demand.class);
@@ -93,6 +96,7 @@ public class GeneralForm extends Div {
     protected final VoltageService voltageService;
     protected final SafetyService safetyService;
     protected final SendService sendService;
+    protected final UserService userService;
 
     protected String history = "";
 
@@ -108,6 +112,7 @@ public class GeneralForm extends Div {
                        PlanService planService,
                        PriceService priceService,
                        SendService sendService,
+                       UserService userService,
                        Component... components) {
         super(components);
         // сервисы
@@ -124,6 +129,7 @@ public class GeneralForm extends Div {
             this.planService = planService;
             this.priceService = priceService;
             this.sendService = sendService;
+            this.userService = userService;
         }
 
         this.decimalFormat = new DecimalFormat("###.##",
@@ -361,5 +367,64 @@ public class GeneralForm extends Div {
                     " сменилось на " + e.getValue() + "\n";
         }
     }
+
+    public boolean save() {
+        if (binderDemand.validate().getValidationErrors().size() > 0) return false;
+        binderDemand.writeBeanIfValid(demand);
+        if(demand.getUser()==null){
+            demand.setUser(userService.findByUsername(
+                    SecurityContextHolder.getContext().getAuthentication().getName()));
+            demand.setCreateDate(LocalDate.now());
+            demand.setLoad1c(false);
+            demand.setChange(false);
+            demand.setExecuted(false);
+        }
+        if(demand.getInn().equals("0000000000")) demand.setInn(null);
+        demandService.update(this.demand);
+        return true;
+    }
+
+    protected void setReadOnly() {
+        AbstractField fields[] = {
+                demander,inn,innDate,contact,passportSerries,passportNumber,pasportIssued,
+                addressRegistration,addressActual,reason,object,address,specification,
+                countPoints,powerDemand,powerCurrent,powerMaximum,voltage,safety,period,
+                contract,countTransformations,countGenerations,techminGeneration,reservation,
+                plan,send,garant
+        };
+        for(AbstractField field : fields) {
+            field.setReadOnly(true);
+        }
+    }
+
+    protected void populateForm(Demand value) { }
+    protected void clearForm() {}
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        Optional<Long> demandId = event.getRouteParameters().getLong(DEMAND_ID);
+        if (demandId.isPresent()) {
+            Optional<Demand> demandFromBackend = demandService.get(demandId.get());
+            if (demandFromBackend.isPresent()) {
+                User currentUser = userService.findByUsername(
+                        SecurityContextHolder.getContext().getAuthentication().getName());
+                if (demandFromBackend.get().getUser().equals(currentUser) ||
+                        (currentUser.isGarant() &&
+                                demandFromBackend.get().getGarant().equals(currentUser.getGarant()))) {
+                    populateForm(demandFromBackend.get());
+                    if(currentUser.isGarant()) setReadOnly();
+                } else {
+                    Notification.show(String.format("Заявка с ID = %d не Ваша", demandId.get()), 3000,
+                            Notification.Position.BOTTOM_START);
+                    clearForm();
+                }
+            } else {
+                Notification.show(String.format("Заявка с ID = %d не найдена", demandId.get()), 3000,
+                        Notification.Position.BOTTOM_START);
+                clearForm();
+            }
+        }
+    }
+
 }
 

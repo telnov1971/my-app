@@ -2,6 +2,7 @@ package com.example.application.views.demandlist;
 
 import com.example.application.data.entity.Demand;
 import com.example.application.data.entity.DemandType;
+import com.example.application.data.entity.User;
 import com.example.application.data.service.DemandService;
 import com.example.application.data.service.UserService;
 import com.example.application.views.demandedit.DemandEditTemporary;
@@ -55,10 +56,14 @@ public class DemandList extends Div {
 //        grid.setItems(query -> demandService.list(
 //                PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
 //                .stream());
-        grid.setItems(demandService.findAllByUser(
-                this.userService.findByUsername(
-                        SecurityContextHolder.getContext().getAuthentication().getName()
-                )));
+        User currentUser =  this.userService.findByUsername(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        );
+        if(currentUser.isGarant()) {
+            grid.setItems(demandService.findAllByGarant(currentUser.getGarant()));
+        } else {
+            grid.setItems(demandService.findAllByUser(currentUser));
+        }
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
 

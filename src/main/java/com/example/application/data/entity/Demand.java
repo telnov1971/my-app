@@ -110,8 +110,8 @@ public class Demand extends AbstractEntity {
     private Status status;
     // выполнена
     @ColumnDefault("false")
-    @Column(name = "it_done")
-    private boolean done = false;
+    @Column(name = "executed")
+    private boolean executed = false;
     // пользователь
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
@@ -148,11 +148,11 @@ public class Demand extends AbstractEntity {
     public void setAddress(String address) {
         this.address = address;
     }
-    public boolean isDone() {
-        return done;
+    public boolean isExecuted() {
+        return executed;
     }
-    public void setDone(boolean done) {
-        this.done = done;
+    public void setExecuted(boolean done) {
+        this.executed = done;
     }
     public String getDemander() {
         return demander;

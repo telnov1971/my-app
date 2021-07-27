@@ -39,6 +39,10 @@ public class User extends AbstractEntity implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Demand> demands;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "garant_id")
+    private Garant garant;
+
     public User() {
     }
     public User(String username, String password, boolean active, Set<Role> roles) {
@@ -49,6 +53,7 @@ public class User extends AbstractEntity implements UserDetails {
         this.email = "";
         this.demands = null;
         this.activationCode = "";
+        this.garant = null;
     }
 
     @Override
@@ -136,5 +141,10 @@ public class User extends AbstractEntity implements UserDetails {
     public boolean isEnabled() {
         return isActive();
     }
-
+    public Garant getGarant() {
+        return garant;
+    }
+    public void setGarant(Garant garant) {
+        this.garant = garant;
+    }
 }
