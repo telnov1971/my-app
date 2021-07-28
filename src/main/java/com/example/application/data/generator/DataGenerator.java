@@ -3,16 +3,12 @@ package com.example.application.data.generator;
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.vaadin.flow.spring.annotation.SpringComponent;
-
-import java.time.LocalDateTime;
 import java.util.Collections;
-
+import org.apache.commons.lang3.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
-import org.vaadin.artur.exampledata.DataType;
-import org.vaadin.artur.exampledata.ExampleDataGenerator;
 
 @SpringComponent
 public class DataGenerator {
@@ -122,20 +118,44 @@ public class DataGenerator {
             logger.info("Generating demo data");
 
             logger.info("... generating 100 Demand entities...");
-            ExampleDataGenerator<Demand> demandRepositoryGenerator = new ExampleDataGenerator<>(Demand.class,
-                    LocalDateTime.of(2021, 6, 16, 0, 0, 0));
-            demandRepositoryGenerator.setData(Demand::setCreateDate, DataType.DATE_LAST_7_DAYS);
-            demandRepositoryGenerator.setData(Demand::setDemander, DataType.WORD);
-            demandRepositoryGenerator.setData(Demand::setAddressRegistration, DataType.ADDRESS);
-            demandRepositoryGenerator.setData(Demand::setAddressActual, DataType.ADDRESS);
-            demandRepositoryGenerator.setData(Demand::setContact, DataType.PHONE_NUMBER);
-            demandRepositoryGenerator.setData(Demand::setObject, DataType.WORD);
-            demandRepositoryGenerator.setData(Demand::setAddress, DataType.ADDRESS);
-            demandRepositoryGenerator.setData(Demand::setExecuted, DataType.BOOLEAN_50_50);
-            demandRepository.saveAll(demandRepositoryGenerator.create(10, seed));
+//            ExampleDataGenerator<Demand> demandRepositoryGenerator = new ExampleDataGenerator<>(Demand.class,
+//                    LocalDateTime.of(2021, 6, 16, 0, 0, 0));
+//            demandRepositoryGenerator.setData(Demand::setCreateDate, DataType.DATE_LAST_7_DAYS);
+//            demandRepositoryGenerator.setData(Demand::setDemander, DataType.WORD);
+//            //DataType<String> PASS_NUMBER = RandomUtils.nextInt(1000,9999);
+//            //demandRepositoryGenerator.setData(Demand::setPassportNumber, );
+//            demandRepositoryGenerator.setData(Demand::setPassportSerries, DataType.ADDRESS);
+//            demandRepositoryGenerator.setData(Demand::setPasportIssued, DataType.BOOK_TITLE);
+//
+//            demandRepositoryGenerator.setData(Demand::setAddressRegistration, DataType.ADDRESS);
+//            demandRepositoryGenerator.setData(Demand::setAddressActual, DataType.ADDRESS);
+//            demandRepositoryGenerator.setData(Demand::setContact, DataType.PHONE_NUMBER);
+//            demandRepositoryGenerator.setData(Demand::setObject, DataType.WORD);
+//            demandRepositoryGenerator.setData(Demand::setAddress, DataType.ADDRESS);
+//            demandRepositoryGenerator.setData(Demand::setExecuted, DataType.BOOLEAN_50_50);
+//            demandRepository.saveAll(demandRepositoryGenerator.create(10, seed));
+
+            String listDemander[] = {"Ivanov","Petrov","Sidorov","Kozlov","Kalashnikov",
+                    "Kuznetsov","Semenov","Savaliev","Arbatov","Nemo"};
+            String listIssued[] = {"Moskow","Omsk","Piter","Sochi","Tambov",
+                    "Anapa","Khabarovsk","Krasnoyarsk","Ufa","Tumen"};
+            String listObject[] = {"House","Home","Office","Enterprise","Factory","Hospital","Restaurant"};
+            String listNumber[] = {"123456","654321","153624","452163","145236"};
+            String listSeries[] = {"1234","6543","1536","4521","1452"};
+
+            for (int i = 0; i < 100; i++) {
+                Demand demand = new Demand();
+                demand.setDemander(listDemander[RandomUtils.nextInt(0,9)]);
+                demand.setPassportSerries(listSeries[RandomUtils.nextInt(0,4)]);
+                demand.setPassportNumber(listNumber[RandomUtils.nextInt(0,4)]);
+                demand.setPasportIssued(listIssued[RandomUtils.nextInt(0,9)]);
+                demand.setAddressActual(listIssued[RandomUtils.nextInt(0,9)]);
+                demand.setObject(listObject[RandomUtils.nextInt(0,6)]);
+                demand.setAddress(listIssued[RandomUtils.nextInt(0,9)]);
+                demand.setUser(userRepository.findById(1L).get());
+            }
 
             logger.info("Generated demo data");
         };
     }
-
 }

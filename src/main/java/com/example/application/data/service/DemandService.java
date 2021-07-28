@@ -5,6 +5,8 @@ import com.example.application.data.entity.Demand;
 import com.example.application.data.entity.Garant;
 import com.example.application.data.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 import java.time.LocalDate;
@@ -24,8 +26,8 @@ public class DemandService extends CrudService<Demand, Long> {
         return repository;
     }
 
-    public List<Demand> findAllByUser(User user) {
-        return repository.findByUser(user);
+    public Page<Demand> findAllByUser(User user, Pageable pageable) {
+        return repository.findByUser(user, pageable);
     }
 
     public List<Demand> findAllByGarant(Garant garant) {

@@ -62,7 +62,13 @@ public class DemandList extends Div {
         if(currentUser.isGarant()) {
             grid.setItems(demandService.findAllByGarant(currentUser.getGarant()));
         } else {
-            grid.setItems(demandService.findAllByUser(currentUser));
+//            grid.setItems(query ->
+//                    demandService.findAllByUser(currentUser,
+//                            PageRequest.of(query.getPage(), query.getPageSize())).stream());
+            grid.setPageSize(20);
+            grid.setItems(query ->
+                    demandService.findAllByUser(currentUser,
+                            PageRequest.of(query.getPage(), query.getPageSize())).stream());
         }
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
