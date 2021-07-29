@@ -47,7 +47,7 @@ public class DemandEditTemporary extends GeneralForm {
                                FileStoredService fileStoredService,
                                Component... components) {
         super(demandService,demandTypeService,statusService,garantService,
-                pointService,generalService,expirationService,voltageService,
+                pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
                 components);
         this.fileStoredService = fileStoredService;

@@ -48,7 +48,7 @@ public class DemandEditTo15 extends GeneralForm {
                           FileStoredService fileStoredService,
                           Component... components) {
         super(demandService,demandTypeService,statusService,garantService,
-                 pointService,generalService,expirationService,voltageService,
+                 pointService,generalService,voltageService,
                  safetyService,planService,priceService,sendService,userService,
                  components);
         this.userService = userService;

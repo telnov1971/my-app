@@ -59,6 +59,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected TextArea specification;
 
     protected Accordion accordionPoints = new Accordion();
+    protected Accordion accordionExpiration = new Accordion();
     protected Point point = new Point();
     protected Binder<Point> pointBinder = new Binder<>(Point.class);
     protected IntegerField countPoints;
@@ -67,7 +68,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected NumberField powerMaximum;
     protected Select<Voltage> voltage;
     protected Select<Safety> safety;
-    protected PointsLayout pointsLayout;
 
     protected General general = new General();
     protected Binder<General> generalBinder = new Binder<>(General.class);
@@ -77,8 +77,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected TextArea countGenerations;
     protected TextArea techminGeneration;
     protected TextArea reservation;
-
-    protected ExpirationLayout expirationLayout;
 
     protected Select<Plan> plan;
     protected Select<Send> send;
@@ -90,7 +88,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected final GarantService garantService;
     protected final PointService pointService;
     protected final GeneralService generalService;
-    protected final ExpirationService expirationService;
     protected final PlanService planService;
     protected final PriceService priceService;
     protected final VoltageService voltageService;
@@ -106,7 +103,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                        GarantService garantService,
                        PointService pointService,
                        GeneralService generalService,
-                       ExpirationService expirationService,
                        VoltageService voltageService,
                        SafetyService safetyService,
                        PlanService planService,
@@ -118,7 +114,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         // сервисы
         {
             this.generalService = generalService;
-            this.expirationService = expirationService;
             this.demandService = demandService;
             this.demandTypeService = demandTypeService;
             this.statusService = statusService;
@@ -259,11 +254,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 , powerMaximum, voltage, safety, label);
         formDemand.add(countTransformations,countGenerations,techminGeneration,reservation);
         formDemand.add(period,contract);
+        formDemand.add(accordionExpiration);
         formDemand.add(garant, plan, send);
         setWidthFormDemand();
 
         Component fields[] = {inn, innDate, countPoints, accordionPoints, powerDemand, powerCurrent,
-                powerMaximum, voltage, safety, specification, countTransformations,
+                powerMaximum, voltage, safety, specification, countTransformations,accordionExpiration,
                 countGenerations, techminGeneration, reservation, plan, period, contract};
         for(Component field : fields){
             field.setVisible(false);
@@ -296,6 +292,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemand.setColspan(reservation, 4);
         formDemand.setColspan(period, 4);
         formDemand.setColspan(contract, 4);
+        formDemand.setColspan(accordionExpiration, 4);
         formDemand.setColspan(garant, 1);
         formDemand.setColspan(plan, 1);
         formDemand.setColspan(send, 1);

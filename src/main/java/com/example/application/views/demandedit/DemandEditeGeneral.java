@@ -1,24 +1,20 @@
 package com.example.application.views.demandedit;
 
-import com.example.application.config.AppEnv;
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
+import com.example.application.views.support.ExpirationsLayout;
 import com.example.application.views.support.FilesLayout;
 import com.example.application.views.support.GeneralForm;
 import com.example.application.views.support.PointsLayout;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.*;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.*;
 
 @Route(value = "demandreciver/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandreciver")
@@ -34,6 +30,7 @@ public class DemandEditeGeneral extends GeneralForm {
     private FilesLayout filesLayout;
 
     private PointsLayout pointsLayout;
+    private ExpirationsLayout expirationsLayout;
 
     public DemandEditeGeneral(DemandService demandService,
                               DemandTypeService demandTypeService,
@@ -51,7 +48,7 @@ public class DemandEditeGeneral extends GeneralForm {
                               FileStoredService fileStoredService,
                               Component... components) {
         super(demandService,demandTypeService,statusService,garantService,
-                pointService,generalService,expirationService,voltageService,
+                pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
                 components);
         this.userService = userService;
@@ -66,6 +63,8 @@ public class DemandEditeGeneral extends GeneralForm {
         pointsLayout = new PointsLayout(pointService
                 ,voltageService
                 ,safetyService);
+
+        expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
 
         save.addClickListener(event -> {
             if(save()) UI.getCurrent().navigate(DemandList.class);
@@ -83,7 +82,7 @@ public class DemandEditeGeneral extends GeneralForm {
         });
 
         Component fields[] = {inn, innDate, countPoints, accordionPoints, specification, countTransformations,
-                countGenerations, techminGeneration, reservation};
+                countGenerations, techminGeneration, reservation, accordionExpiration};
         for(Component field : fields){
             field.setVisible(true);
         }
@@ -95,6 +94,7 @@ public class DemandEditeGeneral extends GeneralForm {
         buttonBar.add(save,reset);
 
         accordionPoints.add("Точки подключения", this.pointsLayout);
+        accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
         add(formDemand, filesLayout, buttonBar);
     }
 
@@ -113,6 +113,7 @@ public class DemandEditeGeneral extends GeneralForm {
             }
             pointsLayout.findAllByDemand(demand);
             filesLayout.findAllByDemand(demand);
+            expirationsLayout.findAllByDemand(demand);
         }
         generalBinder.readBean(general);
     }
@@ -125,6 +126,8 @@ public class DemandEditeGeneral extends GeneralForm {
         pointsLayout.savePoints();
         filesLayout.setDemand(demand);
         filesLayout.saveFiles();
+        expirationsLayout.setDemand(demand);
+        expirationsLayout.saveExpirations();
         return true;
     }
     @Override

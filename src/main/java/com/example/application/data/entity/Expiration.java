@@ -13,10 +13,10 @@ public class Expiration extends AbstractEntity {
     private Demand demand;
 
     private String step;
-    @Column(name = "project_date")
-    private LocalDate projectDate;
-    @Column(name = "usage_date")
-    private LocalDate usageDate;
+    @Column(name = "plan_project")
+    private String planProject;
+    @Column(name = "plan_usage")
+    private String planUsage;
     @Column(name = "power_max")
     private Double powerMax;
     @ManyToOne(fetch = FetchType.EAGER)
@@ -26,10 +26,10 @@ public class Expiration extends AbstractEntity {
     public Expiration() {
     }
 
-    public Expiration(String step, LocalDate projectDate, LocalDate usageDate, Double powerMax, Safety safety) {
+    public Expiration(String step, String planProject, String planUsage, Double powerMax, Safety safety) {
         this.step = step;
-        this.projectDate = projectDate;
-        this.usageDate = usageDate;
+        this.planProject = planProject;
+        this.planUsage = planUsage;
         this.powerMax = powerMax;
         this.safety = safety;
     }
@@ -39,17 +39,17 @@ public class Expiration extends AbstractEntity {
     public void setStep(String step) {
         this.step = step;
     }
-    public LocalDate getProjectDate() {
-        return projectDate;
+    public String getPlanProject() {
+        return planProject;
     }
-    public void setProjectDate(LocalDate projectDate) {
-        this.projectDate = projectDate;
+    public void setPlanProject(String planProject) {
+        this.planProject = planProject;
     }
-    public LocalDate getUsageDate() {
-        return usageDate;
+    public String getPlanUsage() {
+        return planUsage;
     }
-    public void setUsageDate(LocalDate usageDate) {
-        this.usageDate = usageDate;
+    public void setPlanUsage(String planUsage) {
+        this.planUsage = planUsage;
     }
     public Double getPowerMax() {
         return powerMax;
@@ -62,5 +62,11 @@ public class Expiration extends AbstractEntity {
     }
     public void setSafety(Safety safety) {
         this.safety = safety;
+    }
+    public Demand getDemand() {
+        return demand;
+    }
+    public void setDemand(Demand demand) {
+        this.demand = demand;
     }
 }
