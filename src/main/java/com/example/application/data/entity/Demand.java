@@ -52,7 +52,7 @@ public class Demand extends AbstractEntity {
     @NotEmpty
     @Column(name = "add_act")
     private String addressActual;
-    // номер договора
+    // номер телефона
     private String contact;
 
     // причина подключения

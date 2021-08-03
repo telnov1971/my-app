@@ -2,13 +2,17 @@ package com.example.application.views.support;
 
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
+import com.example.application.views.demandlist.DemandList;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.accordion.Accordion;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -19,8 +23,10 @@ import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
@@ -33,6 +39,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected FormLayout formDemand = new FormLayout();
     protected BeanValidationBinder<Demand> binderDemand = new BeanValidationBinder<>(Demand.class);
     protected Demand demand = new Demand();
+    protected FilesLayout filesLayout;
+
+    protected HorizontalLayout buttonBar = new HorizontalLayout();
+    protected Button save = new Button("Сохранить");
+    protected Button reset = new Button("Отменить");
 
     // максимальная мощность по типу заявки
     protected Double MaxPower;
@@ -82,6 +93,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected Select<Send> send;
     protected Select<Garant> garant;
 
+    protected Accordion accordionHistory = new Accordion();
+    protected HistoryLayout historyLayout;
+
     protected final DemandService demandService;
     protected final DemandTypeService demandTypeService;
     protected final StatusService statusService;
@@ -94,8 +108,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected final SafetyService safetyService;
     protected final SendService sendService;
     protected final UserService userService;
-
-    protected String history = "";
+    protected final HistoryService historyService;
+    private final FileStoredService fileStoredService;
 
     public GeneralForm(DemandService demandService,
                        DemandTypeService demandTypeService,
@@ -109,6 +123,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                        PriceService priceService,
                        SendService sendService,
                        UserService userService,
+                       HistoryService historyService,
+                       FileStoredService fileStoredService,
                        Component... components) {
         super(components);
         // сервисы
@@ -125,6 +141,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             this.priceService = priceService;
             this.sendService = sendService;
             this.userService = userService;
+            this.fileStoredService = fileStoredService;
+            this.historyService = historyService;
         }
 
         this.decimalFormat = new DecimalFormat("###.##",
@@ -133,91 +151,121 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         Label label = new Label("                                                ");
         label.setHeight("1px");
 
-        createdate = new DatePicker("Дата создания");
-        createdate.setValue(LocalDate.now());
-        createdate.setReadOnly(true);
+        filesLayout = new FilesLayout(this.fileStoredService
+                , voltageService
+                , safetyService);
 
-        demandType = createSelect(DemandType::getName, demandTypeService.findAll(),
-                "Тип заявки", DemandType.class);
-        demandType.setReadOnly(true);
+        historyLayout = new HistoryLayout(this.historyService);
+        historyLayout.setWidthFull();
+        accordionHistory.add("История событий",historyLayout);
+        accordionHistory.setWidthFull();
 
-        demander = new TextArea("Заявитель","ФИО подающего заявку");
-        inn = new TextField("ИНН","От 10 до 12 цифр");
-        innDate = new DatePicker("Дата выдачи");
-        contact = new TextField("Контактный телефон");
-        passportSerries = new TextField("Паспорт серия","Четыре цифры");
-        passportNumber = new TextField("Паспорт номер","Шесть цифр");
-        pasportIssued = new TextArea("Паспорт выдан");
-        addressRegistration = new TextField("Адрес регистрации");
-        addressActual = new TextField("Адрес фактический");
-        reason = new TextArea("Причина подключения");
-        object = new TextArea("Объект");
-        address = new TextArea("Адрес объекта");
-        specification = new TextArea("Характер нагрузки");
+        save.addClickListener(event -> {
+            if(save()) UI.getCurrent().navigate(DemandList.class);
+        });
+        reset.addClickListener(event -> {
+            try {
+                filesLayout.deleteFiles();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            UI.getCurrent().navigate(DemandList.class);
+        });
 
-        countPoints = new IntegerField("Кол-во точек подключения");
-        powerDemand = new NumberField("Мощность заявленная","0,00 кВт");
-        powerDemand.setStep(0.01);
-        powerDemand.setAutocorrect(true);
-        powerCurrent = new NumberField("Мощность текущая","0,00 кВт");
-        powerCurrent.setAutocorrect(true);
-        powerMaximum = new NumberField("Мощность максимальная", "0,00 кВт");
-        powerMaximum.setAutocorrect(true);
+        // описание полей
+        {
+            createdate = new DatePicker("Дата создания");
+            createdate.setValue(LocalDate.now());
+            createdate.setReadOnly(true);
 
-        countTransformations = new TextArea("Кол-во и мощ-ть трансформаторов");
-        countGenerations = new TextArea("Кол-во и мощ-ть генераторов");
-        techminGeneration = new TextArea("Тех.мин. для генераторов");
-        reservation = new TextArea("Бронирование");
-        period = new TextArea("Срок подключения по временной схеме");
-        contract = new TextField("Реквизиты договора");
+            demandType = createSelect(DemandType::getName, demandTypeService.findAll(),
+                    "Тип заявки", DemandType.class);
+            demandType.setReadOnly(true);
 
-        voltage = createSelect(Voltage::getName, voltageService.findAll(),
-                "Уровень напряжения", Voltage.class);
+            demander = new TextArea("Заявитель", "ФИО подающего заявку");
+            inn = new TextField("ИНН", "От 10 до 12 цифр");
+            innDate = new DatePicker("Дата выдачи");
+            contact = new TextField("Контактный телефон");
+            passportSerries = new TextField("Паспорт серия", "Четыре цифры");
+            passportNumber = new TextField("Паспорт номер", "Шесть цифр");
+            pasportIssued = new TextArea("Паспорт выдан");
+            addressRegistration = new TextField("Адрес регистрации");
+            addressActual = new TextField("Адрес фактический");
+            reason = new TextArea("Причина подключения");
+            object = new TextArea("Объект");
+            address = new TextArea("Адрес объекта");
+            specification = new TextArea("Характер нагрузки");
 
-        safety = createSelect(Safety::getName, safetyService.findAll(),
-                "Категория надежности", Safety.class);
+            countPoints = new IntegerField("Кол-во точек подключения");
+            powerDemand = new NumberField("Мощность заявленная", "0,00 кВт");
+            powerDemand.setStep(0.01);
+            powerDemand.setAutocorrect(true);
+            powerCurrent = new NumberField("Мощность текущая", "0,00 кВт");
+            powerCurrent.setAutocorrect(true);
+            powerMaximum = new NumberField("Мощность максимальная", "0,00 кВт");
+            powerMaximum.setAutocorrect(true);
 
-        garant = createSelect(Garant::getName, garantService.findAll(),
-                "Гарантирующий поставщик", Garant.class);
+            countTransformations = new TextArea("Кол-во и мощ-ть трансформаторов");
+            countGenerations = new TextArea("Кол-во и мощ-ть генераторов");
+            techminGeneration = new TextArea("Тех.мин. для генераторов");
+            reservation = new TextArea("Бронирование");
+            period = new TextArea("Срок подключения по временной схеме");
+            contract = new TextField("Реквизиты договора");
+        }
 
-        plan = createSelect(Plan::getName, planService.findAll(),
-                "Рассрочка платежа", Plan.class);
+        // создание селекторов
+        {
+            voltage = createSelect(Voltage::getName, voltageService.findAll(),
+                    "Уровень напряжения", Voltage.class);
 
-        send = createSelect(Send::getName, sendService.findAll(),
-                "Способ получения договора", Send.class);
+            safety = createSelect(Safety::getName, safetyService.findAll(),
+                    "Категория надежности", Safety.class);
 
-        status = createSelect(Status::getName, statusService.findAll(),
-                "Статус", Status.class);
-        status.setValue(statusService.findById(1L).get());
-        status.setReadOnly(true);
+            garant = createSelect(Garant::getName, garantService.findAll(),
+                    "Гарантирующий поставщик", Garant.class);
 
-        binderDemand.forField(inn)
-                .withValidator(
-                        new StringLengthValidator(
-                                "ИНН должен содержать от 10 до 12 знаков",
-                        10,12))
-                .bind(Demand::getInn, Demand::setInn);
+            plan = createSelect(Plan::getName, planService.findAll(),
+                    "Рассрочка платежа", Plan.class);
 
-        pointBinder.forField(powerDemand)
-                .withValidator(
-                        new DoubleRangeValidator(
-                                "Мощность не может быть отрицательной",
-                                0.0,null))
-                .bind(Point::getPowerDemand, Point::setPowerDemand);
+            send = createSelect(Send::getName, sendService.findAll(),
+                    "Способ получения договора", Send.class);
 
-        pointBinder.forField(powerCurrent)
-                .withValidator(
-                        new DoubleRangeValidator(
-                                "Мощность не может быть отрицательной",
-                                0.0,null))
-                .bind(Point::getPowerCurrent, Point::setPowerCurrent);
+            status = createSelect(Status::getName, statusService.findAll(),
+                    "Статус", Status.class);
+            status.setValue(statusService.findById(1L).get());
+            status.setReadOnly(true);
+        }
 
-        pointBinder.forField(powerMaximum)
-                .withValidator(
-                        new DoubleRangeValidator(
-                                "Мощность не может быть отрицательной",
-                                0.0,null))
-                .bind(Point::getPowerMaximum,null);
+        // настройка проверки значений полей
+        {
+            binderDemand.forField(inn)
+                    .withValidator(
+                            new StringLengthValidator(
+                                    "ИНН должен содержать от 10 до 12 знаков",
+                                    10, 12))
+                    .bind(Demand::getInn, Demand::setInn);
+
+            pointBinder.forField(powerDemand)
+                    .withValidator(
+                            new DoubleRangeValidator(
+                                    "Мощность не может быть отрицательной",
+                                    0.0, null))
+                    .bind(Point::getPowerDemand, Point::setPowerDemand);
+
+            pointBinder.forField(powerCurrent)
+                    .withValidator(
+                            new DoubleRangeValidator(
+                                    "Мощность не может быть отрицательной",
+                                    0.0, null))
+                    .bind(Point::getPowerCurrent, Point::setPowerCurrent);
+
+            pointBinder.forField(powerMaximum)
+                    .withValidator(
+                            new DoubleRangeValidator(
+                                    "Мощность не может быть отрицательной",
+                                    0.0, null))
+                    .bind(Point::getPowerMaximum, null);
+        }
 
         binderDemand.bindInstanceFields(this);
         pointBinder.bindInstanceFields(this);
@@ -227,12 +275,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         powerDemand.addBlurListener(e->{testPower(powerDemand);});
         powerDemand.addValueChangeListener(e -> {
             changePower(powerDemand);
-            writeHistory(e, "Заявленная мощность");
         });
+
         powerCurrent.addBlurListener(e->{testPower(powerCurrent);});
         powerCurrent.addValueChangeListener(e -> {
             changePower(powerCurrent);
-            writeHistory(e,"Текущая мощность");
         });
 
         // кол-во колонок формы от ширины окна
@@ -257,6 +304,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemand.add(accordionExpiration);
         formDemand.add(garant, plan, send);
         setWidthFormDemand();
+
+        buttonBar.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
+        buttonBar.setSpacing(true);
+        reset.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        buttonBar.add(save,reset);
 
         Component fields[] = {inn, innDate, countPoints, accordionPoints, powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, specification, countTransformations,accordionExpiration,
@@ -296,6 +349,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemand.setColspan(garant, 1);
         formDemand.setColspan(plan, 1);
         formDemand.setColspan(send, 1);
+        formDemand.setColspan(accordionHistory,4);
     }
 
     private void setWidthFormDemander() {
@@ -341,7 +395,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             field.focus();
         }
     }
-
     private void testPower(NumberField field) {
         if(field.getValue() == null){
             Notification notification = new Notification(
@@ -349,19 +402,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     Notification.Position.MIDDLE);
             notification.open();
             field.focus();
-        }
-    }
-
-    private void writeHistory(AbstractField.ComponentValueChangeEvent e, String field) {
-        if(e.getOldValue()!=null && e.getValue()!=null) {
-            if(!e.getOldValue().equals(e.getValue())) {
-                history = history + "Значение " + field + " " +
-                        e.getOldValue() + " сменилось на " + e.getValue() + "\n";
-            }
-        } else {
-            if(e.getValue()!=null)
-                history = history + "Значение " + field +
-                    " сменилось на " + e.getValue() + "\n";
         }
     }
 
@@ -377,7 +417,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             demand.setExecuted(false);
         }
         if(demand.getInn().equals("0000000000")) demand.setInn(null);
+        History history = new History();
+        history.setHistory(historyService.writeHistory(demand));
         demandService.update(this.demand);
+        history.setDemand(demand);
+        if(history.getHistory()!="") {
+            historyService.save(history);
+        }
         return true;
     }
 
@@ -395,7 +441,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     protected void populateForm(Demand value) { }
-    protected void clearForm() {}
+    protected void clearForm() {
+        binderDemand.readBean(null);
+        pointBinder.readBean(null);
+        generalBinder.readBean(null);
+        populateForm(null);
+    }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
@@ -422,6 +473,5 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             }
         }
     }
-
 }
 

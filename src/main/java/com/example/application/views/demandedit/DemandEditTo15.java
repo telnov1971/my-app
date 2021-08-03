@@ -1,37 +1,25 @@
 package com.example.application.views.demandedit;
 
-import com.example.application.config.AppEnv;
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
-import com.example.application.views.support.ExpirationsLayout;
 import com.example.application.views.support.FilesLayout;
 import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.*;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.*;
-import java.time.LocalDate;
-import java.util.*;
 
 @Route(value = "demandto15/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandto15")
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки до 15 кВт")
 public class DemandEditTo15 extends GeneralForm {
-    private HorizontalLayout buttonBar = new HorizontalLayout();
-    private Button save = new Button("Сохранить");
-    private Button reset = new Button("Отменить");
-
-    private final FileStoredService fileStoredService;
     private final UserService userService;
-    private FilesLayout filesLayout;
 
     public DemandEditTo15(DemandService demandService,
                           DemandTypeService demandTypeService,
@@ -46,33 +34,16 @@ public class DemandEditTo15 extends GeneralForm {
                           PriceService priceService,
                           SendService sendService,
                           FileStoredService fileStoredService,
+                          HistoryService historyService,
                           Component... components) {
         super(demandService,demandTypeService,statusService,garantService,
                  pointService,generalService,voltageService,
                  safetyService,planService,priceService,sendService,userService,
-                 components);
+                historyService, fileStoredService, components);
         this.userService = userService;
         // сервисы
-        this.fileStoredService = fileStoredService;
         this.MaxPower = 15.0;
         demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
-
-        filesLayout = new FilesLayout(this.fileStoredService
-                , voltageService
-                , safetyService);
-
-
-        save.addClickListener(event -> {
-            if(save()) UI.getCurrent().navigate(DemandList.class);
-        });
-        reset.addClickListener(event -> {
-            try {
-                filesLayout.deleteFiles();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            UI.getCurrent().navigate(DemandList.class);
-        });
 
         Component fields[] = {powerDemand, powerCurrent,
                 powerMaximum, voltage, safety};
@@ -80,13 +51,7 @@ public class DemandEditTo15 extends GeneralForm {
             field.setVisible(true);
         }
 
-        buttonBar.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
-        buttonBar.setSpacing(true);
-        reset.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonBar.add(save,reset);
-
-        add(formDemand,filesLayout,buttonBar);
+        add(formDemand,filesLayout,buttonBar,accordionHistory);
     }
 
     @Override
@@ -103,6 +68,7 @@ public class DemandEditTo15 extends GeneralForm {
                 point = pointService.findAllByDemand(demand).get(0);
             }
             filesLayout.findAllByDemand(demand);
+            historyLayout.findAllByDemand(demand);
         }
         pointBinder.readBean(this.point);
     }
@@ -116,13 +82,5 @@ public class DemandEditTo15 extends GeneralForm {
         filesLayout.setDemand(demand);
         filesLayout.saveFiles();
         return true;
-    }
-
-    @Override
-    public void clearForm() {
-        binderDemand.readBean(null);
-        pointBinder.readBean(null);
-        generalBinder.readBean(null);
-        populateForm(null);
     }
 }

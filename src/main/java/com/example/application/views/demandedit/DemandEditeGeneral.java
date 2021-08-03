@@ -5,13 +5,9 @@ import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.ExpirationsLayout;
-import com.example.application.views.support.FilesLayout;
 import com.example.application.views.support.GeneralForm;
 import com.example.application.views.support.PointsLayout;
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.*;
 
 import java.io.IOException;
@@ -21,13 +17,7 @@ import java.io.IOException;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки на энергопринимающие устройства")
 public class DemandEditeGeneral extends GeneralForm {
-    private HorizontalLayout buttonBar = new HorizontalLayout();
-    private Button save = new Button("Сохранить");
-    private Button reset = new Button("Отменить");
-
-    private final FileStoredService fileStoredService;
     private final UserService userService;
-    private FilesLayout filesLayout;
 
     private PointsLayout pointsLayout;
     private ExpirationsLayout expirationsLayout;
@@ -46,19 +36,15 @@ public class DemandEditeGeneral extends GeneralForm {
                               PriceService priceService,
                               SendService sendService,
                               FileStoredService fileStoredService,
+                              HistoryService historyService,
                               Component... components) {
         super(demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                components);
+                historyService, fileStoredService, components);
         this.userService = userService;
-        this.fileStoredService = fileStoredService;
         this.MaxPower = 1000000000.0;
         demandType.setValue(demandTypeService.findById(DemandType.GENERAL).get());
-
-        filesLayout = new FilesLayout(this.fileStoredService
-                , voltageService
-                , safetyService);
 
         pointsLayout = new PointsLayout(pointService
                 ,voltageService
@@ -66,36 +52,15 @@ public class DemandEditeGeneral extends GeneralForm {
 
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
 
-        save.addClickListener(event -> {
-            if(save()) UI.getCurrent().navigate(DemandList.class);
-        });
-
-        reset.addClickListener(event -> {
-            // clear fields by setting null
-            pointsLayout.pointsClean();
-            try {
-                filesLayout.deleteFiles();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            UI.getCurrent().navigate(DemandList.class);
-        });
-
         Component fields[] = {inn, innDate, countPoints, accordionPoints, specification, countTransformations,
                 countGenerations, techminGeneration, reservation, accordionExpiration};
         for(Component field : fields){
             field.setVisible(true);
         }
 
-        buttonBar.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
-        buttonBar.setSpacing(true);
-        reset.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonBar.add(save,reset);
-
         accordionPoints.add("Точки подключения", this.pointsLayout);
         accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
-        add(formDemand, filesLayout, buttonBar);
+        add(formDemand, filesLayout, buttonBar, accordionHistory);
     }
 
     @Override
@@ -114,6 +79,7 @@ public class DemandEditeGeneral extends GeneralForm {
             pointsLayout.findAllByDemand(demand);
             filesLayout.findAllByDemand(demand);
             expirationsLayout.findAllByDemand(demand);
+            historyLayout.findAllByDemand(demand);
         }
         generalBinder.readBean(general);
     }
@@ -129,12 +95,5 @@ public class DemandEditeGeneral extends GeneralForm {
         expirationsLayout.setDemand(demand);
         expirationsLayout.saveExpirations();
         return true;
-    }
-    @Override
-    public void clearForm() {
-        binderDemand.readBean(null);
-        pointBinder.readBean(null);
-        generalBinder.readBean(null);
-        populateForm(null);
     }
 }
