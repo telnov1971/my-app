@@ -5,6 +5,7 @@ import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
+import com.example.application.views.support.ExpirationsLayout;
 import com.example.application.views.support.FilesLayout;
 import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.*;
@@ -30,6 +31,7 @@ public class DemandEditTemporary extends GeneralForm {
 
     private final FileStoredService fileStoredService;
     private FilesLayout filesLayout;
+    private ExpirationsLayout expirationsLayout;
 
     public DemandEditTemporary(DemandService demandService,
                                DemandTypeService demandTypeService,
@@ -57,6 +59,7 @@ public class DemandEditTemporary extends GeneralForm {
         filesLayout = new FilesLayout(this.fileStoredService
                 , voltageService
                 , safetyService);
+        expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
 
         save.addClickListener(event -> {
             if(save()) UI.getCurrent().navigate(DemandList.class);
@@ -71,7 +74,7 @@ public class DemandEditTemporary extends GeneralForm {
         });
 
         Component fields[] = {inn, innDate, powerDemand, powerCurrent,
-                powerMaximum, voltage, safety, specification, period, contract};
+                powerMaximum, voltage, safety, specification, period, contract, accordionExpiration};
         for(Component field : fields){
             field.setVisible(true);
         }
@@ -83,6 +86,7 @@ public class DemandEditTemporary extends GeneralForm {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonBar.add(save,reset);
 
+        accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
         add(formDemand,filesLayout,buttonBar);
     }
 
@@ -100,6 +104,7 @@ public class DemandEditTemporary extends GeneralForm {
                 point = pointService.findAllByDemand(demand).get(0);
             }
             filesLayout.findAllByDemand(demand);
+            expirationsLayout.findAllByDemand(demand);
         }
         pointBinder.readBean(this.point);
     }
@@ -110,6 +115,8 @@ public class DemandEditTemporary extends GeneralForm {
         pointService.update(this.point);
         filesLayout.setDemand(demand);
         filesLayout.saveFiles();
+        expirationsLayout.setDemand(demand);
+        expirationsLayout.saveExpirations();
         return true;
     }
 

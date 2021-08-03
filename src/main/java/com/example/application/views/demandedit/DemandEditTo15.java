@@ -5,6 +5,7 @@ import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
+import com.example.application.views.support.ExpirationsLayout;
 import com.example.application.views.support.FilesLayout;
 import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.*;
@@ -38,7 +39,6 @@ public class DemandEditTo15 extends GeneralForm {
                           GarantService garantService,
                           PointService pointService,
                           GeneralService generalService,
-                          ExpirationService expirationService,
                           UserService userService,
                           VoltageService voltageService,
                           SafetyService safetyService,
@@ -60,6 +60,7 @@ public class DemandEditTo15 extends GeneralForm {
         filesLayout = new FilesLayout(this.fileStoredService
                 , voltageService
                 , safetyService);
+
 
         save.addClickListener(event -> {
             if(save()) UI.getCurrent().navigate(DemandList.class);
