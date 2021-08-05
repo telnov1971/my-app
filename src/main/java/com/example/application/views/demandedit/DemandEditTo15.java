@@ -2,17 +2,10 @@ package com.example.application.views.demandedit;
 
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
-import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
-import com.example.application.views.support.FilesLayout;
 import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.*;
-
-import java.io.*;
 
 @Route(value = "demandto15/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandto15")
@@ -21,7 +14,8 @@ import java.io.*;
 public class DemandEditTo15 extends GeneralForm {
     private final UserService userService;
 
-    public DemandEditTo15(DemandService demandService,
+    public DemandEditTo15(ReasonService reasonService,
+                          DemandService demandService,
                           DemandTypeService demandTypeService,
                           StatusService statusService,
                           GarantService garantService,
@@ -36,10 +30,10 @@ public class DemandEditTo15 extends GeneralForm {
                           FileStoredService fileStoredService,
                           HistoryService historyService,
                           Component... components) {
-        super(demandService,demandTypeService,statusService,garantService,
+        super(reasonService, demandService,demandTypeService,statusService,garantService,
                  pointService,generalService,voltageService,
                  safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService, components);
+                historyService, fileStoredService,false, components);
         this.userService = userService;
         // сервисы
         this.MaxPower = 15.0;

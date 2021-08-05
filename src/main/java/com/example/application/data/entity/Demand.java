@@ -55,8 +55,10 @@ public class Demand extends AbstractEntity {
     // номер телефона
     private String contact;
 
-    // причина подключения
-    private String reason;
+    // причина обращения
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "reason_id")
+    private Reason reason;
     // объект подключения
     @NotNull
     @NotEmpty
@@ -202,10 +204,10 @@ public class Demand extends AbstractEntity {
     public void setContact(String contact) {
         this.contact = contact;
     }
-    public String getReason() {
+    public Reason getReason() {
         return reason;
     }
-    public void setReason(String reason) {
+    public void setReason(Reason reason) {
         this.reason = reason;
     }
     public List<Point> getPoints() {

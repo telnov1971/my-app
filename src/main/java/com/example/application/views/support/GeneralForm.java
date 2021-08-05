@@ -64,7 +64,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected TextField addressRegistration;
     protected TextField addressActual;
 
-    protected TextArea reason;
+    protected Select<Reason> reason;
     protected TextArea object;
     protected TextArea address;
     protected TextArea specification;
@@ -96,6 +96,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected Accordion accordionHistory = new Accordion();
     protected HistoryLayout historyLayout;
 
+    protected final ReasonService reasonService;
     protected final DemandService demandService;
     protected final DemandTypeService demandTypeService;
     protected final StatusService statusService;
@@ -111,7 +112,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected final HistoryService historyService;
     private final FileStoredService fileStoredService;
 
-    public GeneralForm(DemandService demandService,
+    public GeneralForm(ReasonService reasonService,
+                       DemandService demandService,
                        DemandTypeService demandTypeService,
                        StatusService statusService,
                        GarantService garantService,
@@ -125,10 +127,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                        UserService userService,
                        HistoryService historyService,
                        FileStoredService fileStoredService,
+                       Boolean temporal,
                        Component... components) {
         super(components);
         // сервисы
         {
+            this.reasonService = reasonService;
             this.generalService = generalService;
             this.demandService = demandService;
             this.demandTypeService = demandTypeService;
@@ -182,8 +186,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     "Тип заявки", DemandType.class);
             demandType.setReadOnly(true);
 
-            demander = new TextArea("Заявитель", "ФИО подающего заявку");
-            inn = new TextField("ИНН", "От 10 до 12 цифр");
+            demander = new TextArea("Заявитель", "Наименование организации, ФИО заявителя");
+            inn = new TextField("Реквизиты заявителя", "ОГРН для юр.лиц, ИНН для ИП");
             innDate = new DatePicker("Дата выдачи");
             contact = new TextField("Контактный телефон");
             passportSerries = new TextField("Паспорт серия", "Четыре цифры");
@@ -191,7 +195,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             pasportIssued = new TextArea("Паспорт выдан");
             addressRegistration = new TextField("Адрес регистрации");
             addressActual = new TextField("Адрес фактический");
-            reason = new TextArea("Причина подключения");
             object = new TextArea("Объект");
             address = new TextArea("Адрес объекта");
             specification = new TextArea("Характер нагрузки");
@@ -215,6 +218,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         // создание селекторов
         {
+            reason = createSelect(Reason::getName, reasonService.findAllByTemporal(temporal),
+                    "Причина обращения", Reason.class);
+
             voltage = createSelect(Voltage::getName, voltageService.findAll(),
                     "Уровень напряжения", Voltage.class);
 
@@ -372,7 +378,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         );
     }
 
-    private <C> Select<C> createSelect(ItemLabelGenerator<C> gen, List<C> list,
+    protected <C> Select<C> createSelect(ItemLabelGenerator<C> gen, List<C> list,
                                         String label, Class<C> clazz){
         Select<C> select = new Select<>();
         select.setLabel(label);

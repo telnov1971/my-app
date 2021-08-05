@@ -2,18 +2,11 @@ package com.example.application.views.demandedit;
 
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
-import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.ExpirationsLayout;
-import com.example.application.views.support.FilesLayout;
 import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.*;
-
-import java.io.IOException;
 
 @Route(value = "demandto150/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandto150")
@@ -23,7 +16,8 @@ public class DemandEditTo150 extends GeneralForm {
     private final UserService userService;
     private ExpirationsLayout expirationsLayout;
 
-    public DemandEditTo150(DemandService demandService,
+    public DemandEditTo150(ReasonService reasonService,
+                           DemandService demandService,
                            DemandTypeService demandTypeService,
                            StatusService statusService,
                            GarantService garantService,
@@ -39,10 +33,10 @@ public class DemandEditTo150 extends GeneralForm {
                            FileStoredService fileStoredService,
                            HistoryService historyService,
                            Component... components) {
-        super(demandService,demandTypeService,statusService,garantService,
+        super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService, components);
+                historyService, fileStoredService,false, components);
         this.userService = userService;
         this.MaxPower = 150.0;
         demandType.setValue(demandTypeService.findById(DemandType.TO150).get());

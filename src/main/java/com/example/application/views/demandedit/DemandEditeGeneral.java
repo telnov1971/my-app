@@ -2,15 +2,12 @@ package com.example.application.views.demandedit;
 
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
-import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.ExpirationsLayout;
 import com.example.application.views.support.GeneralForm;
 import com.example.application.views.support.PointsLayout;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.router.*;
-
-import java.io.IOException;
 
 @Route(value = "demandreciver/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandreciver")
@@ -22,7 +19,8 @@ public class DemandEditeGeneral extends GeneralForm {
     private PointsLayout pointsLayout;
     private ExpirationsLayout expirationsLayout;
 
-    public DemandEditeGeneral(DemandService demandService,
+    public DemandEditeGeneral(ReasonService reasonService,
+                              DemandService demandService,
                               DemandTypeService demandTypeService,
                               StatusService statusService,
                               GarantService garantService,
@@ -38,10 +36,10 @@ public class DemandEditeGeneral extends GeneralForm {
                               FileStoredService fileStoredService,
                               HistoryService historyService,
                               Component... components) {
-        super(demandService,demandTypeService,statusService,garantService,
+        super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService, components);
+                historyService, fileStoredService,false, components);
         this.userService = userService;
         this.MaxPower = 1000000000.0;
         demandType.setValue(demandTypeService.findById(DemandType.GENERAL).get());

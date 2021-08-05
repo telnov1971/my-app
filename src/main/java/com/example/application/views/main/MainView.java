@@ -2,7 +2,7 @@ package com.example.application.views.main;
 
 import com.example.application.data.entity.User;
 import com.example.application.data.service.UserService;
-import com.example.application.views.demandedit.DemandEditTemporary;
+import com.example.application.views.demandedit.DemandEditTemporal;
 import com.example.application.views.demandedit.DemandEditTo15;
 import com.example.application.views.demandedit.DemandEditTo150;
 import com.example.application.views.demandedit.DemandEditeGeneral;
@@ -91,16 +91,16 @@ public class MainView extends AppLayout {
             UI.getCurrent().navigate(DemandList.class);
         });
         MenuItem editors = menuBar.addItem("Новая заявка");
-        editors.getSubMenu().addItem("До 15 кВт", e -> {
+        editors.getSubMenu().addItem("Физические лица до 15 кВт", e -> {
             UI.getCurrent().navigate(DemandEditTo15.class);
         } );
-        editors.getSubMenu().addItem("До 150 кВт", e -> {
+        editors.getSubMenu().addItem("Юридические лица и ИП до 150кВт", e -> {
             UI.getCurrent().navigate(DemandEditTo150.class);
         } );
-        editors.getSubMenu().addItem("Временное подключение", e -> {
-            UI.getCurrent().navigate(DemandEditTemporary.class);
+        editors.getSubMenu().addItem("Временное присоединение", e -> {
+            UI.getCurrent().navigate(DemandEditTemporal.class);
         } );
-        editors.getSubMenu().addItem("Энергопринимающие устройства", e -> {
+        editors.getSubMenu().addItem("Иные категории потребителей", e -> {
             UI.getCurrent().navigate(DemandEditeGeneral.class);
         } );
         menuBar.addItem("Профиль", e ->{

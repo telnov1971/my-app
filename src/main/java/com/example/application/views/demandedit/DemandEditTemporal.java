@@ -2,48 +2,42 @@ package com.example.application.views.demandedit;
 
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
-import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.ExpirationsLayout;
-import com.example.application.views.support.FilesLayout;
 import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.*;
-
-import java.io.IOException;
 
 @Route(value = "demandtemporary/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandtemporary")
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки на временное подключение")
-public class DemandEditTemporary extends GeneralForm {
+public class DemandEditTemporal extends GeneralForm {
     private ExpirationsLayout expirationsLayout;
 
-    public DemandEditTemporary(DemandService demandService,
-                               DemandTypeService demandTypeService,
-                               StatusService statusService,
-                               GarantService garantService,
-                               PointService pointService,
-                               GeneralService generalService,
-                               ExpirationService expirationService,
-                               UserService userService,
-                               VoltageService voltageService,
-                               SafetyService safetyService,
-                               PlanService planService,
-                               PriceService priceService,
-                               SendService sendService,
-                               FileStoredService fileStoredService,
-                               HistoryService historyService,
-                               Component... components) {
-        super(demandService,demandTypeService,statusService,garantService,
+    public DemandEditTemporal(ReasonService reasonService,
+                              DemandService demandService,
+                              DemandTypeService demandTypeService,
+                              StatusService statusService,
+                              GarantService garantService,
+                              PointService pointService,
+                              GeneralService generalService,
+                              ExpirationService expirationService,
+                              UserService userService,
+                              VoltageService voltageService,
+                              SafetyService safetyService,
+                              PlanService planService,
+                              PriceService priceService,
+                              SendService sendService,
+                              FileStoredService fileStoredService,
+                              HistoryService historyService,
+                              Component... components) {
+        super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService, components);
+                historyService, fileStoredService,true, components);
         this.MaxPower = 1000000000.0;
-        demandType.setValue(demandTypeService.findById(DemandType.TEMPORARY).get());
+        demandType.setValue(demandTypeService.findById(DemandType.TEMPORAL).get());
 
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
 

@@ -83,11 +83,13 @@ public class HistoryService extends CrudService<History,Long> {
             history = history + "Значение Номер телефона: " + oldDemand.getContact() +
                     " изменилось на: " + demand.getContact() + "\n";
         }
-        if(oldDemand.getReason()==null) oldDemand.setReason("");
-        if(demand.getReason()==null) demand.setReason("");
+        if(oldDemand.getReason()==null && demand.getReason()!=null) {
+            history = history + "Значение Причина обращения: " +
+                    " изменилось на: " + demand.getReason().getName() + "\n";
+        };
         if(!oldDemand.getReason().equals(demand.getReason())) {
-            history = history + "Значение Причина подключения: " + oldDemand.getReason() +
-                    " изменилось на: " + demand.getReason() + "\n";
+            history = history + "Значение Причина обращения: " + oldDemand.getReason().getName() +
+                    " изменилось на: " + demand.getReason().getName() + "\n";
         }
         if(oldDemand.getObject()==null) oldDemand.setObject("");
         if(demand.getObject()==null) demand.setObject("");

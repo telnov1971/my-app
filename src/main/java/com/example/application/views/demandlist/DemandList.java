@@ -5,7 +5,7 @@ import com.example.application.data.entity.DemandType;
 import com.example.application.data.entity.User;
 import com.example.application.data.service.DemandService;
 import com.example.application.data.service.UserService;
-import com.example.application.views.demandedit.DemandEditTemporary;
+import com.example.application.views.demandedit.DemandEditTemporal;
 import com.example.application.views.demandedit.DemandEditTo15;
 import com.example.application.views.demandedit.DemandEditTo150;
 import com.example.application.views.demandedit.DemandEditeGeneral;
@@ -86,8 +86,8 @@ public class DemandList extends Div {
                 UI.getCurrent().navigate(DemandEditTo150.class, new RouteParameters("demandID",
                         String.valueOf(event.getItem().getId())));
             }
-            if (event.getItem().getDemandType().getId() == DemandType.TEMPORARY) {
-                UI.getCurrent().navigate(DemandEditTemporary.class, new RouteParameters("demandID",
+            if (event.getItem().getDemandType().getId() == DemandType.TEMPORAL) {
+                UI.getCurrent().navigate(DemandEditTemporal.class, new RouteParameters("demandID",
                         String.valueOf(event.getItem().getId())));
             }
             if (event.getItem().getDemandType().getId() == DemandType.GENERAL) {
