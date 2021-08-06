@@ -11,6 +11,7 @@ public class AbstractDictionary extends AbstractEntity {
     private boolean active;
 
     public AbstractDictionary() {
+        super();
         this.active = true;
     }
 
@@ -18,6 +19,7 @@ public class AbstractDictionary extends AbstractEntity {
         super();
         this.name = name;
         this.code = code;
+        this.active = true;
     }
 
     public String getName() {

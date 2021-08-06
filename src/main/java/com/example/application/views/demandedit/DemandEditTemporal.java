@@ -41,8 +41,11 @@ public class DemandEditTemporal extends GeneralForm {
 
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
 
-        Component fields[] = {inn, innDate, powerDemand, powerCurrent,
-                powerMaximum, voltage, safety, specification, period, contract, accordionExpiration};
+        Component fields[] = {inn, innDate,
+                passportSerries,passportNumber,pasportIssued,
+                addressRegistration,addressActual,
+                powerDemand, powerCurrent, powerMaximum, voltage, safety,
+                specification, period, contract, accordionExpiration};
         for(Component field : fields){
             field.setVisible(true);
         }

@@ -38,8 +38,12 @@ public class DemandEditTo15 extends GeneralForm {
         // сервисы
         this.MaxPower = 15.0;
         demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
+        safety.setValue(safetyService.findById(3L).get());
+        safety.setReadOnly(true);
 
-        Component fields[] = {powerDemand, powerCurrent,
+        Component fields[] = {passportSerries,passportNumber,pasportIssued,
+                addressRegistration,addressActual,
+                powerDemand, powerCurrent,
                 powerMaximum, voltage, safety};
         for(Component field : fields){
             field.setVisible(true);

@@ -43,7 +43,7 @@ public class DemandEditTo150 extends GeneralForm {
 
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
 
-        Component fields[] = {inn, innDate, powerDemand, powerCurrent,
+        Component fields[] = {delegate, inn, innDate, powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, specification, plan, accordionExpiration};
         for(Component field : fields){
             field.setVisible(true);
@@ -74,6 +74,8 @@ public class DemandEditTo150 extends GeneralForm {
         pointBinder.readBean(this.point);
     }
     public boolean save() {
+        passportSerries.setValue("0000");
+        passportNumber.setValue("000000");
         if(!super.save() || (pointBinder.validate().getValidationErrors().size() > 0)) return false;
         pointBinder.writeBeanIfValid(point);
         point.setDemand(demand);

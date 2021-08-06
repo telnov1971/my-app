@@ -21,21 +21,17 @@ public class Demand extends AbstractEntity {
     @NotNull
     @NotEmpty
     private String demander;
+    // представитель
+    private String delegate;
     // паспорт серия
-    @NotNull
-    @NotEmpty
     @Column(name = "pas_ser")
     @Size(min=4,max=4,message="Серия паспорта состоит из 4 цифр")
     private String passportSerries;
     // пасорт номер
-    @NotNull
-    @NotEmpty
     @Column(name = "pas_num")
     @Size(min=6,max=6,message="Номер паспорта состоит из 6 цифр")
     private String passportNumber;
     // пасорт выдан
-    @NotNull
-    @NotEmpty
     @Column(name = "pas_iss")
     private String pasportIssued;
     // госрегистрация
@@ -48,8 +44,6 @@ public class Demand extends AbstractEntity {
     @Column(name = "add_reg")
     private String addressRegistration;
     // адрес фактический
-    @NotNull
-    @NotEmpty
     @Column(name = "add_act")
     private String addressActual;
     // номер телефона
@@ -98,10 +92,6 @@ public class Demand extends AbstractEntity {
     // реквизиты договора
     private String contract;
 
-    // способ передачи
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "send_id")
-    private Send send;
     // тип заявки
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "dtype_id")
@@ -240,12 +230,6 @@ public class Demand extends AbstractEntity {
 //    public void setPrice(Price price) {
 //        this.price = price;
 //    }
-    public Send getSend() {
-        return send;
-    }
-    public void setSend(Send send) {
-        this.send = send;
-    }
     public Status getStatus() {
         return status;
     }
@@ -299,5 +283,11 @@ public class Demand extends AbstractEntity {
     }
     public void setChange(boolean update) {
         this.change = update;
+    }
+    public String getDelegate() {
+        return delegate;
+    }
+    public void setDelegate(String delegate) {
+        this.delegate = delegate;
     }
 }

@@ -55,6 +55,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected Accordion accordionDemander = new Accordion();
     protected FormLayout formDemander = new FormLayout();
     protected TextArea demander;
+    protected TextField delegate;
     protected TextField inn;
     protected DatePicker innDate;
     protected TextField contact;
@@ -90,7 +91,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected TextArea reservation;
 
     protected Select<Plan> plan;
-    protected Select<Send> send;
     protected Select<Garant> garant;
 
     protected Accordion accordionHistory = new Accordion();
@@ -187,6 +187,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             demandType.setReadOnly(true);
 
             demander = new TextArea("Заявитель", "Наименование организации, ФИО заявителя");
+            delegate = new TextField("ФИО представителя","Представитель юр.лица");
             inn = new TextField("Реквизиты заявителя", "ОГРН для юр.лиц, ИНН для ИП");
             innDate = new DatePicker("Дата выдачи");
             contact = new TextField("Контактный телефон");
@@ -222,7 +223,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     "Причина обращения", Reason.class);
 
             voltage = createSelect(Voltage::getName, voltageService.findAll(),
-                    "Уровень напряжения", Voltage.class);
+                    "Класс напряжения", Voltage.class);
 
             safety = createSelect(Safety::getName, safetyService.findAll(),
                     "Категория надежности", Safety.class);
@@ -232,9 +233,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
             plan = createSelect(Plan::getName, planService.findAll(),
                     "Рассрочка платежа", Plan.class);
-
-            send = createSelect(Send::getName, sendService.findAll(),
-                    "Способ получения договора", Send.class);
 
             status = createSelect(Status::getName, statusService.findAll(),
                     "Статус", Status.class);
@@ -247,8 +245,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             binderDemand.forField(inn)
                     .withValidator(
                             new StringLengthValidator(
-                                    "ИНН должен содержать от 10 до 12 знаков",
-                                    10, 12))
+                                    "ИНН должен содержать от 10 до 13 знаков",
+                                    10, 13))
                     .bind(Demand::getInn, Demand::setInn);
 
             pointBinder.forField(powerDemand)
@@ -292,15 +290,14 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         setColumnCount(formDemand);
         setColumnCount(formDemander);
 
-        formDemander.add(contact,label,
-                inn,innDate,label,
+        formDemander.add(inn,innDate,label,
                 passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual);
         setWidthFormDemander();
         accordionDemander.add("Данные заявителя", formDemander);
 
         formDemand.add(createdate, demandType, status, label);
-        formDemand.add(demander);
+        formDemand.add(demander,delegate,contact);
         formDemand.add(accordionDemander);
         formDemand.add(reason, object, address, specification,label);
         formDemand.add(countPoints, accordionPoints, powerDemand, powerCurrent
@@ -308,7 +305,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemand.add(countTransformations,countGenerations,techminGeneration,reservation);
         formDemand.add(period,contract);
         formDemand.add(accordionExpiration);
-        formDemand.add(garant, plan, send);
+        formDemand.add(garant, plan);
         setWidthFormDemand();
 
         buttonBar.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
@@ -317,7 +314,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonBar.add(save,reset);
 
-        Component fields[] = {inn, innDate, countPoints, accordionPoints, powerDemand, powerCurrent,
+        Component fields[] = {delegate, inn, innDate,
+                passportSerries,passportNumber,pasportIssued,
+                addressRegistration,addressActual,
+                countPoints, accordionPoints, powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, specification, countTransformations,accordionExpiration,
                 countGenerations, techminGeneration, reservation, plan, period, contract};
         for(Component field : fields){
@@ -331,6 +331,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemand.setColspan(demandType, 1);
         formDemand.setColspan(status, 1);
         formDemand.setColspan(demander, 4);
+        formDemand.setColspan(delegate, 4);
+        formDemand.setColspan(contact, 1);
         formDemand.setColspan(accordionDemander, 4);
         formDemand.setColspan(reason, 4);
         formDemand.setColspan(object, 4);
@@ -354,12 +356,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemand.setColspan(accordionExpiration, 4);
         formDemand.setColspan(garant, 1);
         formDemand.setColspan(plan, 1);
-        formDemand.setColspan(send, 1);
         formDemand.setColspan(accordionHistory,4);
     }
 
     private void setWidthFormDemander() {
-        formDemander.setColspan(contact, 1);
         formDemander.setColspan(inn, 1);
         formDemander.setColspan(innDate, 1);
         formDemander.setColspan(passportNumber, 1);
@@ -422,24 +422,35 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             demand.setChange(false);
             demand.setExecuted(false);
         }
-        if(demand.getInn().equals("0000000000")) demand.setInn(null);
+//        if(demand.getInn().equals("0000000000")) demand.setInn(null);
+//        if(demand.getPassportSerries().equals("0000")) demand.setPassportSerries(null);
+//        if(demand.getPassportNumber().equals("000000")) demand.setPassportNumber(null);
         History history = new History();
-        history.setHistory(historyService.writeHistory(demand));
-        demandService.update(this.demand);
-        history.setDemand(demand);
-        if(history.getHistory()!="") {
-            historyService.save(history);
+        try {
+            String his = historyService.writeHistory(demand);
+            history.setHistory(his);
+        } catch (Exception e) {System.out.println(e.getMessage());}
+        try {
+            if(demandService.update(this.demand)!=null) {
+                history.setDemand(demand);
+                if(history.getHistory()!="") {
+                    historyService.save(history);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return true;
     }
 
     protected void setReadOnly() {
         AbstractField fields[] = {
-                demander,inn,innDate,contact,passportSerries,passportNumber,pasportIssued,
+                demander,delegate,inn,innDate,contact,passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,reason,object,address,specification,
                 countPoints,powerDemand,powerCurrent,powerMaximum,voltage,safety,period,
                 contract,countTransformations,countGenerations,techminGeneration,reservation,
-                plan,send,garant
+                plan,garant
         };
         for(AbstractField field : fields) {
             field.setReadOnly(true);
