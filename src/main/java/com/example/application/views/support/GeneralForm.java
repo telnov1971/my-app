@@ -201,18 +201,18 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             specification = new TextArea("Характер нагрузки");
 
             countPoints = new IntegerField("Кол-во точек подключения");
-            powerDemand = new NumberField("Мощность заявленная", "0,00 кВт");
+            powerDemand = new NumberField("Мощность присоединяемая", "0,00 кВт");
             powerDemand.setStep(0.01);
             powerDemand.setAutocorrect(true);
-            powerCurrent = new NumberField("Мощность текущая", "0,00 кВт");
+            powerCurrent = new NumberField("Мощность ранее присоединённая", "0,00 кВт");
             powerCurrent.setAutocorrect(true);
             powerMaximum = new NumberField("Мощность максимальная", "0,00 кВт");
             powerMaximum.setAutocorrect(true);
 
-            countTransformations = new TextArea("Кол-во и мощ-ть трансформаторов");
+            countTransformations = new TextArea("Кол-во и мощ-ть присоединяемых трансформаторов");
             countGenerations = new TextArea("Кол-во и мощ-ть генераторов");
-            techminGeneration = new TextArea("Тех.мин. для генераторов");
-            reservation = new TextArea("Бронирование");
+            techminGeneration = new TextArea("Технологический минимум для генераторов");
+            reservation = new TextArea("Технологическая и аварийная бронь");
             period = new TextArea("Срок подключения по временной схеме");
             contract = new TextField("Реквизиты договора");
         }
