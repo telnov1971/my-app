@@ -20,8 +20,8 @@ public class VoltageService extends CrudService<Voltage, Long> {
         return voltageRepository;
     }
 
-    public List<Voltage> findAll() {
-        return voltageRepository.findAll();
+    public List<Voltage> findAllByOptional(Boolean optional) {
+        return voltageRepository.findAllByOptional(optional);
     }
 
     public Optional<Voltage> findById(Long i) {

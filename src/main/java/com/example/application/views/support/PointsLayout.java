@@ -72,6 +72,7 @@ public class PointsLayout extends VerticalLayout {
             pointDataProvider.getItems().add(new Point(0.0,
                     0.0,
                     this.voltageService.findById(1L).get(),
+                    null,
                     this.safetyService.findById(1L).get()
             ));
             pointDataProvider.refreshAll();
@@ -108,7 +109,7 @@ public class PointsLayout extends VerticalLayout {
         columnSafety.setEditorComponent(selectSafety);
 
         Select<Voltage> selectVoltage = new Select();
-        selectVoltage.setItems(voltageService.findAll());
+        selectVoltage.setItems(voltageService.findAllByOptional(false));
         selectVoltage.setItemLabelGenerator(Voltage::getName);
         binderPoints.forField(selectVoltage).bind("voltage");
         columnVoltage.setEditorComponent(selectVoltage);
@@ -160,6 +161,7 @@ public class PointsLayout extends VerticalLayout {
             pointAdd(new Point(0.0,
                     0.0,
                     voltageService.findById(1L).get(),
+                    null,
                     safetyService.findById(1L).get()));
         }
         pointGrid.setItems(points);

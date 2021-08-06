@@ -41,6 +41,10 @@ public class DemandEditTo15 extends GeneralForm {
         safety.setValue(safetyService.findById(3L).get());
         safety.setReadOnly(true);
 
+        voltage.addValueChangeListener(e -> {
+            setOptional();
+        });
+
         Component fields[] = {passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,
                 powerDemand, powerCurrent,
@@ -69,6 +73,7 @@ public class DemandEditTo15 extends GeneralForm {
             historyLayout.findAllByDemand(demand);
         }
         pointBinder.readBean(this.point);
+        setOptional();
     }
 
     public boolean save() {
@@ -80,5 +85,13 @@ public class DemandEditTo15 extends GeneralForm {
         filesLayout.setDemand(demand);
         filesLayout.saveFiles();
         return true;
+    }
+
+    private void setOptional(){
+        if(voltage.getValue()!=null && voltage.getValue().getId()==1L) {
+            voltageIn.setVisible(true);
+        } else {
+            voltageIn.setVisible(false);
+        }
     }
 }

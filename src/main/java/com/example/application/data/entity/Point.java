@@ -23,6 +23,9 @@ public class Point extends AbstractEntity {
     @JoinColumn(name = "volt_id")
     private Voltage voltage;
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "volt_in_id")
+    private Voltage voltageIn;
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "safe_id")
     private Safety safety;
     @Column(name = "spec")
@@ -30,11 +33,13 @@ public class Point extends AbstractEntity {
 
     public Point() {}
 
-    public Point(Double powerDemand, Double powerCurrent, Voltage voltage, Safety safety) {
+    public Point(Double powerDemand, Double powerCurrent,
+                 Voltage voltage, Voltage voltageIn , Safety safety) {
         this.powerDemand = powerDemand;
         this.powerCurrent = powerCurrent;
         this.powerMaximum = this.powerCurrent + this.powerDemand;
         this.voltage = voltage;
+        this.voltageIn = voltageIn;
         this.safety = safety;
     }
 
@@ -78,5 +83,13 @@ public class Point extends AbstractEntity {
     }
     public Double getPowerMaximum() {
         return powerMaximum;
+    }
+
+    public Voltage getVoltageIn() {
+        return voltageIn;
+    }
+
+    public void setVoltageIn(Voltage voltageIn) {
+        this.voltageIn = voltageIn;
     }
 }

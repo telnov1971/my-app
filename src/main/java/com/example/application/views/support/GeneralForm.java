@@ -79,6 +79,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected NumberField powerCurrent;
     protected NumberField powerMaximum;
     protected Select<Voltage> voltage;
+    protected Select<Voltage> voltageIn;
     protected Select<Safety> safety;
 
     protected General general = new General();
@@ -222,8 +223,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             reason = createSelect(Reason::getName, reasonService.findAllByTemporal(temporal),
                     "Причина обращения", Reason.class);
 
-            voltage = createSelect(Voltage::getName, voltageService.findAll(),
+            voltage = createSelect(Voltage::getName, voltageService.findAllByOptional(false),
                     "Класс напряжения", Voltage.class);
+
+            voltageIn = createSelect(Voltage::getName, voltageService.findAllByOptional(true),
+                    "Уровень напряжения на входе", Voltage.class);
 
             safety = createSelect(Safety::getName, safetyService.findAll(),
                     "Категория надежности", Safety.class);
@@ -301,7 +305,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemand.add(accordionDemander);
         formDemand.add(reason, object, address, specification,label);
         formDemand.add(countPoints, accordionPoints, powerDemand, powerCurrent
-                , powerMaximum, voltage, safety, label);
+                , powerMaximum, voltage, voltageIn, safety, label);
         formDemand.add(countTransformations,countGenerations,techminGeneration,reservation);
         formDemand.add(period,contract);
         formDemand.add(accordionExpiration);
@@ -318,7 +322,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,
                 countPoints, accordionPoints, powerDemand, powerCurrent,
-                powerMaximum, voltage, safety, specification, countTransformations,accordionExpiration,
+                powerMaximum, voltage, voltageIn, safety, specification,
+                countTransformations,accordionExpiration,
                 countGenerations, techminGeneration, reservation, plan, period, contract};
         for(Component field : fields){
             field.setVisible(false);
