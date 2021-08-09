@@ -40,7 +40,7 @@ public class ExpirationsLayout extends VerticalLayout {
 
         Grid.Column<Expiration> columnStep =
                 expirationGrid.addColumn(Expiration::getStep)
-                        .setHeader("Этап")
+                        .setHeader("Этап/Очередь")
                         .setAutoWidth(true);
         Grid.Column<Expiration> columnPlanProject =
                 expirationGrid.addColumn(Expiration::getPlanProject).
@@ -59,14 +59,16 @@ public class ExpirationsLayout extends VerticalLayout {
                         .setAutoWidth(true)
                         .setHeader("Кат. надёж.");
         Expiration temp = new Expiration();
-        temp.setSafety(safetyService.findById(1L).get());
+        temp.setSafety(safetyService.findById(3L).get());
         expirations.add(temp);
         expirationGrid.setItems(expirations);
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
         expirations.remove(expirations.size() - 1);
 
         Button addButton = new Button("Добавить этап", event -> {
-            expirationsDataProvider.getItems().add(new Expiration());
+            expirationsDataProvider.getItems().add(new Expiration("",
+                    "","",0.0,
+                    safetyService.findById(3L).get()));
             expirationsDataProvider.refreshAll();
         });
 
@@ -138,7 +140,7 @@ public class ExpirationsLayout extends VerticalLayout {
     }
 
     public void pointAdd(Expiration expiration) {
-        expiration.setSafety(safetyService.findById(1L).get());
+        expiration.setSafety(safetyService.findById(3L).get());
         expirations.add(expiration);
         expirationGrid.setItems(expirations);
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
