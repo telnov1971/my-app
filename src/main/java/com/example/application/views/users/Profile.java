@@ -33,24 +33,19 @@ public class Profile extends Div implements BeforeEnterObserver {
     private final PasswordEncoder passwordEncoder;
     private final MailSenderService mailSenderService;
     private final String USER_ID = "userID";
-    private User user = new User();
-    private BeanValidationBinder<User> userBinder = new BeanValidationBinder<>(User.class);
-    private User userFromDB;
-    private FormLayout userForm = new FormLayout();
-    private HorizontalLayout buttonBar = new HorizontalLayout();
-    private TextField username;
-    private PasswordField password;
-    private PasswordField passwordVerify;
-    private EmailField email;
-    private Label notyfy;
-    private Button save = new Button("Зарегистрировать");
-    private Button recover = new Button("Восстановить");
-    private Button reset = new Button("Отменить");
-    private Label note = new Label("Для регистрации введите логин, е-майл и пароль. Для " +
-            "восстановления пароля введите логин или е-майл. Для активации аккаунта необходимо " +
-            "перейти по ссылке в присланом письме.");
+    private final User user = new User();
+    private final BeanValidationBinder<User> userBinder = new BeanValidationBinder<>(User.class);
+    private final TextField username;
+    private final PasswordField password;
+    private final PasswordField passwordVerify;
+    private final EmailField email;
+    private final Label notyfy;
+    private final Button save = new Button("Зарегистрировать");
 
-    public Profile(UserService userService, PasswordEncoder passwordEncoder, MailSenderService mailSenderService, Component... components) {
+    public Profile(UserService userService,
+                   PasswordEncoder passwordEncoder,
+                   MailSenderService mailSenderService,
+                   Component... components) {
         super(components);
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
@@ -64,18 +59,12 @@ public class Profile extends Div implements BeforeEnterObserver {
         passwordVerify = new PasswordField("Проверка пароля");
         email = new EmailField("E-mail");
         userBinder.bindInstanceFields(this);
-        username.addValueChangeListener(e -> {
-            saveButtonActive();
-        });
-        email.addValueChangeListener(e -> {
-            saveButtonActive();
-        });
-        password.addValueChangeListener(e -> {
-            saveButtonActive();
-        });
-        passwordVerify.addValueChangeListener(e -> {
-            saveButtonActive();
-        });
+
+        username.addValueChangeListener(e -> saveButtonActive());
+        email.addValueChangeListener(e -> saveButtonActive());
+        password.addValueChangeListener(e -> saveButtonActive());
+        passwordVerify.addValueChangeListener(e -> saveButtonActive());
+
         save.addClickListener(event -> {
             if(username.getValue().equals("")) {
                 notyfy.setText("Имя пользователя не может быть пустым");
@@ -111,6 +100,7 @@ public class Profile extends Div implements BeforeEnterObserver {
                 notyfy.setVisible(true);
             }
         });
+        Button recover = new Button("Восстановить");
         recover.addClickListener(event -> {
             if(password.getValue().equals(passwordVerify.getValue())) {
                 User existUser = null;
@@ -132,9 +122,9 @@ public class Profile extends Div implements BeforeEnterObserver {
             } else {
                 notyfy.setText("Пароли не совпадают");
                 notyfy.setVisible(true);
-                return;
             }
         });
+        Button reset = new Button("Отменить");
         reset.addClickListener(event -> {
             // clear fields by setting null
             userBinder.readBean(null);
@@ -142,27 +132,28 @@ public class Profile extends Div implements BeforeEnterObserver {
             UI.getCurrent().navigate("/");
         });
 
+        HorizontalLayout buttonBar = new HorizontalLayout();
         buttonBar.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
         buttonBar.setSpacing(true);
         reset.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonBar.add(save,recover, reset);
+        buttonBar.add(save, recover, reset);
 
+        FormLayout userForm = new FormLayout();
         userForm.add(username, email, password, passwordVerify);
+        Label note = new Label("Для регистрации введите логин, е-майл и пароль. Для " +
+                "восстановления пароля введите логин или е-майл. Для активации аккаунта необходимо " +
+                "перейти по ссылке в присланом письме.");
         add(notyfy, userForm, buttonBar, note);
         this.getElement().getStyle().set("margin", "15px");
         saveButtonActive();
     }
 
     private void saveButtonActive() {
-        if(!username.getValue().equals("") &&
+        save.setEnabled(!username.getValue().equals("") &&
                 !email.getValue().equals("") &&
                 !password.getValue().equals("") &&
-                !passwordVerify.getValue().equals("")) {
-            save.setEnabled(true);
-        } else {
-            save.setEnabled(false);
-        }
+                !passwordVerify.getValue().equals(""));
     }
 
     @Override
@@ -180,15 +171,8 @@ public class Profile extends Div implements BeforeEnterObserver {
                     clearForm();
                 }
             } else {
-                //Notification.show(String.format("The requested demand was not found, ID = %d", demandId.get()), 3000,
-                //Notification.Position.BOTTOM_START);
                 clearForm();
             }
-        } else {
-//            Stream<Component> components = getParent().get().getChildren();
-//            components.filter(c ->
-//                    c.getClass().equals(MenuBar.class))
-//                    .forEach(c -> c.setVisible(false));
         }
     }
 
@@ -198,11 +182,10 @@ public class Profile extends Div implements BeforeEnterObserver {
     }
 
     private void populateForm(User value) {
-        userFromDB = value;
-        if(userFromDB != null) {
-            user.setId(userFromDB.getId());
-            user.setUsername(userFromDB.getUsername());
-            user.setEmail(userFromDB.getEmail());
+        if(value != null) {
+            user.setId(value.getId());
+            user.setUsername(value.getUsername());
+            user.setEmail(value.getEmail());
         }
         userBinder.readBean(user);
     }

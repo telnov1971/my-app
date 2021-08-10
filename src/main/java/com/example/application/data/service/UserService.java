@@ -43,8 +43,7 @@ public class UserService extends CrudService<User, Long> implements UserDetailsS
             user.setActive(true);
             user.setActivationCode("");
             userRepository.save(user);
-        } catch(Exception e) {
-
+        } catch(Exception ignored) {
         }
     }
 }
