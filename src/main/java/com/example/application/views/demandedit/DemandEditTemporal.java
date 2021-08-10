@@ -13,7 +13,7 @@ import com.vaadin.flow.router.*;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки на временное подключение")
 public class DemandEditTemporal extends GeneralForm {
-    private ExpirationsLayout expirationsLayout;
+    //private ExpirationsLayout expirationsLayout;
 
     public DemandEditTemporal(ReasonService reasonService,
                               DemandService demandService,
@@ -22,7 +22,7 @@ public class DemandEditTemporal extends GeneralForm {
                               GarantService garantService,
                               PointService pointService,
                               GeneralService generalService,
-                              ExpirationService expirationService,
+                              //ExpirationService expirationService,
                               UserService userService,
                               VoltageService voltageService,
                               SafetyService safetyService,
@@ -39,18 +39,18 @@ public class DemandEditTemporal extends GeneralForm {
         this.MaxPower = 1000000000.0;
         demandType.setValue(demandTypeService.findById(DemandType.TEMPORAL).get());
 
-        expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
+        //expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
 
         Component fields[] = {inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,
                 powerDemand, powerCurrent, powerMaximum, voltage, safety,
-                specification, period, contract, accordionExpiration};
+                specification, period, contract};
         for(Component field : fields){
             field.setVisible(true);
         }
 
-        accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
+        //accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
         add(formDemand,filesLayout,buttonBar,accordionHistory);
     }
 
@@ -68,7 +68,7 @@ public class DemandEditTemporal extends GeneralForm {
                 point = pointService.findAllByDemand(demand).get(0);
             }
             filesLayout.findAllByDemand(demand);
-            expirationsLayout.findAllByDemand(demand);
+            //expirationsLayout.findAllByDemand(demand);
             historyLayout.findAllByDemand(demand);
         }
         pointBinder.readBean(this.point);
@@ -80,8 +80,8 @@ public class DemandEditTemporal extends GeneralForm {
         pointService.update(this.point);
         filesLayout.setDemand(demand);
         filesLayout.saveFiles();
-        expirationsLayout.setDemand(demand);
-        expirationsLayout.saveExpirations();
+        //expirationsLayout.setDemand(demand);
+        //expirationsLayout.saveExpirations();
         return true;
     }
 }

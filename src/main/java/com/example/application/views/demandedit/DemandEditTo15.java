@@ -3,6 +3,7 @@ package com.example.application.views.demandedit;
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.main.MainView;
+import com.example.application.views.support.ExpirationsLayout;
 import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.router.*;
@@ -13,6 +14,7 @@ import com.vaadin.flow.router.*;
 @PageTitle("Редактор заявки до 15 кВт")
 public class DemandEditTo15 extends GeneralForm {
     private final UserService userService;
+    private ExpirationsLayout expirationsLayout;
 
     public DemandEditTo15(ReasonService reasonService,
                           DemandService demandService,
@@ -21,6 +23,7 @@ public class DemandEditTo15 extends GeneralForm {
                           GarantService garantService,
                           PointService pointService,
                           GeneralService generalService,
+                          ExpirationService expirationService,
                           UserService userService,
                           VoltageService voltageService,
                           SafetyService safetyService,
@@ -38,6 +41,7 @@ public class DemandEditTo15 extends GeneralForm {
         // сервисы
         this.MaxPower = 15.0;
         demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
+        expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
         safety.setValue(safetyService.findById(3L).get());
         safety.setReadOnly(true);
 
@@ -48,11 +52,12 @@ public class DemandEditTo15 extends GeneralForm {
         Component fields[] = {passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,
                 powerDemand, powerCurrent,
-                powerMaximum, voltage, safety};
+                powerMaximum, voltage, safety, accordionExpiration};
         for(Component field : fields){
             field.setVisible(true);
         }
 
+        accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
         add(formDemand,filesLayout,buttonBar,accordionHistory);
     }
 
@@ -70,6 +75,7 @@ public class DemandEditTo15 extends GeneralForm {
                 point = pointService.findAllByDemand(demand).get(0);
             }
             filesLayout.findAllByDemand(demand);
+            expirationsLayout.findAllByDemand(demand);
             historyLayout.findAllByDemand(demand);
         }
         pointBinder.readBean(this.point);
@@ -84,6 +90,8 @@ public class DemandEditTo15 extends GeneralForm {
         pointService.update(this.point);
         filesLayout.setDemand(demand);
         filesLayout.saveFiles();
+        expirationsLayout.setDemand(demand);
+        expirationsLayout.saveExpirations();
         return true;
     }
 
