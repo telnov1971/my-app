@@ -24,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 @Route(value = "profile/:userID?", layout = MainView.class)
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
@@ -65,6 +64,18 @@ public class Profile extends Div implements BeforeEnterObserver {
         passwordVerify = new PasswordField("Проверка пароля");
         email = new EmailField("E-mail");
         userBinder.bindInstanceFields(this);
+        username.addValueChangeListener(e -> {
+            saveButtonActive();
+        });
+        email.addValueChangeListener(e -> {
+            saveButtonActive();
+        });
+        password.addValueChangeListener(e -> {
+            saveButtonActive();
+        });
+        passwordVerify.addValueChangeListener(e -> {
+            saveButtonActive();
+        });
         save.addClickListener(event -> {
             if(username.getValue().equals("")) {
                 notyfy.setText("Имя пользователя не может быть пустым");
@@ -83,7 +94,6 @@ public class Profile extends Div implements BeforeEnterObserver {
             }
             if(password.getValue().equals(passwordVerify.getValue())) {
                 if(userService.findByUsername(user.getUsername())==null){
-                    //user.setPassword(passwordEncoder.encode(password.getValue()));
                     userBinder.writeBeanIfValid(user);
                     user.setPassword(this.passwordEncoder.encode(user.getPassword()));
                     user.setActive(false);
@@ -102,17 +112,27 @@ public class Profile extends Div implements BeforeEnterObserver {
             }
         });
         recover.addClickListener(event -> {
-            if((userService.findByUsername(user.getUsername())!=null) ||
-                    (userService.findByEmail(user.getEmail())!=null)) {
-                userBinder.writeBeanIfValid(user);
-                user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-                user.setActive(false);
-
-                userService.update(this.user);
-                UI.getCurrent().navigate("/");
+            if(password.getValue().equals(passwordVerify.getValue())) {
+                User existUser = null;
+                if(!username.getValue().equals(""))
+                    existUser = userService.findByUsername(username.getValue());
+                if(existUser==null && !email.getValue().equals(""))
+                    existUser = userService.findByEmail(email.getValue());
+                if(existUser!=null) {
+                    existUser.setPassword(this.passwordEncoder.encode(password.getValue()));
+                    existUser.setActive(false);
+                    existUser.setActivationCode(UUID.randomUUID().toString());
+                    userService.update(existUser);
+                    sendMessage(existUser);
+                    UI.getCurrent().navigate("/");
+                } else {
+                    notyfy.setText("Такой пользователь не существует");
+                    notyfy.setVisible(true);
+                }
             } else {
-                notyfy.setText("Такой пользователь уже существует");
+                notyfy.setText("Пароли не совпадают");
                 notyfy.setVisible(true);
+                return;
             }
         });
         reset.addClickListener(event -> {
@@ -130,6 +150,19 @@ public class Profile extends Div implements BeforeEnterObserver {
 
         userForm.add(username, email, password, passwordVerify);
         add(notyfy, userForm, buttonBar, note);
+        this.getElement().getStyle().set("margin", "15px");
+        saveButtonActive();
+    }
+
+    private void saveButtonActive() {
+        if(!username.getValue().equals("") &&
+                !email.getValue().equals("") &&
+                !password.getValue().equals("") &&
+                !passwordVerify.getValue().equals("")) {
+            save.setEnabled(true);
+        } else {
+            save.setEnabled(false);
+        }
     }
 
     @Override
