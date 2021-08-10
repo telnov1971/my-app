@@ -23,4 +23,8 @@ public class GarantService extends CrudService<Garant, Long> {
     public List<Garant> findAll() {
         return garantRepository.findAll();
     }
+
+    public List<Garant> findAllByActive(Boolean active) {
+        return garantRepository.findAllByActive(active);
+    }
 }

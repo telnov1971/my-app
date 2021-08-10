@@ -73,7 +73,7 @@ public class PointsLayout extends VerticalLayout {
                     0.0,
                     this.voltageService.findById(1L).get(),
                     null,
-                    this.safetyService.findById(1L).get()
+                    this.safetyService.findById(3L).get()
             ));
             pointDataProvider.refreshAll();
             //pointGrid.getDataProvider().refreshAll();
@@ -162,7 +162,7 @@ public class PointsLayout extends VerticalLayout {
                     0.0,
                     voltageService.findById(1L).get(),
                     null,
-                    safetyService.findById(1L).get()));
+                    safetyService.findById(3L).get()));
         }
         pointGrid.setItems(points);
         pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();

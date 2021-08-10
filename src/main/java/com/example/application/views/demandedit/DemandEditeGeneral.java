@@ -53,7 +53,7 @@ public class DemandEditeGeneral extends GeneralForm {
         Component fields[] = {inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,
-                countPoints, accordionPoints, specification, countTransformations,
+                accordionPoints, specification, countTransformations,
                 countGenerations, techminGeneration, reservation, accordionExpiration};
         for(Component field : fields){
             field.setVisible(true);

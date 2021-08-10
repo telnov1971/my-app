@@ -232,7 +232,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             safety = createSelect(Safety::getName, safetyService.findAll(),
                     "Категория надежности", Safety.class);
 
-            garant = createSelect(Garant::getName, garantService.findAll(),
+            garant = createSelect(Garant::getName, garantService.findAllByActive(true),
                     "Гарантирующий поставщик", Garant.class);
 
             plan = createSelect(Plan::getName, planService.findAll(),

@@ -1,7 +1,10 @@
 package com.example.application.data.service;
 
 import com.example.application.data.entity.DemandType;
+import com.example.application.data.entity.Reason;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
@@ -27,5 +30,9 @@ public class DemandTypeService extends CrudService<DemandType, Long> {
 
     public Optional<DemandType> findById(long l) {
         return demandTypeRepository.findById(l);
+    }
+
+    public List<DemandType> findAllByActive(Boolean active){
+        return demandTypeRepository.findAllByActive(active);
     }
 }
