@@ -1,5 +1,6 @@
 package com.example.application.data.service;
 
+import com.example.application.data.AbstractDictionary;
 import com.example.application.data.entity.Demand;
 import com.example.application.data.entity.History;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class HistoryService extends CrudService<History,Long> {
@@ -43,104 +45,77 @@ public class HistoryService extends CrudService<History,Long> {
         } else {
             return "Заявка создана";
         }
-        if(oldDemand.getDemander()==null) oldDemand.setDemander("");
-        if(demand.getDemander()==null) demand.setDemander("");
-        if(!demand.getDemander().equals(oldDemand.getDemander())) {
-            history = history + "Значение Заявитель: " + oldDemand.getDemander() +
-                    " изменилось на: " + demand.getDemander() + "\n";
-        }
-        if(oldDemand.getPassportSerries()==null) oldDemand.setPassportSerries("");
-        if(demand.getPassportSerries()==null) demand.setPassportSerries("");
-        if(!demand.getPassportSerries().equals(oldDemand.getPassportSerries())) {
-            history = history + "Значение Паспорт серия: " + oldDemand.getPassportSerries() +
-                    " изменилось на: " + demand.getPassportSerries() + "\n";
-        }
-        if(oldDemand.getPassportNumber()==null) oldDemand.setPassportNumber("");
-        if(demand.getPassportNumber()==null) demand.setPassportNumber("");
-        if(!demand.getPassportNumber().equals(oldDemand.getPassportNumber())) {
-            history = history + "Значение Паспорт номер: " + oldDemand.getPassportNumber() +
-                    " изменилось на: " + demand.getPassportNumber() + "\n";
-        }
-        if(oldDemand.getInn()==null) oldDemand.setInn("");
-        if(demand.getInn()==null) demand.setInn("");
-        if(!demand.getInn().equals(oldDemand.getInn())) {
-            history = history + "Значение Реквизитов заявителя: " + oldDemand.getInn() +
-                    " изменилось на: " + demand.getInn() + "\n";
-        }
-        if(oldDemand.getAddressRegistration()==null) oldDemand.setAddressRegistration("");
-        if(demand.getAddressRegistration()==null) demand.setAddressRegistration("");
-        if(!demand.getAddressRegistration().equals(oldDemand.getAddressRegistration())) {
-            history = history + "Значение Адрес регистрации: " + oldDemand.getAddressRegistration() +
-                    " изменилось на: " + demand.getAddressRegistration() + "\n";
-        }
-        if(oldDemand.getAddressActual()==null) oldDemand.setAddressActual("");
-        if(demand.getAddressActual()==null) demand.setAddressActual("");
-        if(!demand.getAddressActual().equals(oldDemand.getAddressActual())) {
-            history = history + "Значение Адрес фактический: " + oldDemand.getAddressActual() +
-                    " изменилось на: " + demand.getAddressActual() + "\n";
-        }
-        if(oldDemand.getContact()==null) oldDemand.setContact("");
-        if(demand.getContact()==null) demand.setContact("");
-        if(!demand.getContact().equals(oldDemand.getContact())) {
-            history = history + "Значение Номер телефона: " + oldDemand.getContact() +
-                    " изменилось на: " + demand.getContact() + "\n";
-        }
-        if(oldDemand.getReason()==null && demand.getReason()!=null) {
-            history = history + "Значение Причина обращения: " +
-                    " изменилось на: " + demand.getReason().getName() + "\n";
-        } else {
-            if (oldDemand.getReason()!=null && !demand.getReason().equals(oldDemand.getReason())) {
-                history = history + "Значение Причина обращения: " + oldDemand.getReason().getName() +
-                        " изменилось на: " + demand.getReason().getName() + "\n";
+        history = history + "Заявитель: " +
+                createHistory(demand.getDemander(),oldDemand.getDemander()) + "\n";
+        history = history + "Паспорт серия: " +
+                createHistory(demand.getPassportSerries(),oldDemand.getPassportSerries()) + "\n";
+        history = history + "Паспорт номер: " +
+                createHistory(demand.getPassportNumber(),oldDemand.getPassportNumber()) + "\n";
+        history = history + "Реквизиты заявителя: " +
+                createHistory(demand.getInn(),oldDemand.getInn()) + "\n";
+        history = history + "Адрес регистрации: " +
+                createHistory(demand.getAddressRegistration(),oldDemand.getAddressRegistration()) + "\n";
+        history = history + "Адрес фактический: " +
+                createHistory(demand.getAddressActual(),oldDemand.getAddressActual()) + "\n";
+        history = history + "Номер телефона: " +
+                createHistory(demand.getContact(),oldDemand.getContact()) + "\n";
+        history = history + "Причина обращения: " +
+                createHistory(demand.getReason(),oldDemand.getReason()) + "\n";
+        history = history + "Объект подключения: " +
+                createHistory(demand.getObject(),oldDemand.getObject()) + "\n";
+        history = history + "Адрес объекта: " +
+                createHistory(demand.getAddress(),oldDemand.getAddress()) + "\n";
+        history = history + "Характер нагрузки: " +
+                createHistory(demand.getSpecification(),oldDemand.getSpecification()) + "\n";
+        history = history + "Гарантирующий поставщик: " +
+                createHistory(demand.getGarant(),oldDemand.getGarant()) + "\n";
+        history = history + "План выплат: " +
+                createHistory(demand.getPlan(),oldDemand.getPlan()) + "\n";
+        history = history + "Временный срок: " +
+                createHistory(demand.getPeriod(),oldDemand.getPeriod()) + "\n";
+        history = history + "Реквизиты договора: " +
+                createHistory(demand.getContract(),oldDemand.getContract()) + "\n";
+        return history;
+    }
+
+    private String createHistory(String strNew, String strOld){
+        String history = " - ";
+        if(strNew!=null){
+            if(strOld!=null){
+                if(!strNew.equals(strOld)){
+                    history = strOld + " изменилось на: " + strNew;
+                }
+            } else {
+                history = " изменилось на: " + strNew;
             }
         }
-        if(oldDemand.getObject()==null) oldDemand.setObject("");
-        if(demand.getObject()==null) demand.setObject("");
-        if(!demand.getObject().equals(oldDemand.getObject())) {
-            history = history + "Значение Объект подключения: " + oldDemand.getObject() +
-                    " изменилось на: " + demand.getObject() + "\n";
-        }
-        if(oldDemand.getAddress()==null) oldDemand.setAddress("");
-        if(demand.getAddress()==null) demand.setAddress("");
-        if(!demand.getAddress().equals(oldDemand.getAddress())) {
-            history = history + "Значение Адрес объекта: " + oldDemand.getAddress() +
-                    " изменилось на: " + demand.getAddress() + "\n";
-        }
-        if(oldDemand.getSpecification()==null) oldDemand.setSpecification("");
-        if(demand.getSpecification()==null) demand.setSpecification("");
-        if(!demand.getSpecification().equals(oldDemand.getSpecification())) {
-            history = history + "Значение Характер нагрузки: " + oldDemand.getSpecification() +
-                    " изменилось на: " + demand.getSpecification() + "\n";
-        }
-        if(oldDemand.getGarant()==null && demand.getGarant()!=null) {
-            history = history + "Значение Гарантирующий поставщик " +
-                    " изменилось на: " + demand.getGarant().getName() + "\n";
-        } else {
-            if (oldDemand.getGarant()!=null && !demand.getGarant().equals(oldDemand.getGarant())) {
-                history = history + "Значение Гарантирующий поставщик: " + oldDemand.getGarant().getName() +
-                        " изменилось на: " + demand.getGarant().getName() + "\n";
+        return history;
+    }
+
+    private String createHistory(Double dbNew, Double dbOld){
+        String history = " - ";
+        if(dbNew!=null){
+            if(dbOld!=null){
+                if(!dbNew.equals(dbOld)){
+                    history = dbOld + " изменилось на: " + dbNew;
+                }
+            } else {
+                history = " изменилось на: " + dbNew;
             }
         }
-        if(oldDemand.getPlan()==null && demand.getPlan()!=null) {
-            history = history + "Значение План рассчётов: " +
-                    " изменилось на: " + demand.getPlan().getName() + "\n";
-        } else {
-            if (oldDemand.getPlan()!=null && !demand.getPlan().equals(oldDemand.getPlan())) {
-                history = history + "Значение План рассчётов: " + oldDemand.getPlan().getName() +
-                        " изменилось на: " + demand.getPlan().getName() + "\n";
+        return history;
+    }
+
+    private String createHistory(AbstractDictionary dcNew, AbstractDictionary dcOld){
+        String history = " - ";
+        if(dcNew!=null){
+            if(dcOld!=null){
+                if(!Objects.equals(dcNew.getId(), dcOld.getId())){
+                    history = dcOld.getName() + " изменилось на: " + dcNew.getName();
+                }
+            } else {
+                history = " изменилось на: " + dcNew.getName();
             }
-        }
-        if(oldDemand.getPeriod()==null) oldDemand.setPeriod("");
-        if(demand.getPeriod()==null) demand.setPeriod("");
-        if(!demand.getPeriod().equals(oldDemand.getPeriod())) {
-            history = history + "Значение Временный срок: " + oldDemand.getPeriod() +
-                    " изменилось на: " + demand.getPeriod() + "\n";
-        }
-        if(oldDemand.getContract()==null) oldDemand.setContract("");
-        if(demand.getContract()==null) demand.setContract("");
-        if(!demand.getContract().equals(oldDemand.getContract())) {
-            history = history + "Значение Реквизиты договора: " + oldDemand.getContract() +
-                    " изменилось на: " + demand.getContract() + "\n";
         }
         return history;
     }
