@@ -39,7 +39,7 @@ public class DemandEditeGeneral extends GeneralForm {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService,false, components);
+                historyService, fileStoredService,false, DType.GENERAL, components);
         this.userService = userService;
         this.MaxPower = 1000000000.0;
         demandType.setValue(demandTypeService.findById(DemandType.GENERAL).get());

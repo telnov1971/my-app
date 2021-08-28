@@ -3,7 +3,6 @@ package com.example.application.views.demandedit;
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.main.MainView;
-import com.example.application.views.support.ExpirationsLayout;
 import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.router.*;
@@ -35,7 +34,7 @@ public class DemandEditTemporal extends GeneralForm {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService,true, components);
+                historyService, fileStoredService,true, DType.TEMPORAL, components);
         this.MaxPower = 1000000000.0;
         demandType.setValue(demandTypeService.findById(DemandType.TEMPORAL).get());
 

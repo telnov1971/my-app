@@ -23,7 +23,6 @@ import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
@@ -32,6 +31,7 @@ import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected final String DEMAND_ID = "demandID";
@@ -129,6 +129,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                        HistoryService historyService,
                        FileStoredService fileStoredService,
                        Boolean temporal,
+                       DType dType,
                        Component... components) {
         super(components);
         // сервисы
@@ -220,7 +221,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         // создание селекторов
         {
-            reason = createSelect(Reason::getName, reasonService.findAllByTemporal(temporal),
+            List<Reason> reasonList = reasonService.findAll().stream().
+                filter(r -> r.getDtype().contains(dType)).collect(Collectors.toList());
+            reason = createSelect(Reason::getName, reasonList,
                     "Причина обращения", Reason.class);
 
             voltage = createSelect(Voltage::getName, voltageService.findAllByOptional(false),

@@ -36,7 +36,7 @@ public class DemandEditTo15 extends GeneralForm {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                  pointService,generalService,voltageService,
                  safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService,false, components);
+                historyService, fileStoredService,false, DType.TO15, components);
         this.userService = userService;
         // сервисы
         this.MaxPower = 15.0;

@@ -23,4 +23,8 @@ public class ReasonService extends CrudService<Reason,Long> {
     public List<Reason> findAllByTemporal(Boolean temporal) {
         return reasonRepository.findAllByTemporal(temporal);
     }
+
+  public List<Reason> findAll() {
+      return reasonRepository.findAll();
+  }
 }

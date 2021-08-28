@@ -36,7 +36,7 @@ public class DemandEditTo150 extends GeneralForm {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService,false, components);
+                historyService, fileStoredService,false, DType.TO150, components);
         this.userService = userService;
         this.MaxPower = 150.0;
         demandType.setValue(demandTypeService.findById(DemandType.TO150).get());

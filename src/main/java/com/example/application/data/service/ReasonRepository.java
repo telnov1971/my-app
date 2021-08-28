@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ReasonRepository extends JpaRepository<Reason, Long> {
 
-    @Query("select r from Reason r " +
-            "where r.temporal=:temporal")
-    List<Reason> findAllByTemporal(@Param("temporal") Boolean temporal);
+  @Query("select r from Reason r " +
+          "where r.temporal=:temporal")
+  List<Reason> findAllByTemporal(@Param("temporal") Boolean temporal);
 }
