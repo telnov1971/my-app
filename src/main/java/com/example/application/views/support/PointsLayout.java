@@ -46,15 +46,15 @@ public class PointsLayout extends VerticalLayout {
 
         Grid.Column<Point> columnPowerDemand =
                 pointGrid.addColumn(Point::getPowerDemand)
-                        .setHeader("Мощ. заяв.")
+                        .setHeader("Мощ. прис., кВт")
                         .setAutoWidth(true);
         Grid.Column<Point> columnPowerCurrent =
                 pointGrid.addColumn(Point::getPowerCurrent).
                         setAutoWidth(true).
-                        setHeader("Мощ. тек. ");
+                        setHeader("Мощ. ранее пр., кВт ");
         pointGrid.addColumn(Point::getPowerMaximum).
                 setAutoWidth(true).
-                setHeader("Мощ. мак. ");
+                setHeader("Мощ. мак., кВт ");
         Grid.Column<Point> columnSafety =
                 pointGrid.addColumn(point -> point.getSafety().getName())
                         .setAutoWidth(true)

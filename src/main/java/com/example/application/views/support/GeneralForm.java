@@ -203,12 +203,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             specification = new TextArea("Характер нагрузки");
 
             countPoints = new IntegerField("Кол-во точек подключения");
-            powerDemand = new NumberField("Мощность присоединяемая", "0,00 кВт");
+            powerDemand = new NumberField("Мощность присоединяемая, кВт", "0,00 кВт");
             powerDemand.setStep(0.01);
             powerDemand.setAutocorrect(true);
-            powerCurrent = new NumberField("Мощность ранее присоединённая", "0,00 кВт");
+            powerCurrent = new NumberField("Мощность ранее присоединённая, кВт", "0,00 кВт");
             powerCurrent.setAutocorrect(true);
-            powerMaximum = new NumberField("Мощность максимальная", "0,00 кВт");
+            powerMaximum = new NumberField("Мощность максимальная, кВт", "0,00 кВт");
             powerMaximum.setAutocorrect(true);
 
             countTransformations = new TextArea("Кол-во и мощ-ть присоединяемых трансформаторов");
@@ -230,7 +230,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     "Класс напряжения", Voltage.class);
 
             voltageIn = createSelect(Voltage::getName, voltageService.findAllByOptional(true),
-                    "Уровень напряжения на входе", Voltage.class);
+                    "Уровень напряжения на вводе", Voltage.class);
 
             safety = createSelect(Safety::getName, safetyService.findAll(),
                     "Категория надежности", Safety.class);
