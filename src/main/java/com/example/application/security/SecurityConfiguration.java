@@ -48,9 +48,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         // Настройм страницу входа в систему.
         .and().formLogin().loginPage(LOGIN_URL).permitAll() // Настройм URL-адрес страницы входа и разрешим доступ всем.
         .loginProcessingUrl(LOGIN_PROCESSING_URL) // Настройте URL-адрес для входа в Spring Security для ожидания POST-запросов.
-        .failureUrl(LOGIN_FAILURE_URL)
+        .failureUrl(LOGIN_FAILURE_URL);
         // Настроим выход
-        .and().logout().logoutSuccessUrl(LOGOUT_SUCCESS_URL);
+        //.and().logout().logoutSuccessUrl(LOGOUT_SUCCESS_URL);
     }
 
     /**

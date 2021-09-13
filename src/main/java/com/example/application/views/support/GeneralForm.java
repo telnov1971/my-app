@@ -214,7 +214,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             countTransformations = new TextArea("Кол-во и мощ-ть присоединяемых трансформаторов");
             countGenerations = new TextArea("Кол-во и мощ-ть генераторов");
             techminGeneration = new TextArea("Технологический минимум для генераторов");
+            techminGeneration.setPlaceholder("Величина и обоснование технологического минимума");
             reservation = new TextArea("Технологическая и аварийная бронь");
+            reservation.setPlaceholder("Величина и обоснование технологической и аварийной брони");
             period = new TextArea("Срок подключения по временной схеме");
             contract = new TextField("Реквизиты договора");
         }

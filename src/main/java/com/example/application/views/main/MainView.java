@@ -13,8 +13,8 @@ import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.avatar.Avatar;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.MenuItem;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -147,8 +147,16 @@ public class MainView extends AppLayout {
         avatar.setId("avatar");
         header.add(new H1("Личный кабинет"));
         header.add(avatar);
-        Anchor logout = new Anchor("/logout", "Выход");
-        header.add(logout);
+        //Anchor logout = new Anchor("/logout", "Выход");
+        //header.add(logout);
+        Button button = new Button("Выход", event -> {
+            if(getUI().isPresent()){
+                UI ui = getUI().get();
+                ui.getSession().getSession().invalidate();
+                ui.navigate("/login");
+            }
+        });
+        header.add(button);
         return header;
     }
 
