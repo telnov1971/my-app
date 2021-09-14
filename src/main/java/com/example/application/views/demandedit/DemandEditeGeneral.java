@@ -46,7 +46,8 @@ public class DemandEditeGeneral extends GeneralForm {
 
         pointsLayout = new PointsLayout(pointService
                 ,voltageService
-                ,safetyService);
+                ,safetyService
+                ,historyService);
 
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
 

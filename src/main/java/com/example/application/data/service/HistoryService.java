@@ -3,6 +3,7 @@ package com.example.application.data.service;
 import com.example.application.data.AbstractDictionary;
 import com.example.application.data.entity.Demand;
 import com.example.application.data.entity.History;
+import com.example.application.data.entity.Point;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
@@ -39,47 +40,69 @@ public class HistoryService extends CrudService<History,Long> {
     }
 
     public String writeHistory(Demand demand) {
+        String temp;
         this.history = "";
         if(demand.getId()!=null && demandService.findById(demand.getId()).isPresent()) {
              oldDemand = demandService.findById(demand.getId()).get();
         } else {
             return "Заявка создана";
         }
-        history = history + "Заявитель: " +
-                createHistory(demand.getDemander(),oldDemand.getDemander()) + "\n";
-        history = history + "Паспорт серия: " +
-                createHistory(demand.getPassportSerries(),oldDemand.getPassportSerries()) + "\n";
-        history = history + "Паспорт номер: " +
-                createHistory(demand.getPassportNumber(),oldDemand.getPassportNumber()) + "\n";
-        history = history + "Реквизиты заявителя: " +
-                createHistory(demand.getInn(),oldDemand.getInn()) + "\n";
-        history = history + "Адрес регистрации: " +
-                createHistory(demand.getAddressRegistration(),oldDemand.getAddressRegistration()) + "\n";
-        history = history + "Адрес фактический: " +
-                createHistory(demand.getAddressActual(),oldDemand.getAddressActual()) + "\n";
-        history = history + "Номер телефона: " +
-                createHistory(demand.getContact(),oldDemand.getContact()) + "\n";
-        history = history + "Причина обращения: " +
-                createHistory(demand.getReason(),oldDemand.getReason()) + "\n";
-        history = history + "Объект подключения: " +
-                createHistory(demand.getObject(),oldDemand.getObject()) + "\n";
-        history = history + "Адрес объекта: " +
-                createHistory(demand.getAddress(),oldDemand.getAddress()) + "\n";
-        history = history + "Характер нагрузки: " +
-                createHistory(demand.getSpecification(),oldDemand.getSpecification()) + "\n";
-        history = history + "Гарантирующий поставщик: " +
-                createHistory(demand.getGarant(),oldDemand.getGarant()) + "\n";
-        history = history + "План выплат: " +
-                createHistory(demand.getPlan(),oldDemand.getPlan()) + "\n";
-        history = history + "Временный срок: " +
-                createHistory(demand.getPeriod(),oldDemand.getPeriod()) + "\n";
-        history = history + "Реквизиты договора: " +
-                createHistory(demand.getContract(),oldDemand.getContract()) + "\n";
+        temp = createHistory(demand.getDemander(),oldDemand.getDemander());
+        history = history + (!temp.equals("") ? "Заявитель: " + temp + "\n": "");
+        temp = createHistory(demand.getPassportSerries(),oldDemand.getPassportSerries());
+        history = history + (!temp.equals("") ? "Паспорт серия: " + temp + "\n" : "");
+        temp = createHistory(demand.getPassportNumber(),oldDemand.getPassportNumber());
+        history = history + (!temp.equals("") ? "Паспорт номер: " + temp + "\n" : "");
+        temp = createHistory(demand.getInn(),oldDemand.getInn());
+        history = history + (!temp.equals("") ? "Реквизиты заявителя: " + temp + "\n" : "");
+        temp = createHistory(demand.getAddressRegistration(),oldDemand.getAddressRegistration());
+        history = history + (!temp.equals("") ? "Адрес регистрации: " + temp + "\n" : "");
+        temp = createHistory(demand.getAddressActual(),oldDemand.getAddressActual());
+        history = history + (!temp.equals("") ? "Адрес фактический: " + temp + "\n" : "");
+        temp = createHistory(demand.getContact(),oldDemand.getContact());
+        history = history + (!temp.equals("") ? "Номер телефона: " + temp + "\n" : "");
+        temp = createHistory(demand.getReason(),oldDemand.getReason());
+        history = history + (!temp.equals("") ? "Причина обращения: " + temp + "\n" : "");
+        temp = createHistory(demand.getObject(),oldDemand.getObject());
+        history = history + (!temp.equals("") ? "Объект подключения: " + temp + "\n" : "");
+        temp = createHistory(demand.getAddress(),oldDemand.getAddress());
+        history = history + (!temp.equals("") ? "Адрес объекта: " + temp + "\n" : "");
+        temp = createHistory(demand.getSpecification(),oldDemand.getSpecification());
+        history = history + (!temp.equals("") ? "Характер нагрузки: " + temp + "\n" : "");
+        temp = createHistory(demand.getGarant(),oldDemand.getGarant());
+        history = history + (!temp.equals("") ? "Гарантирующий поставщик: " + temp + "\n" : "");
+        temp = createHistory(demand.getPlan(),oldDemand.getPlan());
+        history = history + (!temp.equals("") ? "План выплат: " + temp + "\n" : "");
+        temp = createHistory(demand.getPeriod(),oldDemand.getPeriod());
+        history = history + (!temp.equals("") ? "Временный срок: " + temp + "\n" : "");
+        temp = createHistory(demand.getContract(),oldDemand.getContract());
+        history = history + (!temp.equals("") ? "Реквизиты договора: " + temp + "\n" : "");
         return history;
     }
 
+    public String writeHistory(Point point){
+        String pointHistory = "";
+        String temp;
+        if(point!=null) {
+            if(pointService.findById(point.getId()).isPresent()) {
+                Point oldPoint = pointService.findById(point.getId()).get();
+                temp = createHistory(point.getPowerDemand(), oldPoint.getPowerDemand());
+                pointHistory = pointHistory + (!temp.equals("") ? "Мощность присоединяемая, кВт: " + temp + "\n" : "");
+                temp = createHistory(point.getPowerCurrent(), oldPoint.getPowerCurrent());
+                pointHistory = pointHistory + (!temp.equals("") ? "Мощность ранее присоединённая, кВт: " + temp + "\n" : "");
+                temp = createHistory(point.getVoltage(), oldPoint.getVoltage());
+                pointHistory = pointHistory + (!temp.equals("") ? "Класс напряжения: " + temp + "\n" : "");
+                temp = createHistory(point.getVoltageIn(), oldPoint.getVoltageIn());
+                pointHistory = pointHistory + (!temp.equals("") ? "Уровень напряжения на вводе: " + temp + "\n" : "");
+                temp = createHistory(point.getSafety(), oldPoint.getSafety());
+                pointHistory = pointHistory + (!temp.equals("") ? "Категория надёжности: " + temp + "\n" : "");
+            }
+        }
+        return pointHistory;
+    }
+
     private String createHistory(String strNew, String strOld){
-        String history = " - ";
+        String history = "";
         if(strNew!=null){
             if(strOld!=null){
                 if(!strNew.equals(strOld)){
@@ -93,7 +116,7 @@ public class HistoryService extends CrudService<History,Long> {
     }
 
     private String createHistory(Double dbNew, Double dbOld){
-        String history = " - ";
+        String history = "";
         if(dbNew!=null){
             if(dbOld!=null){
                 if(!dbNew.equals(dbOld)){
@@ -107,7 +130,7 @@ public class HistoryService extends CrudService<History,Long> {
     }
 
     private String createHistory(AbstractDictionary dcNew, AbstractDictionary dcOld){
-        String history = " - ";
+        String history = "";
         if(dcNew!=null){
             if(dcOld!=null){
                 if(!Objects.equals(dcNew.getId(), dcOld.getId())){

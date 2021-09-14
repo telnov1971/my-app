@@ -423,6 +423,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
     public boolean save() {
         if (binderDemand.validate().getValidationErrors().size() > 0) return false;
+        demand.setChange(true);
         binderDemand.writeBeanIfValid(demand);
         if(demand.getUser()==null){
             demand.setUser(userService.findByUsername(
@@ -443,7 +444,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         try {
             if(demandService.update(this.demand)!=null) {
                 history.setDemand(demand);
-                if(history.getHistory()!="") {
+                if(!history.getHistory().equals("")) {
                     historyService.save(history);
                 }
             }

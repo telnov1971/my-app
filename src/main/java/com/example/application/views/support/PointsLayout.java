@@ -1,9 +1,7 @@
 package com.example.application.views.support;
 
-import com.example.application.data.entity.Demand;
-import com.example.application.data.entity.Point;
-import com.example.application.data.entity.Safety;
-import com.example.application.data.entity.Voltage;
+import com.example.application.data.entity.*;
+import com.example.application.data.service.HistoryService;
 import com.example.application.data.service.PointService;
 import com.example.application.data.service.SafetyService;
 import com.example.application.data.service.VoltageService;
@@ -34,13 +32,16 @@ public class PointsLayout extends VerticalLayout {
     private final PointService pointService;
     private final VoltageService voltageService;
     private final SafetyService safetyService;
+    private final HistoryService historyService;
 
     public PointsLayout(PointService pointService
             , VoltageService voltageService
-            , SafetyService safetyService) {
+            , SafetyService safetyService
+            , HistoryService historyService) {
         this.pointService = pointService;
         this.voltageService = voltageService;
         this.safetyService = safetyService;
+        this.historyService = historyService;
         pointGrid.setHeightByRows(true);
         points = new ArrayList<>();
 
@@ -175,6 +176,20 @@ public class PointsLayout extends VerticalLayout {
     public void savePoints() {
         for(Point point : points) {
             point.setDemand(demand);
+            History historyPoint = new History();
+            try {
+                String his = historyService.writeHistory(point);
+                historyPoint.setHistory(his);
+                historyPoint.setDemand(demand);
+            } catch (Exception e) {System.out.println(e.getMessage());}
+            try {
+                if(!historyPoint.getHistory().equals("")) {
+                    historyService.save(historyPoint);
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
             pointService.update(point);
         }
     }
