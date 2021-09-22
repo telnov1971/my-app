@@ -159,7 +159,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         filesLayout = new FilesLayout(this.fileStoredService
                 , voltageService
-                , safetyService);
+                , safetyService, historyService);
 
         historyLayout = new HistoryLayout(this.historyService);
         historyLayout.setWidthFull();
@@ -422,37 +422,29 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     public boolean save() {
-        if (binderDemand.validate().getValidationErrors().size() > 0) return false;
-        demand.setChange(true);
-        binderDemand.writeBeanIfValid(demand);
-        if(demand.getUser()==null){
-            demand.setUser(userService.findByUsername(
-                    SecurityContextHolder.getContext().getAuthentication().getName()));
-            demand.setCreateDate(LocalDate.now());
-            demand.setLoad1c(false);
-            demand.setChange(false);
-            demand.setExecuted(false);
-        }
-//        if(demand.getInn().equals("0000000000")) demand.setInn(null);
-//        if(demand.getPassportSerries().equals("0000")) demand.setPassportSerries(null);
-//        if(demand.getPassportNumber().equals("000000")) demand.setPassportNumber(null);
-        History history = new History();
-        try {
-            String his = historyService.writeHistory(demand);
-            history.setHistory(his);
-        } catch (Exception e) {System.out.println(e.getMessage());}
-        try {
-            if(demandService.update(this.demand)!=null) {
-                history.setDemand(demand);
-                if(!history.getHistory().equals("")) {
-                    historyService.save(history);
-                }
+        if (binderDemand.validate().getValidationErrors().size() > 0) {
+            List<ValidationResult> validationResults = binderDemand.validate().getValidationErrors();
+            for (ValidationResult validationResult : validationResults) {
+                Notification.show(String.format("Ошибка %s", validationResult.getErrorMessage()));
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            return false;
         }
-        return true;
+        demand.setChange(true);
+        if(binderDemand.writeBeanIfValid(demand)) {
+            if (demand.getUser() == null) {
+                demand.setUser(userService.findByUsername(
+                        SecurityContextHolder.getContext().getAuthentication().getName()));
+                demand.setCreateDate(LocalDate.now());
+                demand.setLoad1c(false);
+                demand.setChange(false);
+                demand.setExecuted(false);
+            }
+            historyService.saveHistory(demand, demand, Demand.class);
+            demandService.update(demand);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     protected void setReadOnly() {

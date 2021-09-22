@@ -1,6 +1,7 @@
 package com.example.application.data.entity;
 
 import com.example.application.data.AbstractEntity;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
@@ -30,6 +31,9 @@ public class Point extends AbstractEntity {
     private Safety safety;
     @Column(name = "spec")
     private String specification;
+    @ColumnDefault("false")
+    @Column(name = "it_load1c")
+    private boolean load1c = false;
 
     public Point() {}
 

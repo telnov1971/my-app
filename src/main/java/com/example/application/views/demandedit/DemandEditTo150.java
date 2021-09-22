@@ -41,7 +41,7 @@ public class DemandEditTo150 extends GeneralForm {
         this.MaxPower = 150.0;
         demandType.setValue(demandTypeService.findById(DemandType.TO150).get());
 
-        expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
+        expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService);
 
         Component fields[] = {delegate, inn, innDate, powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, specification, plan, accordionExpiration};
@@ -79,20 +79,7 @@ public class DemandEditTo150 extends GeneralForm {
         if(!super.save() || (pointBinder.validate().getValidationErrors().size() > 0)) return false;
         pointBinder.writeBeanIfValid(point);
         point.setDemand(demand);
-        History historyPoint = new History();
-        try {
-            String his = historyService.writeHistory(point);
-            historyPoint.setHistory(his);
-        } catch (Exception e) {System.out.println(e.getMessage());}
-        try {
-            historyPoint.setDemand(demand);
-            if(!historyPoint.getHistory().equals("")) {
-                historyService.save(historyPoint);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
+        historyService.saveHistory(demand,point,Point.class);
         pointService.update(this.point);
         filesLayout.setDemand(demand);
         filesLayout.saveFiles();

@@ -49,7 +49,7 @@ public class DemandEditeGeneral extends GeneralForm {
                 ,safetyService
                 ,historyService);
 
-        expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
+        expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService);
 
         Component fields[] = {inn, innDate,
                 passportSerries,passportNumber,pasportIssued,

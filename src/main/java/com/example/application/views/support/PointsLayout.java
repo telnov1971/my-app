@@ -176,20 +176,21 @@ public class PointsLayout extends VerticalLayout {
     public void savePoints() {
         for(Point point : points) {
             point.setDemand(demand);
-            History historyPoint = new History();
-            try {
-                String his = historyService.writeHistory(point);
-                historyPoint.setHistory(his);
-                historyPoint.setDemand(demand);
-            } catch (Exception e) {System.out.println(e.getMessage());}
-            try {
-                if(!historyPoint.getHistory().equals("")) {
-                    historyService.save(historyPoint);
-                }
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            }
+            historyService.saveHistory(demand, point, Point.class);
+//            History historyPoint = new History();
+//            try {
+//                String his = historyService.writeHistory(point);
+//                historyPoint.setHistory(his);
+//                historyPoint.setDemand(demand);
+//            } catch (Exception e) {System.out.println(e.getMessage());}
+//            try {
+//                if(!historyPoint.getHistory().equals("")) {
+//                    historyService.save(historyPoint);
+//                }
+//            } catch (Exception e) {
+//                System.out.println(e.getMessage());
+//                e.printStackTrace();
+//            }
             pointService.update(point);
         }
     }

@@ -1,9 +1,9 @@
 package com.example.application.data.entity;
 
 import com.example.application.data.AbstractEntity;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 
 @Table(name = "EXPIRATION")
 @Entity
@@ -22,6 +22,9 @@ public class Expiration extends AbstractEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "safety_id")
     private Safety safety;
+    @ColumnDefault("false")
+    @Column(name = "it_load1c")
+    private boolean load1c = false;
 
     public Expiration() {
     }
@@ -68,5 +71,11 @@ public class Expiration extends AbstractEntity {
     }
     public void setDemand(Demand demand) {
         this.demand = demand;
+    }
+    public boolean isLoad1c() {
+        return load1c;
+    }
+    public void setLoad1c(boolean load1c) {
+        this.load1c = load1c;
     }
 }

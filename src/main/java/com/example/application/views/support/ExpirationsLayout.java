@@ -1,7 +1,10 @@
 package com.example.application.views.support;
 
-import com.example.application.data.entity.*;
+import com.example.application.data.entity.Demand;
+import com.example.application.data.entity.Expiration;
+import com.example.application.data.entity.Safety;
 import com.example.application.data.service.ExpirationService;
+import com.example.application.data.service.HistoryService;
 import com.example.application.data.service.SafetyService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -30,11 +33,13 @@ public class ExpirationsLayout extends VerticalLayout {
 
     private final ExpirationService expirationService;
     private final SafetyService safetyService;
+    private final HistoryService historyService;
 
     public ExpirationsLayout(ExpirationService expirationService
-            , SafetyService safetyService) {
+            , SafetyService safetyService, HistoryService historyService) {
         this.expirationService = expirationService;
         this.safetyService = safetyService;
+        this.historyService = historyService;
         expirationGrid.setHeightByRows(true);
         expirations = new ArrayList<>();
 
@@ -161,6 +166,7 @@ public class ExpirationsLayout extends VerticalLayout {
     public void saveExpirations() {
         for(Expiration expiration : expirations) {
             expiration.setDemand(demand);
+            historyService.saveHistory(demand, expiration, Expiration.class);
             expirationService.update(expiration);
         }
     }

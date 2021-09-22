@@ -1,11 +1,11 @@
 package com.example.application.data.entity;
 
 import com.example.application.data.AbstractEntity;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Table(name = "file_storage")
 @Entity
@@ -19,12 +19,13 @@ public class FileStored extends AbstractEntity {
     @Column(name = "link")
     private String link;
 
-    @Column(name = "load1c")
-    private Boolean load1c;
-
     @ManyToOne
     @JoinColumn(name = "demand_id")
     private Demand demand;
+
+    @ColumnDefault("false")
+    @Column(name = "it_load1c")
+    private boolean load1c = false;
 
     public FileStored() {
     }

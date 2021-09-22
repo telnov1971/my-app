@@ -1,6 +1,7 @@
 package com.example.application.data.entity;
 
 import com.example.application.data.AbstractEntity;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -16,6 +17,9 @@ public class History extends AbstractEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "demand_id")
     Demand demand;
+    @ColumnDefault("false")
+    @Column(name = "it_load1c")
+    private boolean load1c = false;
 
     public History() {
         this.createdate = LocalDate.now();

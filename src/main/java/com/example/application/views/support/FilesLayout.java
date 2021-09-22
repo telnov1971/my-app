@@ -4,14 +4,13 @@ import com.example.application.config.AppEnv;
 import com.example.application.data.entity.Demand;
 import com.example.application.data.entity.FileStored;
 import com.example.application.data.service.FileStoredService;
+import com.example.application.data.service.HistoryService;
 import com.example.application.data.service.SafetyService;
 import com.example.application.data.service.VoltageService;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
@@ -19,9 +18,6 @@ import com.vaadin.flow.component.upload.receivers.MultiFileBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.server.StreamResource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -50,10 +46,13 @@ public class FilesLayout extends VerticalLayout {
     private final FileStoredService fileStoredService;
     private final VoltageService voltageService;
     private final SafetyService safetyService;
+    private final HistoryService historyService;
 
     public FilesLayout(FileStoredService fileStoredService
             , VoltageService voltageService
-            , SafetyService safetyService) {
+            , SafetyService safetyService
+            , HistoryService historyService) {
+        this.historyService = historyService;
         this.uploadPath = AppEnv.getUploadPath();
         this.fileStoredService = fileStoredService;
         this.voltageService = voltageService;
@@ -173,6 +172,7 @@ public class FilesLayout extends VerticalLayout {
         for(Map.Entry<String, String> entry: filesToSave.entrySet()) {
             FileStored file = new FileStored(entry.getValue(),entry.getKey(),demand);
             file.setDemand(demand);
+            historyService.saveHistory(demand, file, FileStored.class);
             fileStoredService.update(file);
         }
     }

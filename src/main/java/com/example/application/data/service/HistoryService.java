@@ -1,9 +1,7 @@
 package com.example.application.data.service;
 
 import com.example.application.data.AbstractDictionary;
-import com.example.application.data.entity.Demand;
-import com.example.application.data.entity.History;
-import com.example.application.data.entity.Point;
+import com.example.application.data.entity.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
@@ -101,6 +99,39 @@ public class HistoryService extends CrudService<History,Long> {
         return pointHistory;
     }
 
+    public String writeHistory(Expiration expiration) {
+        String expirationHistory = "";
+        String temp;
+        if(expiration!=null) {
+            if(expiration.getId()!=null) {
+                if (expirationService.findById(expiration.getId()).isPresent()) {
+                    Expiration oldExpiration = expirationService.findById(expiration.getId()).get();
+                    temp = createHistory(expiration.getStep(), oldExpiration.getStep());
+                    expirationHistory = expirationHistory + (!temp.equals("") ? "Этап/Очередь: " + temp + "\n" : "");
+                    temp = createHistory(expiration.getPlanProject(), oldExpiration.getPlanProject());
+                    expirationHistory = expirationHistory + (!temp.equals("") ? "Срок проектирования: " + temp + "\n" : "");
+                    temp = createHistory(expiration.getPlanUsage(), oldExpiration.getPlanUsage());
+                    expirationHistory = expirationHistory + (!temp.equals("") ? "Срок ввода: " + temp + "\n" : "");
+                    temp = createHistory(expiration.getPowerMax(), oldExpiration.getPowerMax());
+                    expirationHistory = expirationHistory + (!temp.equals("") ? "Макс.мощность: " + temp + "\n" : "");
+                    temp = createHistory(expiration.getSafety(), oldExpiration.getSafety());
+                    expirationHistory = expirationHistory + (!temp.equals("") ? "Кат. надёж.: " + temp + "\n" : "");
+                }
+            } else {
+                expirationHistory = "Добавлен этап/очередь: " + expiration.getStep() + "\n";
+            }
+        }
+        return expirationHistory;
+    }
+
+    public String writeHistory(FileStored file) {
+        String fileHistory = "";
+        if(file!=null) {
+            fileHistory = "Добавлен файл: " + file.getName() + "\n";
+        }
+        return fileHistory;
+    }
+
     private String createHistory(String strNew, String strOld){
         String history = "";
         if(strNew!=null){
@@ -150,4 +181,39 @@ public class HistoryService extends CrudService<History,Long> {
     public List<History> findAllByDemand(Demand demand) {
         return historyRepository.findAllByDemand(demand);
     }
+
+    public <C> void saveHistory(Demand demand, C obj, Class<C> clazz) {
+        History history = new History();
+        String his = "";
+        try {
+            switch (obj.getClass().getSimpleName()) {
+                case "FileStored" :
+                    his = writeHistory((FileStored) obj);
+                    break;
+                case "Expiration" :
+                    his = writeHistory((Expiration) obj);
+                    break;
+                case "Point" :
+                    his = writeHistory((Point) obj);
+                    break;
+                case "Demand" :
+                    his = writeHistory((Demand) obj);
+                    break;
+                default :
+                    his = "";
+            }
+            history.setHistory(his.substring(0,his.length()-1));
+        } catch (Exception e) {System.out.println(e.getMessage());}
+        try {
+            history.setDemand(demand);
+            if(!history.getHistory().equals("")) {
+                save(history);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+
+    }
+
 }
