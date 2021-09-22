@@ -70,18 +70,6 @@ public class ExpirationsLayout extends VerticalLayout {
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
         expirations.remove(expirations.size() - 1);
 
-        Button addButton = new Button("Добавить этап", event -> {
-            expirationsDataProvider.getItems().add(new Expiration("",
-                    "","",0.0,
-                    safetyService.findById(3L).get()));
-            expirationsDataProvider.refreshAll();
-        });
-
-        Button removeButton = new Button("Удалить последнюю", event -> {
-            this.expirations.remove(expirations.size() - 1);
-            expirationsDataProvider.refreshAll();
-        });
-
         editorExpiration = expirationGrid.getEditor();
         editorExpiration.setBinder(binderExpiration);
         editorExpiration.setBuffered(true);
@@ -110,26 +98,57 @@ public class ExpirationsLayout extends VerticalLayout {
         binderExpiration.forField(selectSafety).bind("safety");
         columnSafety.setEditorComponent(selectSafety);
 
+        Button addButton = new Button("Добавить этап");
+
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
         Grid.Column<Expiration> editorColumn = expirationGrid.addComponentColumn(expiration -> {
             Button edit = new Button(new Icon(VaadinIcon.EDIT));
             edit.addClassName("edit");
             edit.addClickListener(e -> {
                 editorExpiration.editItem(expiration);
-                fieldPowerMax.focus();
+                fieldStep.focus();
+                addButton.setEnabled(false);
             });
             edit.setEnabled(!editorExpiration.isOpen());
             editButtons.add(edit);
             return edit;
         }).setAutoWidth(true);
 
+        addButton.addClickListener(event -> {
+            expirationsDataProvider.getItems().add(new Expiration("",
+                    "","",0.0,
+                    safetyService.findById(3L).get()));
+            expirationsDataProvider.refreshAll();
+            expirationGrid.select(expirations.get(expirations.size() - 1));
+            editorExpiration.editItem(expirations.get(expirations.size() - 1));
+            fieldStep.focus();
+            addButton.setEnabled(false);
+        });
+
+        Button removeButton = new Button("Удалить последнюю", event -> {
+            this.expirations.remove(expirations.size() - 1);
+            expirationsDataProvider.refreshAll();
+            addButton.setEnabled(true);
+        });
+
         editorExpiration.addOpenListener(e -> editButtons.stream()
                 .forEach(button -> button.setEnabled(!editorExpiration.isOpen())));
         editorExpiration.addCloseListener(e -> editButtons.stream()
                 .forEach(button -> button.setEnabled(!editorExpiration.isOpen())));
-        Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> editorExpiration.save());
+        Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> {
+            editorExpiration.save();
+            addButton.setEnabled(true);
+        });
         save.addClassName("save");
-        Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> editorExpiration.cancel());
+        Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> {
+            editorExpiration.cancel();
+            addButton.setEnabled(true);
+            if(fieldStep.getValue().equals("")
+                    && fieldPlanProject.getValue().equals("")
+                    && fieldPlanUsage.getValue().equals("")
+            ) expirations.remove(expirations.size() - 1);
+            expirationsDataProvider.refreshAll();
+        });
         cancel.addClassName("cancel");
         Div divSave = new Div(save);
         Div divCancel = new Div(cancel);
@@ -149,6 +168,7 @@ public class ExpirationsLayout extends VerticalLayout {
         expirations.add(expiration);
         expirationGrid.setItems(expirations);
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
+        expirations.remove(expirations.size() - 1);
     }
 
     public void findAllByDemand(Demand demand) {
