@@ -24,12 +24,10 @@ import java.util.*;
 
 public class ExpirationsLayout extends VerticalLayout {
     private Demand demand;
-    private HorizontalLayout expirationsButtonLayout = new HorizontalLayout();
     private List<Expiration> expirations;
-    private Grid<Expiration> expirationGrid = new Grid<>(Expiration.class, false);
+    private final Grid<Expiration> expirationGrid = new Grid<>(Expiration.class, false);
     private ListDataProvider<Expiration> expirationsDataProvider;
-    private Binder<Expiration> binderExpiration = new Binder<>(Expiration.class);
-    private Editor<Expiration> editorExpiration;
+    private final Editor<Expiration> editorExpiration;
 
     private final ExpirationService expirationService;
     private final SafetyService safetyService;
@@ -71,6 +69,7 @@ public class ExpirationsLayout extends VerticalLayout {
         expirations.remove(expirations.size() - 1);
 
         editorExpiration = expirationGrid.getEditor();
+        Binder<Expiration> binderExpiration = new Binder<>(Expiration.class);
         editorExpiration.setBinder(binderExpiration);
         editorExpiration.setBuffered(true);
 
@@ -131,9 +130,9 @@ public class ExpirationsLayout extends VerticalLayout {
             addButton.setEnabled(true);
         });
 
-        editorExpiration.addOpenListener(e -> editButtons.stream()
+        editorExpiration.addOpenListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editorExpiration.isOpen())));
-        editorExpiration.addCloseListener(e -> editButtons.stream()
+        editorExpiration.addCloseListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editorExpiration.isOpen())));
         Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> {
             editorExpiration.save();
@@ -155,12 +154,9 @@ public class ExpirationsLayout extends VerticalLayout {
         Div buttons = new Div(divSave, divCancel);
         editorColumn.setEditorComponent(buttons);
 
+        HorizontalLayout expirationsButtonLayout = new HorizontalLayout();
         expirationsButtonLayout.add(addButton,removeButton);
         add(expirationGrid, expirationsButtonLayout);
-    }
-
-    public void expirationsClean() {
-        expirations = new ArrayList<>();
     }
 
     public void pointAdd(Expiration expiration) {
