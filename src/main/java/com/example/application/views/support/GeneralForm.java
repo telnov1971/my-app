@@ -189,21 +189,35 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             demandType.setReadOnly(true);
 
             demander = new TextArea("Заявитель", "Наименование организации, ФИО заявителя");
+            demander.setHelperText("(полное наименование заявителя – юридического лица;" +
+                    " фамилия, имя, отчество заявителя – индивидуального предпринимателя или физического лица)");
+//            demander.getElement().setAttribute("title",
+//                    "полное наименование заявителя – юридического лица;" +
+//                            " фамилия, имя, отчество заявителя – индивидуального предпринимателя или физического лица");
             delegate = new TextField("ФИО представителя","Представитель юр.лица");
             inn = new TextField("Реквизиты заявителя", "ОГРН для юр.лиц, ИНН для ИП");
-            innDate = new DatePicker("Дата выдачи");
+            inn.setHelperText("(номер записи в Едином государственном реестре юридических лиц"+
+                    " / номер записи в Едином государственном реестре индивидуальных предпринимателей)");
+            innDate = new DatePicker("Дата регистрации в реестре");
             contact = new TextField("Контактный телефон");
             passportSerries = new TextField("Паспорт серия", "Четыре цифры");
             passportNumber = new TextField("Паспорт номер", "Шесть цифр");
             pasportIssued = new TextArea("Паспорт выдан");
+            pasportIssued.setHelperText("(кем, когда)");
             addressRegistration = new TextField("Адрес регистрации");
+            addressRegistration.setHelperText("(место регистрации заявителя - индекс, адрес)");
             addressActual = new TextField("Адрес фактический");
+            addressActual.setHelperText("(фактический адрес - индекс, адрес)");
             object = new TextArea("Объект");
+            object.setHelperText("(наименование энергопринимающих устройств для присоединения)");
             address = new TextArea("Адрес объекта");
+            address.setHelperText("(место нахождения энергопринимающих устройств)");
             specification = new TextArea("Характер нагрузки");
+            specification.setHelperText("(характер нагрузки (вид экономической деятельности заявителя))");
 
             countPoints = new IntegerField("Кол-во точек подключения");
             powerDemand = new NumberField("Мощность присоединяемая, кВт", "0,00 кВт");
+            //powerDemand.setHelperText("(максимальная мощность присоединяемых энергопринимающих устройств)");
             powerDemand.setStep(0.01);
             powerDemand.setAutocorrect(true);
             powerCurrent = new NumberField("Мощность ранее присоединённая, кВт", "0,00 кВт");
@@ -215,10 +229,14 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             countGenerations = new TextArea("Кол-во и мощ-ть генераторов");
             techminGeneration = new TextArea("Технологический минимум для генераторов");
             techminGeneration.setPlaceholder("Величина и обоснование технологического минимума");
+            techminGeneration.setHelperText("(величина и обоснование технологического минимума)");
             reservation = new TextArea("Технологическая и аварийная бронь");
             reservation.setPlaceholder("Величина и обоснование технологической и аварийной брони");
+            reservation.setHelperText("(величина и обоснование технологической и аварийной брони)");
             period = new TextArea("Срок подключения по временной схеме");
             contract = new TextField("Реквизиты договора");
+            contract.setHelperText("(реквизиты договора на технологическое присоединение)");
+//            contract.getElement().setAttribute("title","реквизиты договора на технологическое присоединение");
         }
 
         // создание селекторов

@@ -33,6 +33,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.WeakHashMap;
+
 @Route(value = "demandlist", layout = MainView.class)
 @RouteAlias(value = "", layout = MainView.class)
 @PageTitle("Список заявок")
@@ -56,7 +60,7 @@ public class DemandList extends Div {
         addClassNames("master-detail-view", "flex", "flex-col", "h-full");
 
         // Configure Grid
-        grid.addColumn("id").setAutoWidth(true).setHeader("ID");
+        grid.addColumn("id").setAutoWidth(false).setWidth("3em").setHeader("ID");
         demanderColumn = grid.addColumn("demander").setHeader("Заявитель")
                 .setResizable(true).setWidth("200px");
         grid.addColumn("status.name").setAutoWidth(true).setHeader("Статус");
@@ -72,6 +76,32 @@ public class DemandList extends Div {
                 .withProperty("done", Demand::isDone);
         grid.addColumn(doneRenderer).setHeader("Завершено").setAutoWidth(true);
          */
+        Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
+        Grid.Column<Demand> editorColumn = grid.addComponentColumn(demand -> {
+            Button edit = new Button(new Icon(VaadinIcon.EDIT));
+            edit.addClassName("edit");
+            edit.addClickListener(event -> {
+                if (demand.getDemandType().getId() == DemandType.TO15) {
+                    UI.getCurrent().navigate(DemandEditTo15.class, new RouteParameters("demandID",
+                            String.valueOf(demand.getId())));
+                }
+                if (demand.getDemandType().getId() == DemandType.TO150) {
+                    UI.getCurrent().navigate(DemandEditTo150.class, new RouteParameters("demandID",
+                            String.valueOf(demand.getId())));
+                }
+                if (demand.getDemandType().getId() == DemandType.TEMPORAL) {
+                    UI.getCurrent().navigate(DemandEditTemporal.class, new RouteParameters("demandID",
+                            String.valueOf(demand.getId())));
+                }
+                if (demand.getDemandType().getId() == DemandType.GENERAL) {
+                    UI.getCurrent().navigate(DemandEditeGeneral.class, new RouteParameters("demandID",
+                            String.valueOf(demand.getId())));
+                }
+            });
+            edit.setEnabled(true);
+            editButtons.add(edit);
+            return edit;
+        }).setWidth("3em");
 
         gridSetting(null,null);
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
@@ -132,6 +162,7 @@ public class DemandList extends Div {
         filterLayout.add(filterId,filterText,clearFilter);
         filterLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
         //verticalLayout.add(filterLayout,grid);
+        grid.getElement().setAttribute("title","кликните дважды для открытия заявки");
         add(filterLayout,grid);
     }
 

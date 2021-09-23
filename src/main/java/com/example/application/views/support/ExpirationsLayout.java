@@ -10,6 +10,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -40,6 +41,8 @@ public class ExpirationsLayout extends VerticalLayout {
         this.historyService = historyService;
         expirationGrid.setHeightByRows(true);
         expirations = new ArrayList<>();
+        Label helpers = new Label("Сроки проектирования и поэтапного введения в эксплуатацию объекта"+
+                " (в том числе по этапам и очередям), планируемое поэтапное распределение максимальной мощности");
 
         Grid.Column<Expiration> columnStep =
                 expirationGrid.addColumn(Expiration::getStep)
@@ -156,7 +159,7 @@ public class ExpirationsLayout extends VerticalLayout {
 
         HorizontalLayout expirationsButtonLayout = new HorizontalLayout();
         expirationsButtonLayout.add(addButton,removeButton);
-        add(expirationGrid, expirationsButtonLayout);
+        add(helpers,expirationGrid, expirationsButtonLayout);
     }
 
     public void pointAdd(Expiration expiration) {

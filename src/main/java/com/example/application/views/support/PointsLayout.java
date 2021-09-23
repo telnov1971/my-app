@@ -9,6 +9,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -44,6 +45,7 @@ public class PointsLayout extends VerticalLayout {
         this.historyService = historyService;
         pointGrid.setHeightByRows(true);
         points = new ArrayList<>();
+        Label helpers = new Label("распределение по точкам присоединения");
 
         Grid.Column<Point> columnPowerDemand =
                 pointGrid.addColumn(Point::getPowerDemand)
@@ -143,7 +145,7 @@ public class PointsLayout extends VerticalLayout {
 
 
         pointsButtonLayout.add(addButton,removeButton);
-        add(pointGrid,pointsButtonLayout);
+        add(helpers,pointGrid,pointsButtonLayout);
     }
 
     public void pointsClean() {
