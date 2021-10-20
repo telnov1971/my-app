@@ -5,6 +5,7 @@ import com.example.application.data.service.*;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.ExpirationsLayout;
 import com.example.application.views.support.GeneralForm;
+import com.example.application.views.support.NotesLayout;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.router.*;
 
@@ -15,6 +16,7 @@ import com.vaadin.flow.router.*;
 public class DemandEditTo15 extends GeneralForm {
     private final UserService userService;
     private ExpirationsLayout expirationsLayout;
+    private NotesLayout notesLayout;
 
     public DemandEditTo15(ReasonService reasonService,
                           DemandService demandService,
@@ -32,6 +34,7 @@ public class DemandEditTo15 extends GeneralForm {
                           SendService sendService,
                           FileStoredService fileStoredService,
                           HistoryService historyService,
+                          NoteService noteService,
                           Component... components) {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                  pointService,generalService,voltageService,
@@ -42,6 +45,7 @@ public class DemandEditTo15 extends GeneralForm {
         this.MaxPower = 15.0;
         demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService);
+        notesLayout = new NotesLayout(noteService,historyService);
         safety.setValue(safetyService.findById(3L).get());
         safety.setReadOnly(true);
 
@@ -58,7 +62,7 @@ public class DemandEditTo15 extends GeneralForm {
         }
 
         accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
-        add(formDemand,filesLayout,buttonBar,accordionHistory);
+        add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory);
     }
 
     @Override
@@ -76,7 +80,23 @@ public class DemandEditTo15 extends GeneralForm {
             }
             filesLayout.findAllByDemand(demand);
             expirationsLayout.findAllByDemand(demand);
+            notesLayout.findAllByDemand(demand);
             historyLayout.findAllByDemand(demand);
+            switch(demand.getStatus().getState()){
+                case ADD: {
+                    setReadOnly();
+                } break;
+                case NOTE: {
+                    setReadOnly();
+                    filesLayout.setReadOnly();
+                    expirationsLayout.setReadOnly();
+                } break;
+                case FREEZE: {
+                    setReadOnly();
+                    filesLayout.setReadOnly();
+                    expirationsLayout.setReadOnly();
+                } break;
+            }
         }
         pointBinder.readBean(this.point);
         setOptional();
@@ -93,6 +113,8 @@ public class DemandEditTo15 extends GeneralForm {
         filesLayout.saveFiles();
         expirationsLayout.setDemand(demand);
         expirationsLayout.saveExpirations();
+        notesLayout.setDemand(demand);
+        notesLayout.saveNotes();
         return true;
     }
 

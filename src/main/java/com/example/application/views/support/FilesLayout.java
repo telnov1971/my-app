@@ -67,7 +67,7 @@ public class FilesLayout extends VerticalLayout {
                         .setAutoWidth(true);
         Grid.Column<FileStored> columnLink =
                 fileStoredGrid.addColumn(FileStored::getLink)
-                        .setHeader("Имя файла")
+                        .setHeader("Ссылка на файл")
                         .setAutoWidth(true);
         files.add(new FileStored());
         fileStoredGrid.setItems(files);
@@ -182,5 +182,9 @@ public class FilesLayout extends VerticalLayout {
 
             Path fileToDeletePath = Paths.get(uploadPath + entry.getKey());
             Files.delete(fileToDeletePath);        }
+    }
+
+    public void setReadOnly(){
+        multiUpload.setVisible(false);
     }
 }

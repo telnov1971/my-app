@@ -29,6 +29,9 @@ public class ExpirationsLayout extends VerticalLayout {
     private final Grid<Expiration> expirationGrid = new Grid<>(Expiration.class, false);
     private ListDataProvider<Expiration> expirationsDataProvider;
     private final Editor<Expiration> editorExpiration;
+    private Grid.Column<Expiration> editorColumn;
+    private Button addButton;
+    private Button removeButton;
 
     private final ExpirationService expirationService;
     private final SafetyService safetyService;
@@ -100,10 +103,10 @@ public class ExpirationsLayout extends VerticalLayout {
         binderExpiration.forField(selectSafety).bind("safety");
         columnSafety.setEditorComponent(selectSafety);
 
-        Button addButton = new Button("Добавить этап");
+        addButton = new Button("Добавить этап");
 
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
-        Grid.Column<Expiration> editorColumn = expirationGrid.addComponentColumn(expiration -> {
+        editorColumn = expirationGrid.addComponentColumn(expiration -> {
             Button edit = new Button(new Icon(VaadinIcon.EDIT));
             edit.addClassName("edit");
             edit.addClickListener(e -> {
@@ -127,7 +130,7 @@ public class ExpirationsLayout extends VerticalLayout {
             addButton.setEnabled(false);
         });
 
-        Button removeButton = new Button("Удалить последнюю", event -> {
+        removeButton = new Button("Удалить последнюю", event -> {
             this.expirations.remove(expirations.size() - 1);
             expirationsDataProvider.refreshAll();
             addButton.setEnabled(true);
@@ -188,5 +191,11 @@ public class ExpirationsLayout extends VerticalLayout {
             historyService.saveHistory(demand, expiration, Expiration.class);
             expirationService.update(expiration);
         }
+    }
+
+    public void setReadOnly() {
+        editorColumn.setVisible(false);
+        addButton.setVisible(false);
+        removeButton.setVisible(false);
     }
 }
