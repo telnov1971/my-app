@@ -1,13 +1,19 @@
 package com.example.application.views.demandedit;
 
-import com.example.application.data.entity.*;
+import com.example.application.data.entity.DType;
+import com.example.application.data.entity.Demand;
+import com.example.application.data.entity.DemandType;
+import com.example.application.data.entity.General;
 import com.example.application.data.service.*;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.ExpirationsLayout;
 import com.example.application.views.support.GeneralForm;
+import com.example.application.views.support.NotesLayout;
 import com.example.application.views.support.PointsLayout;
-import com.vaadin.flow.component.*;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
 
 @Route(value = "demandreciver/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandreciver")
@@ -18,6 +24,7 @@ public class DemandEditeGeneral extends GeneralForm {
 
     private PointsLayout pointsLayout;
     private ExpirationsLayout expirationsLayout;
+    private NotesLayout notesLayout;
 
     public DemandEditeGeneral(ReasonService reasonService,
                               DemandService demandService,
@@ -35,6 +42,7 @@ public class DemandEditeGeneral extends GeneralForm {
                               SendService sendService,
                               FileStoredService fileStoredService,
                               HistoryService historyService,
+                              NoteService noteService,
                               Component... components) {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
@@ -50,8 +58,9 @@ public class DemandEditeGeneral extends GeneralForm {
                 ,historyService);
 
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService);
+        notesLayout = new NotesLayout(noteService,historyService);
 
-        Component fields[] = {inn, innDate,
+        Component[] fields = {inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,
                 accordionPoints, specification, countTransformations,
@@ -62,7 +71,7 @@ public class DemandEditeGeneral extends GeneralForm {
 
         accordionPoints.add("Точки подключения", this.pointsLayout);
         accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
-        add(formDemand, filesLayout, buttonBar, accordionHistory);
+        add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory);
     }
 
     @Override
@@ -81,7 +90,24 @@ public class DemandEditeGeneral extends GeneralForm {
             pointsLayout.findAllByDemand(demand);
             filesLayout.findAllByDemand(demand);
             expirationsLayout.findAllByDemand(demand);
+            notesLayout.findAllByDemand(demand);
             historyLayout.findAllByDemand(demand);
+            switch(demand.getStatus().getState()){
+                case ADD: {
+                    setReadOnly();
+                } break;
+                case NOTE: {
+                    setReadOnly();
+                    filesLayout.setReadOnly();
+                    expirationsLayout.setReadOnly();
+                } break;
+                case FREEZE: {
+                    setReadOnly();
+                    filesLayout.setReadOnly();
+                    notesLayout.setReadOnly();
+                    expirationsLayout.setReadOnly();
+                } break;
+            }
         }
         generalBinder.readBean(general);
     }
@@ -96,6 +122,8 @@ public class DemandEditeGeneral extends GeneralForm {
         filesLayout.saveFiles();
         expirationsLayout.setDemand(demand);
         expirationsLayout.saveExpirations();
+        notesLayout.setDemand(demand);
+        notesLayout.saveNotes();
         return true;
     }
 }

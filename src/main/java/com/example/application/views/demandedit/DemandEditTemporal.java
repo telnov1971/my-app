@@ -1,11 +1,17 @@
 package com.example.application.views.demandedit;
 
-import com.example.application.data.entity.*;
+import com.example.application.data.entity.DType;
+import com.example.application.data.entity.Demand;
+import com.example.application.data.entity.DemandType;
+import com.example.application.data.entity.Point;
 import com.example.application.data.service.*;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.GeneralForm;
-import com.vaadin.flow.component.*;
-import com.vaadin.flow.router.*;
+import com.example.application.views.support.NotesLayout;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
 
 @Route(value = "demandtemporary/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandtemporary")
@@ -13,6 +19,7 @@ import com.vaadin.flow.router.*;
 @PageTitle("Редактор заявки на временное подключение")
 public class DemandEditTemporal extends GeneralForm {
     //private ExpirationsLayout expirationsLayout;
+    private NotesLayout notesLayout;
 
     public DemandEditTemporal(ReasonService reasonService,
                               DemandService demandService,
@@ -30,6 +37,7 @@ public class DemandEditTemporal extends GeneralForm {
                               SendService sendService,
                               FileStoredService fileStoredService,
                               HistoryService historyService,
+                              NoteService noteService,
                               Component... components) {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
@@ -39,6 +47,7 @@ public class DemandEditTemporal extends GeneralForm {
         demandType.setValue(demandTypeService.findById(DemandType.TEMPORAL).get());
 
         //expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
+        notesLayout = new NotesLayout(noteService,historyService);
 
         Component fields[] = {inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
@@ -50,7 +59,7 @@ public class DemandEditTemporal extends GeneralForm {
         }
 
         //accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
-        add(formDemand,filesLayout,buttonBar,accordionHistory);
+        add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory);
     }
 
     @Override
@@ -67,8 +76,22 @@ public class DemandEditTemporal extends GeneralForm {
                 point = pointService.findAllByDemand(demand).get(0);
             }
             filesLayout.findAllByDemand(demand);
-            //expirationsLayout.findAllByDemand(demand);
+            notesLayout.findAllByDemand(demand);
             historyLayout.findAllByDemand(demand);
+            switch(demand.getStatus().getState()){
+                case ADD: {
+                    setReadOnly();
+                } break;
+                case NOTE: {
+                    setReadOnly();
+                    filesLayout.setReadOnly();
+                } break;
+                case FREEZE: {
+                    setReadOnly();
+                    filesLayout.setReadOnly();
+                    notesLayout.setReadOnly();
+                } break;
+            }
         }
         pointBinder.readBean(this.point);
     }
@@ -80,8 +103,8 @@ public class DemandEditTemporal extends GeneralForm {
         pointService.update(this.point);
         filesLayout.setDemand(demand);
         filesLayout.saveFiles();
-        //expirationsLayout.setDemand(demand);
-        //expirationsLayout.saveExpirations();
+        notesLayout.setDemand(demand);
+        notesLayout.saveNotes();
         return true;
     }
 }

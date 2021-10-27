@@ -94,6 +94,7 @@ public class DemandEditTo15 extends GeneralForm {
                 case FREEZE: {
                     setReadOnly();
                     filesLayout.setReadOnly();
+                    notesLayout.setReadOnly();
                     expirationsLayout.setReadOnly();
                 } break;
             }
