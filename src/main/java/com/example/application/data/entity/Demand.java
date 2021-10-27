@@ -1,12 +1,14 @@
 package com.example.application.data.entity;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
 import com.example.application.data.AbstractEntity;
 import org.hibernate.annotations.ColumnDefault;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +17,7 @@ public class Demand extends AbstractEntity {
 
     @NotNull
     @Column(name = "create_date")
-    private LocalDate createDate;
+    private LocalDateTime createDate;
 
     // заявитель
     @NotNull
@@ -117,15 +119,15 @@ public class Demand extends AbstractEntity {
     private boolean change = false;
 
     public Demand() {
-        this.createDate = LocalDate.now();
+        this.createDate = LocalDateTime.now();
         this.points = new ArrayList<>();
         this.expirations = new ArrayList<>();
     }
 
-    public LocalDate getCreateDate() {
+    public LocalDateTime getCreateDate() {
         return createDate;
     }
-    public void setCreateDate(LocalDate createdate) {
+    public void setCreateDate(LocalDateTime createdate) {
         this.createDate = createdate;
     }
     public String getObject() {

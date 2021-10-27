@@ -3,11 +3,15 @@ package com.example.application.views.support;
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
-import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ItemLabelGenerator;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
@@ -18,7 +22,9 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.*;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -28,7 +34,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,7 +54,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     // максимальная мощность по типу заявки
     protected Double MaxPower;
 
-    protected DatePicker createdate;
+    protected DateTimePicker createdate;
     protected Select<DemandType> demandType;
     protected Select<Status> status;
 
@@ -180,8 +186,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         // описание полей
         {
-            createdate = new DatePicker("Дата создания");
-            createdate.setValue(LocalDate.now());
+            createdate = new DateTimePicker("Дата и время создания");
+            createdate.setValue(LocalDateTime.now());
             createdate.setReadOnly(true);
 
             demandType = createSelect(DemandType::getName, demandTypeService.findAll(),
@@ -452,7 +458,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             if (demand.getUser() == null) {
                 demand.setUser(userService.findByUsername(
                         SecurityContextHolder.getContext().getAuthentication().getName()));
-                demand.setCreateDate(LocalDate.now());
+                demand.setCreateDate(LocalDateTime.now());
                 demand.setLoad1c(false);
                 demand.setChange(false);
                 demand.setExecuted(false);

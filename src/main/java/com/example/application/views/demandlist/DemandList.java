@@ -16,6 +16,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -33,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.WeakHashMap;
@@ -64,7 +66,10 @@ public class DemandList extends Div {
         demanderColumn = grid.addColumn("demander").setHeader("Заявитель")
                 .setResizable(true).setWidth("200px");
         grid.addColumn("status.name").setAutoWidth(true).setHeader("Статус");
-        grid.addColumn("createDate").setAutoWidth(true).setHeader("Дата создания");
+        //grid.addColumn("createDate").setAutoWidth(true).setHeader("Дата создания");
+        Grid.Column<Demand> createDate = grid.addComponentColumn(demand -> new Label(demand.getCreateDate()
+                        .format(DateTimeFormatter.ofPattern("uuuu-MM-dd | HH:mm:ss"))))
+                .setHeader("Дата и время").setAutoWidth(true);
         grid.addColumn("object").setHeader("Объект")
                 .setResizable(true).setWidth("200px");
         grid.addColumn("address").setHeader("Адрес объекта")
@@ -200,7 +205,7 @@ public class DemandList extends Div {
                 grid.setSortableColumns("id");
             } else {
                 grid.setItems(demandService.findAllByGarant(currentUser.getGarant()));
-                grid.setSortableColumns("id","createDate","object","address");
+                grid.setSortableColumns("id","object","address");
             }
         } else {
             filterText.setVisible(false);
@@ -216,7 +221,7 @@ public class DemandList extends Div {
                 grid.setSortableColumns("id");
             } else {
                 grid.setItems(demandService.findAllByUser(currentUser));
-                grid.setSortableColumns("id","createDate","object","address");
+                grid.setSortableColumns("id","object","address");
             }
         }
     }
