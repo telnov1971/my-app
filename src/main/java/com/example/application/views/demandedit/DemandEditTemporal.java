@@ -42,7 +42,7 @@ public class DemandEditTemporal extends GeneralForm {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService,true, DType.TEMPORAL, components);
+                historyService, fileStoredService,true, DType.TEMPORAL,noteService,components);
         this.MaxPower = 1000000000.0;
         demandType.setValue(demandTypeService.findById(DemandType.TEMPORAL).get());
 
@@ -64,37 +64,17 @@ public class DemandEditTemporal extends GeneralForm {
 
     @Override
     public void populateForm(Demand value) {
-        this.demand = value;
-        binderDemand.readBean(this.demand);
-        generalBinder.readBean(null);
-        demandType.setReadOnly(true);
-        createdate.setReadOnly(true);
+        super.populateForm(value);
         if(value != null) {
             if(pointService.findAllByDemand(demand).isEmpty()) {
                 point = new Point();
             } else {
                 point = pointService.findAllByDemand(demand).get(0);
             }
-            filesLayout.findAllByDemand(demand);
-            notesLayout.findAllByDemand(demand);
-            historyLayout.findAllByDemand(demand);
-            switch(demand.getStatus().getState()){
-                case ADD: {
-                    setReadOnly();
-                } break;
-                case NOTE: {
-                    setReadOnly();
-                    filesLayout.setReadOnly();
-                } break;
-                case FREEZE: {
-                    setReadOnly();
-                    filesLayout.setReadOnly();
-                    notesLayout.setReadOnly();
-                } break;
-            }
         }
         pointBinder.readBean(this.point);
     }
+
     public boolean save() {
         if(!super.save() || (pointBinder.validate().getValidationErrors().size() > 0)) return false;
         pointBinder.writeBeanIfValid(point);

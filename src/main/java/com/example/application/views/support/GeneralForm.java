@@ -46,6 +46,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected BeanValidationBinder<Demand> binderDemand = new BeanValidationBinder<>(Demand.class);
     protected Demand demand = new Demand();
     protected FilesLayout filesLayout;
+    protected NotesLayout notesLayout;
 
     protected HorizontalLayout buttonBar = new HorizontalLayout();
     protected Button save = new Button("Сохранить");
@@ -54,6 +55,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     // максимальная мощность по типу заявки
     protected Double MaxPower;
 
+    protected TextField demandId = new TextField("Номер заявки");
     protected DateTimePicker createdate;
     protected Select<DemandType> demandType;
     protected Select<Status> status;
@@ -136,6 +138,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                        FileStoredService fileStoredService,
                        Boolean temporal,
                        DType dType,
+                       NoteService noteService,
                        Component... components) {
         super(components);
         // сервисы
@@ -166,6 +169,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         filesLayout = new FilesLayout(this.fileStoredService
                 , voltageService
                 , safetyService, historyService);
+        notesLayout = new NotesLayout(noteService,historyService);
 
         historyLayout = new HistoryLayout(this.historyService);
         historyLayout.setWidthFull();
@@ -186,6 +190,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         // описание полей
         {
+            demandId.setReadOnly(true);
+
             createdate = new DateTimePicker("Дата и время создания");
             createdate.setValue(LocalDateTime.now());
             createdate.setReadOnly(true);
@@ -329,7 +335,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         setWidthFormDemander();
         accordionDemander.add("Данные заявителя", formDemander);
 
-        formDemand.add(createdate, demandType, status, label);
+        formDemand.add(demandId,createdate, demandType, status, label);
         formDemand.add(demander,delegate,contact);
         formDemand.add(accordionDemander);
         formDemand.add(reason, object, address, specification,label);
@@ -361,6 +367,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     private void setWidthFormDemand() {
+        formDemand.setColspan(demandId,1);
         formDemand.setColspan(createdate, 1);
         formDemand.setColspan(demandType, 1);
         formDemand.setColspan(status, 1);
@@ -484,7 +491,34 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
     }
 
-    protected void populateForm(Demand value) { }
+    protected void populateForm(Demand value) {
+        this.demand = value;
+        binderDemand.readBean(this.demand);
+        generalBinder.readBean(null);
+        demandType.setReadOnly(true);
+        createdate.setReadOnly(true);
+        if(value != null) {
+            demandId.setValue(demand.getId().toString());
+            filesLayout.findAllByDemand(demand);
+            notesLayout.findAllByDemand(demand);
+            historyLayout.findAllByDemand(demand);
+            switch(demand.getStatus().getState()){
+                case ADD: {
+                    setReadOnly();
+                } break;
+                case NOTE: {
+                    setReadOnly();
+                    filesLayout.setReadOnly();
+                } break;
+                case FREEZE: {
+                    setReadOnly();
+                    filesLayout.setReadOnly();
+                    notesLayout.setReadOnly();
+                } break;
+            }
+        }
+    }
+
     protected void clearForm() {
         binderDemand.readBean(null);
         pointBinder.readBean(null);

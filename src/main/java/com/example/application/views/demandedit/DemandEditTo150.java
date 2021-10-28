@@ -44,7 +44,7 @@ public class DemandEditTo150 extends GeneralForm {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService,false, DType.TO150, components);
+                historyService, fileStoredService,false, DType.TO150,noteService,components);
         this.userService = userService;
         this.MaxPower = 150.0;
         demandType.setValue(demandTypeService.findById(DemandType.TO150).get());
@@ -65,34 +65,17 @@ public class DemandEditTo150 extends GeneralForm {
 
     @Override
     public void populateForm(Demand value) {
-        this.demand = value;
-        binderDemand.readBean(this.demand);
-        generalBinder.readBean(null);
-        demandType.setReadOnly(true);
-        createdate.setReadOnly(true);
+        super.populateForm(value);
         if(value != null) {
             if(pointService.findAllByDemand(demand).isEmpty()) {
                 point = new Point();
             } else {
                 point = pointService.findAllByDemand(demand).get(0);
             }
-            filesLayout.findAllByDemand(demand);
             expirationsLayout.findAllByDemand(demand);
-            notesLayout.findAllByDemand(demand);
-            historyLayout.findAllByDemand(demand);
             switch(demand.getStatus().getState()){
-                case ADD: {
-                    setReadOnly();
-                } break;
-                case NOTE: {
-                    setReadOnly();
-                    filesLayout.setReadOnly();
-                    expirationsLayout.setReadOnly();
-                } break;
+                case NOTE:
                 case FREEZE: {
-                    setReadOnly();
-                    filesLayout.setReadOnly();
-                    notesLayout.setReadOnly();
                     expirationsLayout.setReadOnly();
                 } break;
             }

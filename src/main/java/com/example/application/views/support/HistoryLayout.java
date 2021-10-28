@@ -1,26 +1,16 @@
 package com.example.application.views.support;
 
 import com.example.application.data.entity.Demand;
-import com.example.application.data.entity.FileStored;
 import com.example.application.data.entity.History;
 import com.example.application.data.service.HistoryService;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.data.renderer.TemplateRenderer;
-import com.vaadin.flow.server.StreamResource;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HistoryLayout extends VerticalLayout {
     private List<History> historyList;
@@ -36,7 +26,9 @@ public class HistoryLayout extends VerticalLayout {
         for(History history : historyList){
             HorizontalLayout oneHistory = new HorizontalLayout();
             oneHistory.setWidthFull();
-            Label labelCreateDate = new Label(history.getCreateDate().toString());
+            Label labelCreateDate = new Label(history.getCreateDate()
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd | hh:mm")));
+            labelCreateDate.setWidth("10em");
             Label labelClient = new Label(history.getClient()?"Клиент":"Омскэлектро");
             labelClient.setMinWidth("6em");
             TextArea textHistory = new TextArea();

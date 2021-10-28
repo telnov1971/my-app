@@ -5,12 +5,12 @@ import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Table(name = "history")
 @Entity
 public class History extends AbstractEntity {
-    private LocalDate createdate;
+    private LocalDateTime createdate;
     private Boolean client;
     @Size(max = 2048)
     private String history;
@@ -22,22 +22,22 @@ public class History extends AbstractEntity {
     private boolean load1c = false;
 
     public History() {
-        this.createdate = LocalDate.now();
+        this.createdate = LocalDateTime.now();
         this.history = "";
         this.client = true;
     }
 
     public History(Demand demand, String history) {
-        this.createdate = LocalDate.now();
+        this.createdate = LocalDateTime.now();
         this.demand = demand;
         this.history = history;
         this.client = true;
     }
 
-    public LocalDate getCreateDate() {
+    public LocalDateTime getCreateDate() {
         return createdate;
     }
-    public void setCreateDate(LocalDate createdate) {
+    public void setCreateDate(LocalDateTime createdate) {
         this.createdate = createdate;
     }
     public String getHistory() {
