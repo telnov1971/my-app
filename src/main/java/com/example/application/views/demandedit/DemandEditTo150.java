@@ -8,7 +8,6 @@ import com.example.application.data.service.*;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.ExpirationsLayout;
 import com.example.application.views.support.GeneralForm;
-import com.example.application.views.support.NotesLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -20,8 +19,7 @@ import com.vaadin.flow.router.RouteAlias;
 @PageTitle("Редактор заявки до 150 кВт")
 public class DemandEditTo150 extends GeneralForm {
     private final UserService userService;
-    private ExpirationsLayout expirationsLayout;
-    private NotesLayout notesLayout;
+    private final ExpirationsLayout expirationsLayout;
 
     public DemandEditTo150(ReasonService reasonService,
                            DemandService demandService,
@@ -44,13 +42,12 @@ public class DemandEditTo150 extends GeneralForm {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService,false, DType.TO150,noteService,components);
+                historyService, fileStoredService, DType.TO150,noteService,components);
         this.userService = userService;
         this.MaxPower = 150.0;
         demandType.setValue(demandTypeService.findById(DemandType.TO150).get());
 
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService);
-        notesLayout = new NotesLayout(noteService,historyService);
 
         Component fields[] = {delegate, inn, innDate, powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, specification, plan, accordionExpiration};
@@ -90,12 +87,13 @@ public class DemandEditTo150 extends GeneralForm {
         point.setDemand(demand);
         historyService.saveHistory(demand,point,Point.class);
         pointService.update(this.point);
-        filesLayout.setDemand(demand);
-        filesLayout.saveFiles();
         expirationsLayout.setDemand(demand);
         expirationsLayout.saveExpirations();
-        notesLayout.setDemand(demand);
-        notesLayout.saveNotes();
+
+//        filesLayout.setDemand(demand);
+//        filesLayout.saveFiles();
+//        notesLayout.setDemand(demand);
+//        notesLayout.saveNotes();
         return true;
     }
 }

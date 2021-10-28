@@ -7,7 +7,6 @@ import com.example.application.data.entity.Point;
 import com.example.application.data.service.*;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.GeneralForm;
-import com.example.application.views.support.NotesLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -18,8 +17,6 @@ import com.vaadin.flow.router.RouteAlias;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки на временное подключение")
 public class DemandEditTemporal extends GeneralForm {
-    //private ExpirationsLayout expirationsLayout;
-    private NotesLayout notesLayout;
 
     public DemandEditTemporal(ReasonService reasonService,
                               DemandService demandService,
@@ -42,12 +39,9 @@ public class DemandEditTemporal extends GeneralForm {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService,true, DType.TEMPORAL,noteService,components);
+                historyService, fileStoredService, DType.TEMPORAL,noteService,components);
         this.MaxPower = 1000000000.0;
         demandType.setValue(demandTypeService.findById(DemandType.TEMPORAL).get());
-
-        //expirationsLayout = new ExpirationsLayout(expirationService,safetyService);
-        notesLayout = new NotesLayout(noteService,historyService);
 
         Component fields[] = {inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
@@ -81,10 +75,10 @@ public class DemandEditTemporal extends GeneralForm {
         point.setDemand(demand);
         historyService.saveHistory(demand,point,Point.class);
         pointService.update(this.point);
-        filesLayout.setDemand(demand);
-        filesLayout.saveFiles();
-        notesLayout.setDemand(demand);
-        notesLayout.saveNotes();
+//        filesLayout.setDemand(demand);
+//        filesLayout.saveFiles();
+//        notesLayout.setDemand(demand);
+//        notesLayout.saveNotes();
         return true;
     }
 }

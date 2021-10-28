@@ -42,13 +42,12 @@ public class DemandEditTo15 extends GeneralForm {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                  pointService,generalService,voltageService,
                  safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService,false, DType.TO15,noteService,components);
+                historyService, fileStoredService, DType.TO15,noteService,components);
         this.userService = userService;
         // сервисы
         this.MaxPower = 15.0;
         demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService);
-//        notesLayout = new NotesLayout(noteService,historyService);
         safety.setValue(safetyService.findById(3L).get());
         safety.setReadOnly(true);
 
@@ -96,12 +95,13 @@ public class DemandEditTo15 extends GeneralForm {
         point.setDemand(demand);
         historyService.saveHistory(demand,point,Point.class);
         pointService.update(this.point);
-        filesLayout.setDemand(demand);
-        filesLayout.saveFiles();
         expirationsLayout.setDemand(demand);
         expirationsLayout.saveExpirations();
-        notesLayout.setDemand(demand);
-        notesLayout.saveNotes();
+
+//        filesLayout.setDemand(demand);
+//        filesLayout.saveFiles();
+//        notesLayout.setDemand(demand);
+//        notesLayout.saveNotes();
         return true;
     }
 

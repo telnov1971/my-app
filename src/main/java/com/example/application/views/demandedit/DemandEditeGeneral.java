@@ -8,7 +8,6 @@ import com.example.application.data.service.*;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.ExpirationsLayout;
 import com.example.application.views.support.GeneralForm;
-import com.example.application.views.support.NotesLayout;
 import com.example.application.views.support.PointsLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.PageTitle;
@@ -20,11 +19,9 @@ import com.vaadin.flow.router.RouteAlias;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор заявки на энергопринимающие устройства")
 public class DemandEditeGeneral extends GeneralForm {
-    private final UserService userService;
 
-    private PointsLayout pointsLayout;
-    private ExpirationsLayout expirationsLayout;
-    private NotesLayout notesLayout;
+    private final PointsLayout pointsLayout;
+    private final ExpirationsLayout expirationsLayout;
 
     public DemandEditeGeneral(ReasonService reasonService,
                               DemandService demandService,
@@ -47,8 +44,7 @@ public class DemandEditeGeneral extends GeneralForm {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService,false, DType.GENERAL,noteService,components);
-        this.userService = userService;
+                historyService, fileStoredService, DType.GENERAL,noteService,components);
         this.MaxPower = 1000000000.0;
         demandType.setValue(demandTypeService.findById(DemandType.GENERAL).get());
 
@@ -58,7 +54,6 @@ public class DemandEditeGeneral extends GeneralForm {
                 ,historyService);
 
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService);
-        notesLayout = new NotesLayout(noteService,historyService);
 
         Component[] fields = {inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
@@ -101,12 +96,13 @@ public class DemandEditeGeneral extends GeneralForm {
         generalService.update(this.general);
         pointsLayout.setDemand(demand);
         pointsLayout.savePoints();
-        filesLayout.setDemand(demand);
-        filesLayout.saveFiles();
         expirationsLayout.setDemand(demand);
         expirationsLayout.saveExpirations();
-        notesLayout.setDemand(demand);
-        notesLayout.saveNotes();
+
+//        filesLayout.setDemand(demand);
+//        filesLayout.saveFiles();
+//        notesLayout.setDemand(demand);
+//        notesLayout.saveNotes();
         return true;
     }
 }

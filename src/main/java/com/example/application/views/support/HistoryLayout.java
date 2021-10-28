@@ -27,7 +27,7 @@ public class HistoryLayout extends VerticalLayout {
             HorizontalLayout oneHistory = new HorizontalLayout();
             oneHistory.setWidthFull();
             Label labelCreateDate = new Label(history.getCreateDate()
-                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd | hh:mm")));
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd | HH:mm")));
             labelCreateDate.setWidth("10em");
             Label labelClient = new Label(history.getClient()?"Клиент":"Омскэлектро");
             labelClient.setMinWidth("6em");

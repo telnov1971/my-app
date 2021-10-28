@@ -136,7 +136,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                        UserService userService,
                        HistoryService historyService,
                        FileStoredService fileStoredService,
-                       Boolean temporal,
                        DType dType,
                        NoteService noteService,
                        Component... components) {
@@ -169,7 +168,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         filesLayout = new FilesLayout(this.fileStoredService
                 , voltageService
                 , safetyService, historyService);
-        notesLayout = new NotesLayout(noteService,historyService);
+        notesLayout = new NotesLayout(noteService);
 
         historyLayout = new HistoryLayout(this.historyService);
         historyLayout.setWidthFull();
@@ -472,6 +471,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             }
             historyService.saveHistory(demand, demand, Demand.class);
             demandService.update(demand);
+
+            filesLayout.setDemand(demand);
+            filesLayout.saveFiles();
+            notesLayout.setDemand(demand);
+            notesLayout.saveNotes();
+
             return true;
         } else {
             return false;
