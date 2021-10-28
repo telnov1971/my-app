@@ -18,6 +18,9 @@ public class Demand extends AbstractEntity {
     @NotNull
     @Column(name = "create_date")
     private LocalDateTime createDate;
+    @NotNull
+    @Column(name = "change_date")
+    private LocalDateTime changeDate;
 
     // заявитель
     @NotNull
@@ -291,5 +294,11 @@ public class Demand extends AbstractEntity {
     }
     public void setDelegate(String delegate) {
         this.delegate = delegate;
+    }
+    public LocalDateTime getChangeDate() {
+        return changeDate;
+    }
+    public void setChangeDate(LocalDateTime changeDate) {
+        this.changeDate = changeDate;
     }
 }

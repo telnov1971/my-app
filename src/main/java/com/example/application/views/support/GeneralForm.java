@@ -454,13 +454,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             return false;
         }
         demand.setChange(true);
+        demand.setChangeDate(LocalDateTime.now());
         if(binderDemand.writeBeanIfValid(demand)) {
             if (demand.getUser() == null) {
                 demand.setUser(userService.findByUsername(
                         SecurityContextHolder.getContext().getAuthentication().getName()));
                 demand.setCreateDate(LocalDateTime.now());
                 demand.setLoad1c(false);
-                demand.setChange(false);
                 demand.setExecuted(false);
             }
             historyService.saveHistory(demand, demand, Demand.class);
