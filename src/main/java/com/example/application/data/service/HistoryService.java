@@ -116,9 +116,16 @@ public class HistoryService extends CrudService<History,Long> {
                     expirationHistory = expirationHistory + (!temp.equals("") ? "Макс.мощность: " + temp + "\n" : "");
                     temp = createHistory(expiration.getSafety(), oldExpiration.getSafety());
                     expirationHistory = expirationHistory + (!temp.equals("") ? "Кат. надёж.: " + temp + "\n" : "");
+                    if (!expirationHistory.equals("")) {
+                        expirationHistory = "На Этапе/Очереде:" + expiration.getStep() + "\n" + expirationHistory;
+                    }
                 }
             } else {
                 expirationHistory = "Добавлен этап/очередь: " + expiration.getStep() + "\n";
+                expirationHistory = expirationHistory + "Срок проектирования: " + expiration.getPlanProject() + "\n";
+                expirationHistory = expirationHistory + "Срок ввода: " + expiration.getPlanUsage() + "\n";
+                expirationHistory = expirationHistory + "Макс.мощность: " + expiration.getPowerMax() + "\n";
+                expirationHistory = expirationHistory + "Кат. надёж.: " + expiration.getSafety().getName() + "\n";
             }
         }
         return expirationHistory;
