@@ -47,6 +47,10 @@ public class PointsLayout extends VerticalLayout {
         points = new ArrayList<>();
         Label helpers = new Label("распределение по точкам присоединения");
 
+        Grid.Column<Point> columnNumber =
+                pointGrid.addColumn(Point::getNumber)
+                        .setHeader("№")
+                        .setAutoWidth(true);
         Grid.Column<Point> columnPowerDemand =
                 pointGrid.addColumn(Point::getPowerDemand)
                         .setHeader("Мощ. прис., кВт")
@@ -66,13 +70,18 @@ public class PointsLayout extends VerticalLayout {
                 pointGrid.addColumn(point -> point.getVoltage().getName())
                         .setAutoWidth(true)
                         .setHeader("Ур. напр. ");
+        columnNumber.setSortable(true);
         points.add(new Point());
         pointGrid.setItems(points);
         pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
         points.remove(points.size() - 1);
 
         Button addButton = new Button("Добавить точку", event -> {
-            pointDataProvider.getItems().add(new Point(0.0,
+            Integer maxNumber = 0;
+            for (Point p : points) {
+                maxNumber = p.getNumber() > maxNumber ? p.getNumber() : maxNumber;
+            }
+            pointDataProvider.getItems().add(new Point(++maxNumber, 0.0,
                     0.0,
                     this.voltageService.findById(1L).get(),
                     null,
@@ -161,12 +170,13 @@ public class PointsLayout extends VerticalLayout {
     public void findAllByDemand(Demand demand) {
         points = pointService.findAllByDemand(demand);
         if(points.isEmpty()) {
-            pointAdd(new Point(0.0,
+            pointAdd(new Point(1, 0.0,
                     0.0,
                     voltageService.findById(1L).get(),
                     null,
                     safetyService.findById(3L).get()));
         }
+        Collections.sort(points);
         pointGrid.setItems(points);
         pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
     }

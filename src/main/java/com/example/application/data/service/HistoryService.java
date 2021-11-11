@@ -82,18 +82,36 @@ public class HistoryService extends CrudService<History,Long> {
         String pointHistory = "";
         String temp;
         if(point!=null) {
-            if(pointService.findById(point.getId()).isPresent()) {
-                Point oldPoint = pointService.findById(point.getId()).get();
-                temp = createHistory(point.getPowerDemand(), oldPoint.getPowerDemand());
-                pointHistory = pointHistory + (!temp.equals("") ? "Мощность присоединяемая, кВт: " + temp + "\n" : "");
-                temp = createHistory(point.getPowerCurrent(), oldPoint.getPowerCurrent());
-                pointHistory = pointHistory + (!temp.equals("") ? "Мощность ранее присоединённая, кВт: " + temp + "\n" : "");
-                temp = createHistory(point.getVoltage(), oldPoint.getVoltage());
-                pointHistory = pointHistory + (!temp.equals("") ? "Класс напряжения: " + temp + "\n" : "");
-                temp = createHistory(point.getVoltageIn(), oldPoint.getVoltageIn());
-                pointHistory = pointHistory + (!temp.equals("") ? "Уровень напряжения на вводе: " + temp + "\n" : "");
-                temp = createHistory(point.getSafety(), oldPoint.getSafety());
-                pointHistory = pointHistory + (!temp.equals("") ? "Категория надёжности: " + temp + "\n" : "");
+            if(point.getId()!=null) {
+                if(pointService.findById(point.getId()).isPresent()) {
+                    Point oldPoint = pointService.findById(point.getId()).get();
+                    temp = createHistory(point.getPowerDemand(), oldPoint.getPowerDemand());
+                    pointHistory = pointHistory + (!temp.equals("") ?
+                            "Мощность присоединяемая, кВт: " + temp + "\n" : "");
+                    temp = createHistory(point.getPowerCurrent(), oldPoint.getPowerCurrent());
+                    pointHistory = pointHistory + (!temp.equals("") ?
+                            "Мощность ранее присоединённая, кВт: " + temp + "\n" : "");
+                    temp = createHistory(point.getVoltage(), oldPoint.getVoltage());
+                    pointHistory = pointHistory + (!temp.equals("") ? "Класс напряжения: " + temp + "\n" : "");
+                    temp = createHistory(point.getVoltageIn(), oldPoint.getVoltageIn());
+                    pointHistory = pointHistory + (!temp.equals("") ?
+                            "Уровень напряжения на вводе: " + temp + "\n" : "");
+                    temp = createHistory(point.getSafety(), oldPoint.getSafety());
+                    pointHistory = pointHistory + (!temp.equals("") ? "Категория надёжности: " + temp + "\n" : "");
+                    if (!pointHistory.equals("")) {
+                        pointHistory = "Для точки №: " + point.getNumber() + "\n" + pointHistory;
+                    }
+                }
+            } else {
+                pointHistory = "Добавлена точка №:" + point.getNumber() + "\n";
+                pointHistory = pointHistory + "Мощность присоединяемая, кВт: " + point.getPowerDemand() + "\n";
+                pointHistory = pointHistory + "Мощность ранее присоединённая, кВт: " + point.getPowerCurrent() + "\n";
+                if(point.getVoltage()!=null)
+                    pointHistory = pointHistory + "Класс напряжения: " + point.getVoltage().getName() + "\n";
+                if(point.getVoltageIn()!=null)
+                    pointHistory = pointHistory + "Уровень напряжения на вводе: "
+                            + point.getVoltageIn().getName() + "\n";
+                pointHistory = pointHistory + "Категория надёжности: " + point.getSafety().getName() + "\n";
             }
         }
         return pointHistory;
@@ -109,7 +127,8 @@ public class HistoryService extends CrudService<History,Long> {
                     temp = createHistory(expiration.getStep(), oldExpiration.getStep());
                     expirationHistory = expirationHistory + (!temp.equals("") ? "Этап/Очередь: " + temp + "\n" : "");
                     temp = createHistory(expiration.getPlanProject(), oldExpiration.getPlanProject());
-                    expirationHistory = expirationHistory + (!temp.equals("") ? "Срок проектирования: " + temp + "\n" : "");
+                    expirationHistory = expirationHistory + (!temp.equals("") ?
+                            "Срок проектирования: " + temp + "\n" : "");
                     temp = createHistory(expiration.getPlanUsage(), oldExpiration.getPlanUsage());
                     expirationHistory = expirationHistory + (!temp.equals("") ? "Срок ввода: " + temp + "\n" : "");
                     temp = createHistory(expiration.getPowerMax(), oldExpiration.getPowerMax());

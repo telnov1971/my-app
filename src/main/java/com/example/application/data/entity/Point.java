@@ -8,7 +8,9 @@ import javax.validation.constraints.Min;
 
 @Table(name = "POINT")
 @Entity
-public class Point extends AbstractEntity {
+public class Point extends AbstractEntity  implements Comparable {
+    @Column(name = "number")
+    private Integer number;
     @ManyToOne
     private Demand demand;
     @Column(name = "pow_dem")
@@ -37,8 +39,9 @@ public class Point extends AbstractEntity {
 
     public Point() {}
 
-    public Point(Double powerDemand, Double powerCurrent,
-                 Voltage voltage, Voltage voltageIn , Safety safety) {
+    public Point(Integer number, Double powerDemand, Double powerCurrent,
+                 Voltage voltage, Voltage voltageIn, Safety safety) {
+        this.number = number;
         this.powerDemand = powerDemand;
         this.powerCurrent = powerCurrent;
         this.powerMaximum = this.powerCurrent + this.powerDemand;
@@ -95,5 +98,18 @@ public class Point extends AbstractEntity {
 
     public void setVoltageIn(Voltage voltageIn) {
         this.voltageIn = voltageIn;
+    }
+
+    public Integer getNumber() {
+        return number;
+    }
+
+    public void setNumber(Integer number) {
+        this.number = number;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return this.number - ((Point)o).getNumber();
     }
 }
