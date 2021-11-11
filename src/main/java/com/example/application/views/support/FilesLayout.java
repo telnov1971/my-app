@@ -11,6 +11,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
@@ -61,6 +62,10 @@ public class FilesLayout extends VerticalLayout {
         fileStoredGrid.setHeightByRows(true);
         files = new ArrayList<>();
 
+        Grid.Column<FileStored> columnDate =
+                fileStoredGrid.addColumn(FileStored::getCreatedate)
+                        .setHeader("Загружено")
+                        .setAutoWidth(true);
         Grid.Column<FileStored> columnName =
                 fileStoredGrid.addColumn(FileStored::getName)
                         .setHeader("Имя файла")
@@ -68,6 +73,11 @@ public class FilesLayout extends VerticalLayout {
         Grid.Column<FileStored> columnLink =
                 fileStoredGrid.addColumn(FileStored::getLink)
                         .setHeader("Ссылка на файл")
+                        .setAutoWidth(true);
+        Grid.Column<FileStored> columnClient =
+                fileStoredGrid.addComponentColumn(file ->
+                                new Label(file.getClient()?"Клиент":"Омскэлектро"))
+                        .setHeader("Кем загружено")
                         .setAutoWidth(true);
         files.add(new FileStored());
         fileStoredGrid.setItems(files);
@@ -170,7 +180,7 @@ public class FilesLayout extends VerticalLayout {
 
     public void saveFiles() {
         for(Map.Entry<String, String> entry: filesToSave.entrySet()) {
-            FileStored file = new FileStored(entry.getValue(),entry.getKey(),demand);
+            FileStored file = new FileStored(entry.getValue(),entry.getKey(), true, demand);
             file.setDemand(demand);
             historyService.saveHistory(demand, file, FileStored.class);
             fileStoredService.update(file);

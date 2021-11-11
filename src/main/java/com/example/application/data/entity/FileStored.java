@@ -19,6 +19,10 @@ public class FileStored extends AbstractEntity {
     @Column(name = "link")
     private String link;
 
+    @ColumnDefault("true")
+    @Column(name = "client")
+    private Boolean client;
+
     @ManyToOne
     @JoinColumn(name = "demand_id")
     private Demand demand;
@@ -30,7 +34,8 @@ public class FileStored extends AbstractEntity {
     public FileStored() {
     }
 
-    public FileStored(String name, String link, Demand demand) {
+    public FileStored(String name, String link, Boolean client, Demand demand) {
+        this.client = client;
         createdate = LocalDate.now();
         this.load1c = false;
         this.name = name;
@@ -68,5 +73,21 @@ public class FileStored extends AbstractEntity {
 
     public void setDemand(Demand demand) {
         this.demand = demand;
+    }
+
+    public Boolean getClient() {
+        return client;
+    }
+
+    public void setClient(Boolean client) {
+        this.client = client;
+    }
+
+    public LocalDate getCreatedate() {
+        return createdate;
+    }
+
+    public void setCreatedate(LocalDate createdate) {
+        this.createdate = createdate;
     }
 }
