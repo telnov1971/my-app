@@ -1,9 +1,6 @@
 package com.example.application.views.demandedit;
 
-import com.example.application.data.entity.DType;
-import com.example.application.data.entity.Demand;
-import com.example.application.data.entity.DemandType;
-import com.example.application.data.entity.Point;
+import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.ExpirationsLayout;
@@ -47,7 +44,8 @@ public class DemandEditTo15 extends GeneralForm {
         // сервисы
         this.MaxPower = 15.0;
         demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
-        expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService);
+        expirationsLayout = new ExpirationsLayout(expirationService
+                ,safetyService, historyService);
         safety.setValue(safetyService.findById(3L).get());
         safety.setReadOnly(true);
 

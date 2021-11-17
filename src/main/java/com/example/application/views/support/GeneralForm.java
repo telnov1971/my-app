@@ -428,11 +428,17 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     private void changePower(NumberField field) {
-        Double currentP = 0.0;
-        Double demandP = 0.0;
+        double currentP = 0.0;
+        double demandP = 0.0;
         currentP = powerCurrent.getValue() != null ? powerCurrent.getValue(): 0.0;
         demandP = powerDemand.getValue() != null ? powerDemand.getValue() : 0.0;
         powerMaximum.setValue(currentP + demandP);
+        if((currentP + demandP) > 5.0) {
+            voltageIn.setValue(voltageService.findById(4L).get());
+            voltageIn.setReadOnly(true);
+        } else {
+            voltageIn.setReadOnly(false);
+        }
         if (powerMaximum.getValue() > this.MaxPower) {
             Notification notification = new Notification(
                     "Для такого типа заявки превышена макисальная мощность", 5000,

@@ -37,6 +37,8 @@ public class ExpirationsLayout extends VerticalLayout {
     private final SafetyService safetyService;
     private final HistoryService historyService;
 
+    private double powerMax = 0.0;
+
     public ExpirationsLayout(ExpirationService expirationService
             , SafetyService safetyService, HistoryService historyService) {
         this.expirationService = expirationService;
@@ -197,5 +199,9 @@ public class ExpirationsLayout extends VerticalLayout {
         editorColumn.setVisible(false);
         addButton.setVisible(false);
         removeButton.setVisible(false);
+    }
+
+    public void setPowerMax(double powerMax) {
+        this.powerMax = powerMax;
     }
 }
