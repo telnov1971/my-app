@@ -101,6 +101,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
     protected Select<Plan> plan;
     protected Select<Garant> garant;
+    protected TextField garantText;
 
     protected Accordion accordionHistory = new Accordion();
     protected HistoryLayout historyLayout;
@@ -248,6 +249,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             contract = new TextField("Реквизиты договора");
             contract.setHelperText("(реквизиты договора на технологическое присоединение)");
 //            contract.getElement().setAttribute("title","реквизиты договора на технологическое присоединение");
+            garantText = new TextField("Наименование гарантирующего поставщика");
         }
 
         // создание селекторов
@@ -268,6 +270,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
             garant = createSelect(Garant::getName, garantService.findAllByActive(true),
                     "Гарантирующий поставщик", Garant.class);
+            garant.addValueChangeListener(e->{
+                if(garant.getValue().getId() != 1) {
+                    garantText.setVisible(true);
+                } else {
+                    garantText.setVisible(false);
+                }
+            });
 
             plan = createSelect(Plan::getName, planService.findAll(),
                     "Рассрочка платежа", Plan.class);
@@ -343,7 +352,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemand.add(countTransformations,countGenerations,techminGeneration,reservation);
         formDemand.add(period,contract);
         formDemand.add(accordionExpiration);
-        formDemand.add(garant, plan);
+        formDemand.add(garant, garantText, plan);
         setWidthFormDemand();
 
         buttonBar.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
@@ -358,7 +367,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 countPoints, accordionPoints, powerDemand, powerCurrent,
                 powerMaximum, voltage, voltageIn, safety, specification,
                 countTransformations,accordionExpiration,
-                countGenerations, techminGeneration, reservation, plan, period, contract};
+                countGenerations, techminGeneration, reservation, plan, period, contract, garantText};
         for(Component field : fields){
             field.setVisible(false);
         }
@@ -397,6 +406,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemand.setColspan(garant, 1);
         formDemand.setColspan(plan, 1);
         formDemand.setColspan(accordionHistory,4);
+        formDemand.setColspan(garantText,4);
     }
 
     private void setWidthFormDemander() {

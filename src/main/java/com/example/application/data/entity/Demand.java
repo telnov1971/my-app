@@ -82,6 +82,9 @@ public class Demand extends AbstractEntity {
     @JoinColumn(name = "garant_id")
     private Garant garant;
 
+    @JoinColumn(name = "garant_text")
+    private String garantText;
+
     // план рассчётов
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "plan_id")
@@ -300,5 +303,11 @@ public class Demand extends AbstractEntity {
     }
     public void setChangeDate(LocalDateTime changeDate) {
         this.changeDate = changeDate;
+    }
+    public String getGarantText() {
+        return garantText;
+    }
+    public void setGarantText(String garantText) {
+        this.garantText = garantText;
     }
 }

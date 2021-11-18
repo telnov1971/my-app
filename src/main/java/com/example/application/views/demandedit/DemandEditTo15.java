@@ -62,6 +62,9 @@ public class DemandEditTo15 extends GeneralForm {
         }
 
         accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
+        powerMaximum.addValueChangeListener(e -> {
+            expirationsLayout.setPowerMax(powerMaximum.getValue());
+        });
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory);
     }
 

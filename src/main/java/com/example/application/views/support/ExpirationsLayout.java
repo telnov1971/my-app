@@ -37,7 +37,7 @@ public class ExpirationsLayout extends VerticalLayout {
     private final SafetyService safetyService;
     private final HistoryService historyService;
 
-    private double powerMax = 0.0;
+    private double powerMax;
 
     public ExpirationsLayout(ExpirationService expirationService
             , SafetyService safetyService, HistoryService historyService) {
@@ -123,7 +123,7 @@ public class ExpirationsLayout extends VerticalLayout {
 
         addButton.addClickListener(event -> {
             expirationsDataProvider.getItems().add(new Expiration("",
-                    "","",0.0,
+                    "","",powerMax,
                     safetyService.findById(3L).get()));
             expirationsDataProvider.refreshAll();
             expirationGrid.select(expirations.get(expirations.size() - 1));
@@ -203,5 +203,9 @@ public class ExpirationsLayout extends VerticalLayout {
 
     public void setPowerMax(double powerMax) {
         this.powerMax = powerMax;
+//        for(int i=0; i < expirations.size(); i++ ){
+//            expirations.get(i).setPowerMax(powerMax);
+//            expirationsDataProvider.refreshAll();
+//        }
     }
 }

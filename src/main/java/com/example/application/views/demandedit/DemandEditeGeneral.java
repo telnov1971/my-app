@@ -66,6 +66,9 @@ public class DemandEditeGeneral extends GeneralForm {
 
         accordionPoints.add("Точки подключения", this.pointsLayout);
         accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
+        powerMaximum.addValueChangeListener(e -> {
+            expirationsLayout.setPowerMax(powerMaximum.getValue());
+        });
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory);
     }
 
