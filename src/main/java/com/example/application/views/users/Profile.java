@@ -17,12 +17,14 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.router.*;
-import com.vaadin.flow.server.*;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Route(value = "profile/:userID?", layout = MainView.class)
@@ -158,13 +160,23 @@ public class Profile extends Div implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        Optional<Long> userId = event.getRouteParameters().getLong(USER_ID);
-        if (userId.isPresent()) {
-            Optional<User> userFromBackend = userService.findById(userId.get());
-            if (userFromBackend.isPresent()) {
-                if (userFromBackend.get().getUsername().
+//        Optional<Long> userId = event.getRouteParameters().getLong(USER_ID);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+//        User user = userService.findByUsername(username);
+//        UI.getCurrent().navigate(Profile.class, new RouteParameters("userID",
+//                String.valueOf(user.getId())));
+
+//        if (userId.isPresent()) {
+        if (username != null) {
+//            Optional<User> userFromBackend = userService.findById(userId.get());
+            User userFromBackend = userService.findByUsername(username);
+//            if (userFromBackend.isPresent()) {
+            if (userFromBackend != null) {
+//                if (userFromBackend.get().getUsername().
+                if (userFromBackend.getUsername().
                         equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
-                    populateForm(userFromBackend.get());
+//                    populateForm(userFromBackend.get());
+                    populateForm(userFromBackend);
                 } else {
                     Notification.show("Это не Вы :(", 3000,
                             Notification.Position.BOTTOM_START);
