@@ -62,6 +62,7 @@ public class FilesLayout extends VerticalLayout {
         fileStoredGrid.setHeightByRows(true);
         files = new ArrayList<>();
 
+        Label fileTableName = new Label("Прикреплённые документы (можно только добавить, удалить нельзя)");
         Grid.Column<FileStored> columnDate =
                 fileStoredGrid.addColumn(FileStored::getCreatedate)
                         .setHeader("Загружено")
@@ -128,7 +129,7 @@ public class FilesLayout extends VerticalLayout {
         columnLink.setVisible(false);
 
         createUploadLayout();
-        add(fileStoredGrid, multiUpload);
+        add(fileTableName,fileStoredGrid, multiUpload);
     }
 
     private void createUploadLayout() {

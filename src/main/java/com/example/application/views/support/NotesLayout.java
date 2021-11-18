@@ -20,7 +20,7 @@ public class NotesLayout extends VerticalLayout {
     private final Grid<Note> noteGrid = new Grid<>(Note.class,false);
     private ListDataProvider<Note> noteListDataProvider;
     //private Binder<Note> binderNote = new Binder<>(Note.class);
-    private final TextArea noteArea = new TextArea();
+    private final TextArea noteArea = new TextArea("","(введите примечание)");
     private final HorizontalLayout buttonsLayout = new HorizontalLayout();
     //private Editor<Note> editorNote;
 
@@ -73,7 +73,7 @@ public class NotesLayout extends VerticalLayout {
 
         noteArea.setWidthFull();
         buttonsLayout.add(addButton, removeButton);
-        Label notesLabel = new Label("Примечания:");
+        Label notesLabel = new Label("Примечания: (можно удалить только ещё не сохранённое)");
         add(notesLabel,noteGrid,noteArea,buttonsLayout);
     }
 

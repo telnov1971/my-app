@@ -20,7 +20,6 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
-
 import java.util.*;
 
 public class ExpirationsLayout extends VerticalLayout {
@@ -38,6 +37,7 @@ public class ExpirationsLayout extends VerticalLayout {
     private final HistoryService historyService;
 
     private double powerMax;
+    private int count = 0;
 
     public ExpirationsLayout(ExpirationService expirationService
             , SafetyService safetyService, HistoryService historyService) {
@@ -130,13 +130,19 @@ public class ExpirationsLayout extends VerticalLayout {
             editorExpiration.editItem(expirations.get(expirations.size() - 1));
             fieldStep.focus();
             addButton.setEnabled(false);
+            removeButton.setEnabled(true);
         });
 
         removeButton = new Button("Удалить последнюю", event -> {
-            this.expirations.remove(expirations.size() - 1);
-            expirationsDataProvider.refreshAll();
-            addButton.setEnabled(true);
+            if(expirations.toArray().length > count) {
+                this.expirations.remove(expirations.size() - 1);
+                expirationsDataProvider.refreshAll();
+                addButton.setEnabled(true);
+            } else {
+                removeButton.setEnabled(false);
+            }
         });
+        removeButton.setEnabled(false);
 
         editorExpiration.addOpenListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editorExpiration.isOpen())));
@@ -177,6 +183,7 @@ public class ExpirationsLayout extends VerticalLayout {
 
     public void findAllByDemand(Demand demand) {
         expirations = expirationService.findAllByDemand(demand);
+        count = expirations.toArray().length;
         if(expirations.isEmpty()) {
             pointAdd(new Expiration());}
         expirationGrid.setItems(expirations);
