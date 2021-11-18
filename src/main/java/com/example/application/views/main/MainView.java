@@ -18,6 +18,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -157,26 +159,42 @@ public class MainView extends AppLayout {
         // Wrap the links in a list; improves accessibility
         OrderedList list = new OrderedList();
         list.addClassNames("list-none", "m-0", "p-0");
-        nav.add(list);
 
+        nav.add(createLinksList());
+        Label newDemands = new Label("Новые заявки:");
+        newDemands.getElement().getStyle().set("margin", "10px");
+        nav.add(newDemands);
+        nav.add(list);
         for (RouterLink link : createLinks()) {
             ListItem item = new ListItem(link);
             list.add(item);
         }
+        Label profile = new Label("Пользователь:");
+        profile.getElement().getStyle().set("margin", "10px");
+        nav.add(profile);
+        nav.add(createLinksProfile());
+        Button button = new Button(new Icon(VaadinIcon.EXIT));
+        button.addClickListener(event -> {
+            if(getUI().isPresent()){
+                UI ui = getUI().get();
+                ui.getSession().getSession().invalidate();
+                ui.navigate("/login");
+            }
+        });
+        nav.add(button);
         return nav;
     }
 
     private List<RouterLink> createLinks() {
         MenuItemInfo[] menuItems = new MenuItemInfo[]{ //
-                new MenuItemInfo("Список заявок", "la la-globe", DemandList.class), //
+//                new MenuItemInfo("Список заявок", "la la-globe", DemandList.class), //
 
-//                new MenuItemInfo("Новая заявка:",null,null),
-                new MenuItemInfo("-> Физические лица до 15 кВт", "la la-file", DemandEditTo15.class), //
-                new MenuItemInfo("-> Юридические лица и ИП до 150кВт", "la la-file", DemandEditTo150.class), //
-                new MenuItemInfo("-> Временное присоединение", "la la-file", DemandEditTemporal.class), //
-                new MenuItemInfo("-> Иные категории потребителей", "la la-file", DemandEditeGeneral.class), //
+                new MenuItemInfo("Физические лица до 15 кВт", "la la-file", DemandEditTo15.class), //
+                new MenuItemInfo("Юридические лица и ИП до 150кВт", "la la-file", DemandEditTo150.class), //
+                new MenuItemInfo("Временное присоединение", "la la-file", DemandEditTemporal.class), //
+                new MenuItemInfo("Иные категории потребителей", "la la-file", DemandEditeGeneral.class) //
 
-                new MenuItemInfo("Профиль", "la la-file", Profile.class), //
+//                new MenuItemInfo("Профиль", "la la-file", Profile.class), //
 
         };
         List<RouterLink> links = new ArrayList<>();
@@ -186,6 +204,19 @@ public class MainView extends AppLayout {
         }
         return links;
     }
+
+    private RouterLink createLinksList() {
+        MenuItemInfo menuItem = new MenuItemInfo("Список заявок", "globe-solid", DemandList.class);
+        RouterLink link = createLink(menuItem);
+        return link;
+    }
+
+    private RouterLink createLinksProfile() {
+        MenuItemInfo menuItem = new MenuItemInfo("Регистрационные данные", "la la-globe", Profile.class);
+        RouterLink link = createLink(menuItem);
+        return link;
+    }
+
 
     private static RouterLink createLink(MenuItemInfo menuItemInfo) {
         RouterLink link = new RouterLink();
