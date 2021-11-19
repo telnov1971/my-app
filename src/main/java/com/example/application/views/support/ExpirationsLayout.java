@@ -47,7 +47,8 @@ public class ExpirationsLayout extends VerticalLayout {
         expirationGrid.setHeightByRows(true);
         expirations = new ArrayList<>();
         Label helpers = new Label("Сроки проектирования и поэтапного введения в эксплуатацию объекта"+
-                " (в том числе по этапам и очередям), планируемое поэтапное распределение максимальной мощности");
+                " (в том числе по этапам и очередям), планируемое поэтапное распределение максимальной мощности " +
+                "(обязательны к заполнению)");
 
         Grid.Column<Expiration> columnStep =
                 expirationGrid.addColumn(Expiration::getStep)
@@ -214,5 +215,9 @@ public class ExpirationsLayout extends VerticalLayout {
 //            expirations.get(i).setPowerMax(powerMax);
 //            expirationsDataProvider.refreshAll();
 //        }
+    }
+
+    public int getExpirationsSize() {
+        return expirations.size();
     }
 }

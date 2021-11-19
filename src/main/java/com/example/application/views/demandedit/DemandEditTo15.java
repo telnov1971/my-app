@@ -13,7 +13,7 @@ import com.vaadin.flow.router.RouteAlias;
 @Route(value = "demandto15/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandto15")
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
-@PageTitle("Редактор заявки до 15 кВт")
+@PageTitle("Физические лица до 15 кВт (ком.-быт. нужды)")
 public class DemandEditTo15 extends GeneralForm {
     private final UserService userService;
     private ExpirationsLayout expirationsLayout;
@@ -65,6 +65,11 @@ public class DemandEditTo15 extends GeneralForm {
         powerMaximum.addValueChangeListener(e -> {
             expirationsLayout.setPowerMax(powerMaximum.getValue());
         });
+        if(expirationsLayout.getExpirationsSize()==0) {
+            saveEnable(false);
+        } else {
+            saveEnable(true);
+        }
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory);
     }
 

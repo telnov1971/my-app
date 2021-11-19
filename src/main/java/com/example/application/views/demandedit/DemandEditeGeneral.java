@@ -17,7 +17,7 @@ import com.vaadin.flow.router.RouteAlias;
 @Route(value = "demandreciver/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandreciver")
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
-@PageTitle("Редактор заявки на энергопринимающие устройства")
+@PageTitle("Иные категории потребителей")
 public class DemandEditeGeneral extends GeneralForm {
 
     private final PointsLayout pointsLayout;

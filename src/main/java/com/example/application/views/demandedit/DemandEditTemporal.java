@@ -15,7 +15,7 @@ import com.vaadin.flow.router.RouteAlias;
 @Route(value = "demandtemporary/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandtemporary")
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
-@PageTitle("Редактор заявки на временное подключение")
+@PageTitle("Временное присоединение")
 public class DemandEditTemporal extends GeneralForm {
 
     public DemandEditTemporal(ReasonService reasonService,

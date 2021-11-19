@@ -16,7 +16,7 @@ import com.vaadin.flow.router.RouteAlias;
 @Route(value = "demandto150/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandto150")
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
-@PageTitle("Редактор заявки до 150 кВт")
+@PageTitle("Юридические лица и ИП до 150кВт (один источник электропитания)")
 public class DemandEditTo150 extends GeneralForm {
     private final UserService userService;
     private final ExpirationsLayout expirationsLayout;

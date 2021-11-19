@@ -249,7 +249,24 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             contract = new TextField("Реквизиты договора");
             contract.setHelperText("(реквизиты договора на технологическое присоединение)");
 //            contract.getElement().setAttribute("title","реквизиты договора на технологическое присоединение");
-            garantText = new TextField("Наименование гарантирующего поставщика");
+            garantText = new TextField("Наименование гарантирующего поставщика (обязательное) *");
+            garantText.addClassName("v-captiontext");
+            garantText.addClassName("v-required-field-indicator");
+//            .v-caption {}
+//  .v-captiontext {}
+//  .v-required-field-indicator {}
+        }
+
+        // события полей
+        {
+            garantText.addValueChangeListener(e->{
+                if(garantText.isEmpty()) {
+                    save.setEnabled(false);
+                    garantText.focus();
+                } else {
+                    save.setEnabled(true);
+                }
+            });
         }
 
         // создание селекторов
@@ -283,8 +300,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             garant.addValueChangeListener(e->{
                 if(garant.getValue().getId() != 1) {
                     garantText.setVisible(true);
+                    garantText.setReadOnly(false);
+                    if(garantText.getValue().equals("")) save.setEnabled(false);
                 } else {
+                    garantText.setValue("");
                     garantText.setVisible(false);
+                    garantText.setReadOnly(true);
+                    save.setEnabled(true);
                 }
             });
 
@@ -464,7 +486,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     "Для такого типа заявки превышена макисальная мощность", 5000,
                     Notification.Position.MIDDLE);
             notification.open();
+            save.setEnabled(false);
             field.focus();
+        } else {
+            save.setEnabled(true);
         }
     }
     private void testPower(NumberField field) {
@@ -509,16 +534,16 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
     }
 
-    protected void setReadOnly() {
+    protected void setReadOnly(Boolean readOnly) {
         AbstractField fields[] = {
                 demander,delegate,inn,innDate,contact,passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,reason,object,address,specification,
                 countPoints,powerDemand,powerCurrent,powerMaximum,voltage,safety,period,
                 contract,countTransformations,countGenerations,techminGeneration,reservation,
-                plan,garant
+                plan,garant,garantText
         };
         for(AbstractField field : fields) {
-            field.setReadOnly(true);
+            field.setReadOnly(readOnly);
         }
     }
 
@@ -535,14 +560,14 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             historyLayout.findAllByDemand(demand);
             switch(demand.getStatus().getState()){
                 case ADD: {
-                    setReadOnly();
+                    setReadOnly(true);
                 } break;
                 case NOTE: {
-                    setReadOnly();
+                    setReadOnly(true);
                     filesLayout.setReadOnly();
                 } break;
                 case FREEZE: {
-                    setReadOnly();
+                    setReadOnly(true);
                     filesLayout.setReadOnly();
                     notesLayout.setReadOnly();
                 } break;
@@ -559,17 +584,33 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
+        Role role = Role.ANONYMOUS;
+        User currentUser;
         Optional<Long> demandId = event.getRouteParameters().getLong(DEMAND_ID);
         if (demandId.isPresent()) {
+            currentUser = userService.findByUsername(
+                    SecurityContextHolder.getContext().getAuthentication().getName());
+            if(currentUser != null) {
+                role = currentUser.getRoles().contains(Role.USER) ?
+                        Role.USER :
+                        currentUser.getRoles().contains(Role.GARANT) ?
+                                Role.GARANT :
+                                currentUser.getRoles().contains(Role.ADMIN) ?
+                                        Role.ADMIN :
+                                        Role.ANONYMOUS;
+            }
+
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());
             if (demandFromBackend.isPresent()) {
-                User currentUser = userService.findByUsername(
-                        SecurityContextHolder.getContext().getAuthentication().getName());
-                if (demandFromBackend.get().getUser().equals(currentUser) ||
-                        (currentUser.isGarant() &&
-                                demandFromBackend.get().getGarant().equals(currentUser.getGarant()))) {
+                if(role == Role.ADMIN) {
+                    setReadOnly(false);
                     populateForm(demandFromBackend.get());
-                    if(currentUser.isGarant()) setReadOnly();
+                } else if (demandFromBackend.get().getUser().equals(currentUser)
+                        || (role == Role.GARANT &&
+                                demandFromBackend.get().getGarant().getId()>1L)) {
+                    populateForm(demandFromBackend.get());
+                    if(role == Role.GARANT)
+                        setReadOnly(true);
                 } else {
                     Notification.show(String.format("Заявка с ID = %d не Ваша", demandId.get()), 3000,
                             Notification.Position.BOTTOM_START);
@@ -581,6 +622,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 clearForm();
             }
         }
+    }
+
+    public void saveEnable(Boolean enable) {
+        save.setEnabled(enable);
     }
 }
 

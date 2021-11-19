@@ -10,33 +10,21 @@ import com.example.application.views.demandedit.DemandEditeGeneral;
 import com.example.application.views.demandlist.DemandList;
 import com.example.application.views.users.Profile;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.TabVariant;
-import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.example.application.data.entity.Role.ANONYMOUS;
-import static com.example.application.data.entity.Role.USER;
 
 /**
  * The main view is a top-level placeholder for other views.
@@ -48,8 +36,8 @@ public class MainView extends AppLayout {
     @Value("${upload.path.linux}")
     private String uploadPathLinux;
     private H1 viewTitle;
-    Label newDemands = new Label("Новые заявки:");
-    OrderedList list = new OrderedList();
+    private Label newDemands = new Label("Новые заявки:");
+    private OrderedList list = new OrderedList();
 
     private final UserService userService;
 
@@ -181,6 +169,8 @@ public class MainView extends AppLayout {
             }
         });
         button.getElement().setAttribute("title","Выход их личного кабинета");
+        button.setText("ВЫХОД");
+        button.getElement().getStyle().set("margin", "10px");
         nav.add(button);
         return nav;
     }
@@ -247,19 +237,19 @@ public class MainView extends AppLayout {
     protected void afterNavigation() {
         super.afterNavigation();
         viewTitle.setText(getCurrentPageTitle());
-        User user = userService.findByUsername(
+        User currentUser = userService.findByUsername(
                 SecurityContextHolder.getContext().getAuthentication().getName());
-        if(user != null) {
-            role = user.getRoles().contains(Role.USER) ?
+        if(currentUser != null) {
+            role = currentUser.getRoles().contains(Role.USER) ?
                     Role.USER :
-                    user.getRoles().contains(Role.GARANT) ?
+                    currentUser.getRoles().contains(Role.GARANT) ?
                             Role.GARANT :
-                            user.getRoles().contains(Role.ADMIN) ?
+                            currentUser.getRoles().contains(Role.ADMIN) ?
                                     Role.ADMIN :
                                     Role.ANONYMOUS;
         } else {
             role = Role.ANONYMOUS;
-        }//getTabForComponent(getContent()).ifPresent(menu::setSelectedTab);
+        }
         switch(role){
             case ANONYMOUS:
             case GARANT:
@@ -272,6 +262,10 @@ public class MainView extends AppLayout {
     private String getCurrentPageTitle() {
         PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
         return title == null ? "" : title.value();
+    }
+
+    public Role getRole() {
+        return role;
     }
 
     //=========================================================================
