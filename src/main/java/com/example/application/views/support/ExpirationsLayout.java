@@ -220,4 +220,7 @@ public class ExpirationsLayout extends VerticalLayout {
     public int getExpirationsSize() {
         return expirations.size();
     }
+    public void setFocus() {
+        addButton.focus();
+    }
 }

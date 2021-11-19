@@ -257,18 +257,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 //  .v-required-field-indicator {}
         }
 
-        // события полей
-        {
-            garantText.addValueChangeListener(e->{
-                if(garantText.isEmpty()) {
-                    save.setEnabled(false);
-                    garantText.focus();
-                } else {
-                    save.setEnabled(true);
-                }
-            });
-        }
-
         // создание селекторов
         {
             List<Reason> reasonList = reasonService.findAll().stream().
@@ -301,12 +289,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 if(garant.getValue().getId() != 1) {
                     garantText.setVisible(true);
                     garantText.setReadOnly(false);
-                    if(garantText.getValue().equals("")) save.setEnabled(false);
                 } else {
                     garantText.setValue("");
                     garantText.setVisible(false);
                     garantText.setReadOnly(true);
-                    save.setEnabled(true);
                 }
             });
 
@@ -404,6 +390,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             field.setVisible(false);
         }
         this.getElement().getStyle().set("margin", "15px");
+        accordionHistory.close();
     }
 
     private void setWidthFormDemand() {
@@ -486,10 +473,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     "Для такого типа заявки превышена макисальная мощность", 5000,
                     Notification.Position.MIDDLE);
             notification.open();
-            save.setEnabled(false);
             field.focus();
-        } else {
-            save.setEnabled(true);
         }
     }
     private void testPower(NumberField field) {
@@ -503,6 +487,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     public boolean save() {
+        if(!verifyField()) return false;
         if (binderDemand.validate().getValidationErrors().size() > 0) {
             List<ValidationResult> validationResults = binderDemand.validate().getValidationErrors();
             for (ValidationResult validationResult : validationResults) {
@@ -533,6 +518,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             return false;
         }
     }
+
+    protected abstract Boolean verifyField();
 
     protected void setReadOnly(Boolean readOnly) {
         AbstractField fields[] = {

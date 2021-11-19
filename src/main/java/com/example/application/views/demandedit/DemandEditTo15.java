@@ -6,6 +6,7 @@ import com.example.application.views.main.MainView;
 import com.example.application.views.support.ExpirationsLayout;
 import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
@@ -65,11 +66,6 @@ public class DemandEditTo15 extends GeneralForm {
         powerMaximum.addValueChangeListener(e -> {
             expirationsLayout.setPowerMax(powerMaximum.getValue());
         });
-        if(expirationsLayout.getExpirationsSize()==0) {
-            saveEnable(false);
-        } else {
-            saveEnable(true);
-        }
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory);
     }
 
@@ -108,6 +104,23 @@ public class DemandEditTo15 extends GeneralForm {
 //        filesLayout.saveFiles();
 //        notesLayout.setDemand(demand);
 //        notesLayout.saveNotes();
+        return true;
+    }
+
+    @Override
+    protected Boolean verifyField() {
+        if(powerMaximum.getValue() > 15.0) {
+            powerCurrent.focus();
+            Notification.show(String.format("Максимальна мощность больше допустимой"), 3000,
+                    Notification.Position.BOTTOM_START);
+            return false;
+        }
+        if(expirationsLayout.getExpirationsSize()==0){
+            expirationsLayout.setFocus();
+            Notification.show(String.format("Не заполнены этапы работ"), 3000,
+                    Notification.Position.BOTTOM_START);
+            return false;
+        }
         return true;
     }
 

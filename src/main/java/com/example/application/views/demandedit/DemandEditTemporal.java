@@ -8,6 +8,7 @@ import com.example.application.data.service.*;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
@@ -79,6 +80,11 @@ public class DemandEditTemporal extends GeneralForm {
 //        filesLayout.saveFiles();
 //        notesLayout.setDemand(demand);
 //        notesLayout.saveNotes();
+        return true;
+    }
+
+    @Override
+    protected Boolean verifyField() {
         return true;
     }
 }
