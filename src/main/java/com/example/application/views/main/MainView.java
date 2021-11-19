@@ -189,8 +189,8 @@ public class MainView extends AppLayout {
         MenuItemInfo[] menuItems = new MenuItemInfo[]{ //
 //                new MenuItemInfo("Список заявок", "la la-globe", DemandList.class), //
 
-                new MenuItemInfo("Физические лица до 15 кВт", "la la-file", DemandEditTo15.class), //
-                new MenuItemInfo("Юридические лица и ИП до 150кВт", "la la-file", DemandEditTo150.class), //
+                new MenuItemInfo("Физические лица до 15 кВт (ком.-быт. нужды)", "la la-file", DemandEditTo15.class), //
+                new MenuItemInfo("Юридические лица и ИП до 150кВт (один источник электропитания)", "la la-file", DemandEditTo150.class), //
                 new MenuItemInfo("Временное присоединение", "la la-file", DemandEditTemporal.class), //
                 new MenuItemInfo("Иные категории потребителей", "la la-file", DemandEditeGeneral.class) //
 

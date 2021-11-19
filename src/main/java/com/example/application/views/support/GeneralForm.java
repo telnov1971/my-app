@@ -258,6 +258,14 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 filter(r -> r.getDtype().contains(dType)).collect(Collectors.toList());
             reason = createSelect(Reason::getName, reasonList,
                     "Причина обращения", Reason.class);
+            reason.addValueChangeListener(e->{
+                if(reason.getValue().getId() == 1){
+                    powerCurrent.setValue(0.0);
+                    powerCurrent.setEnabled(false);
+                } else {
+                    powerCurrent.setEnabled(true);
+                }
+            });
 
             voltage = createSelect(Voltage::getName, voltageService.findAllByOptional(false),
                     "Класс напряжения", Voltage.class);
@@ -267,6 +275,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
             safety = createSelect(Safety::getName, safetyService.findAll(),
                     "Категория надежности", Safety.class);
+            safety.setValue(safetyService.findById(3L).get());
+            safety.setReadOnly(true);
 
             garant = createSelect(Garant::getName, garantService.findAllByActive(true),
                     "Гарантирующий поставщик", Garant.class);
@@ -347,7 +357,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemand.add(demander,delegate,contact);
         formDemand.add(accordionDemander);
         formDemand.add(reason, object, address, specification,label);
-        formDemand.add(countPoints, accordionPoints, powerDemand, powerCurrent
+        formDemand.add(countPoints, accordionPoints, powerCurrent, powerDemand
                 , powerMaximum, voltage, voltageIn, safety, label);
         formDemand.add(countTransformations,countGenerations,techminGeneration,reservation);
         formDemand.add(period,contract);

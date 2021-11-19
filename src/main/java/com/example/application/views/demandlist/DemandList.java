@@ -57,6 +57,7 @@ public class DemandList extends Div {
     @Autowired
     public DemandList(DemandService demandService, UserService userService) {
         HorizontalLayout filterLayout = new HorizontalLayout();
+        filterLayout.getElement().getStyle().set("margin", "10px");
         VerticalLayout verticalLayout = new VerticalLayout();
         this.demandService = demandService;
         this.userService = userService;
