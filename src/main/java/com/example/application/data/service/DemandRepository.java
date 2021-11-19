@@ -17,11 +17,7 @@ public interface DemandRepository extends JpaRepository<Demand, Long> {
     List<Demand> findByUser(User user);
     Page<Demand> findByUser(User user, Pageable pageable);
 
-    List<Demand> findAllByGarant(Garant garant);
     Page<Demand> findAllByGarant(Garant garant, Pageable pageable);
-
-    int countAllByGarant(Garant garant);
-    int countAllByUser(User user);
 
     @Query("select d from Demand d " +
             "where (lower(d.object) like lower(concat('%', :searchTerm, '%')) " +
@@ -31,6 +27,13 @@ public interface DemandRepository extends JpaRepository<Demand, Long> {
         // переданная строка используется как параметр в запросе
     List<Demand> search(@Param("searchTerm") String searchTerm,
                         @Param("garantId") Long garantId);
+
+    @Query("select d from Demand d " +
+            "where (lower(d.object) like lower(concat('%', :searchTerm, '%')) " +
+            "or lower(d.address) like lower(concat('%', :searchTerm, '%')) " +
+            "or lower(d.demander) like lower(concat('%', :searchTerm, '%'))) ")
+        // переданная строка используется как параметр в запросе
+    List<Demand> search(@Param("searchTerm") String searchTerm);
 
     Optional<Demand> findByIdAndGarant(Long id, Garant garant);
 }

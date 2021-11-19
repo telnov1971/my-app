@@ -2,6 +2,7 @@ package com.example.application.views.demandlist;
 
 import com.example.application.data.entity.Demand;
 import com.example.application.data.entity.DemandType;
+import com.example.application.data.entity.Role;
 import com.example.application.data.entity.User;
 import com.example.application.data.service.DemandService;
 import com.example.application.data.service.UserService;
@@ -172,57 +173,83 @@ public class DemandList extends Div {
     }
 
     private void gridSetting(Long id, String text) {
+        Role role = Role.ANONYMOUS;
+        // Определим текущего пользователя
         User currentUser =  this.userService.findByUsername(
                 SecurityContextHolder.getContext().getAuthentication().getName()
         );
-        if(currentUser.isGarant()) {
-            filterText.setVisible(true);
-            filterId.setVisible(true);
-            clearFilter.setVisible(true);
-            demanderColumn.setVisible(true);
-            if(demandService.countAllByGarant(currentUser.getGarant()) > 20) {
-                grid.setPageSize(20);
-                if(id == null && text == null) {
-                    grid.setItems(query ->
-                            demandService.findAllByGarant(currentUser.getGarant(),
-                                    PageRequest.of(query.getPage(), query.getPageSize(),
-                                            VaadinSpringDataHelpers.toSpringDataSort(query))).stream());
-                } else {
-                    if (text == null && id != null) {
-                        if(demandService.findById(id).isPresent()) {
-                            grid.setItems(demandService.findByIdAndGarant(id,currentUser.getGarant()).get());
-                        } else {
-                            Notification notification = new Notification(
-                                    "Задача с таким номером не найдена", 5000,
-                                    Notification.Position.MIDDLE);
-                            notification.open();
-                        }
-                    }
-                    if (text != null && id == null) {
-                        grid.setItems(demandService.findText(text,currentUser.getGarant().getId()));
-                    }
-                }
-                grid.setSortableColumns("id");
-            } else {
-                grid.setItems(demandService.findAllByGarant(currentUser.getGarant()));
-                grid.setSortableColumns("id","object","address");
+        grid.setPageSize(20);
+        grid.setSortableColumns("id","object","address");
+        // Определим роль и кол-во заявок
+        if(currentUser.getRoles().contains(Role.ADMIN)) {
+            filterVisible(true);
+            role = Role.ADMIN;
+        } else if(currentUser.getRoles().contains(Role.GARANT)) {
+            filterVisible(true);
+            role = Role.GARANT;
+        } else if(currentUser.getRoles().contains(Role.USER)) {
+            filterVisible(false);
+            role = Role.USER;
+        }
+        // Поиск по номеру заявки
+        if(id != null && text == null) {
+            if(demandService.findById(id).isEmpty()) {
+                Notification notification = new Notification(
+                        "Задача с таким номером не найдена", 5000,
+                        Notification.Position.MIDDLE);
+                notification.open();
+                return;
             }
-        } else {
-            filterText.setVisible(false);
-            filterId.setVisible(false);
-            clearFilter.setVisible(false);
-            demanderColumn.setVisible(false);
-            if(demandService.countAllByUser(currentUser) > 20) {
-                grid.setPageSize(20);
+            switch(role){
+                case ADMIN:
+                    grid.setItems(demandService.findById(id).get());
+                    break;
+                case GARANT:
+                    grid.setItems(demandService.findByIdAndGarant(id,currentUser.getGarant()).get());
+                    break;
+            }
+            return;
+        }
+        // поиск по тексту в Заявителе, Объекте или Адресе
+        if (text != null && id == null) {
+            switch(role){
+                case ADMIN:
+                    grid.setItems(demandService.findText(text));
+                    break;
+                case GARANT:
+                    grid.setItems(demandService.findText(text,
+                                    currentUser.getGarant().getId()));
+                    break;
+            }
+            return;
+        }
+        // вывод всех заявок доступных пользователю
+        switch(role){
+            case ADMIN:
+                grid.setItems(query ->
+                        demandService.findAll(
+                                PageRequest.of(query.getPage(), query.getPageSize(),
+                                        VaadinSpringDataHelpers.toSpringDataSort(query))).stream());
+                break;
+            case GARANT:
+                grid.setItems(query ->
+                        demandService.findAllByGarant(currentUser.getGarant(),
+                                PageRequest.of(query.getPage(), query.getPageSize(),
+                                        VaadinSpringDataHelpers.toSpringDataSort(query))).stream());
+                break;
+            case USER:
                 grid.setItems(query ->
                         demandService.findAllByUser(currentUser,
                                 PageRequest.of(query.getPage(), query.getPageSize(),
                                         VaadinSpringDataHelpers.toSpringDataSort(query))).stream());
-                grid.setSortableColumns("id");
-            } else {
-                grid.setItems(demandService.findAllByUser(currentUser));
-                grid.setSortableColumns("id","object","address");
-            }
+                break;
         }
+    }
+
+    private void filterVisible(Boolean visible) {
+        filterText.setVisible(visible);
+        filterId.setVisible(visible);
+        clearFilter.setVisible(visible);
+        demanderColumn.setVisible(visible);
     }
 }
