@@ -85,6 +85,7 @@ public class DemandEditTemporal extends GeneralForm {
 
     @Override
     protected Boolean verifyField() {
+        if(!super.verifyField()) return false;
         return true;
     }
 }

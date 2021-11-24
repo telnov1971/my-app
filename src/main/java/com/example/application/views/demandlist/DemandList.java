@@ -134,6 +134,8 @@ public class DemandList extends Div {
         });
 
         filterId.setLabel("Поиск по номеру задачи");
+        filterId.setHelperText("После ввода номера нажмите Enter");
+        filterId.setPlaceholder("Номер заявки");
         filterId.addKeyDownListener(Key.ENTER,event -> {
             filterText.setValue("");
             if(filterId.getValue()!=null){
@@ -151,6 +153,8 @@ public class DemandList extends Div {
             }
         });
         filterText.setLabel("Поиск по содержимому полей Заявитель, Объект и Адрес");
+        filterText.setHelperText("После ввода текста нажмите Enter");
+        filterText.setPlaceholder("Любой текст");
         filterText.setWidthFull();
         filterText.addKeyDownListener(Key.ENTER,event -> {
             filterId.setValue("");
@@ -160,6 +164,7 @@ public class DemandList extends Div {
                 gridSetting(null,null);
             }
         });
+        clearFilter.setText("Очистить фильтр");
         clearFilter.addClickListener(event -> {
             filterId.setValue("");
             filterText.setValue("");

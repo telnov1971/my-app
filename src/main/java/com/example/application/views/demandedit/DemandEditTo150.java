@@ -59,6 +59,12 @@ public class DemandEditTo150 extends GeneralForm {
         accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
         powerMaximum.addValueChangeListener(e -> {
             expirationsLayout.setPowerMax(powerMaximum.getValue());
+            if(powerMaximum.getValue() < 15.0) {
+                plan.setValue(planService.findById(1L));
+                plan.setReadOnly(true);
+            } else {
+                plan.setReadOnly(false);
+            }
         });
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory);
     }
@@ -102,13 +108,15 @@ public class DemandEditTo150 extends GeneralForm {
 
     @Override
     protected Boolean verifyField() {
-        if(powerMaximum.getValue() > 150.0) {
+        if(!super.verifyField()) return false;
+        if(!powerMaximum.isEmpty() && powerMaximum.getValue() > 150.0) {
             powerCurrent.focus();
             Notification.show(String.format("Максимальна мощность больше допустимой"), 3000,
                     Notification.Position.BOTTOM_START);
             return false;
         }
         if(expirationsLayout.getExpirationsSize()==0){
+            powerCurrent.focus();
             expirationsLayout.setFocus();
             Notification.show(String.format("Не заполнены этапы работ"), 3000,
                     Notification.Position.BOTTOM_START);

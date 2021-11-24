@@ -3,10 +3,7 @@ package com.example.application.views.support;
 import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.demandlist.DemandList;
-import com.vaadin.flow.component.AbstractField;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ItemLabelGenerator;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -200,39 +197,40 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     "Тип заявки", DemandType.class);
             demandType.setReadOnly(true);
 
-            demander = new TextArea("Заявитель", "Наименование организации, ФИО заявителя");
+            demander = new TextArea("Заявитель (обязательное поле)",
+                    "Наименование организации, ФИО заявителя");
             demander.setHelperText("(полное наименование заявителя – юридического лица;" +
                     " фамилия, имя, отчество заявителя – индивидуального предпринимателя или физического лица)");
-//            demander.getElement().setAttribute("title",
-//                    "полное наименование заявителя – юридического лица;" +
-//                            " фамилия, имя, отчество заявителя – индивидуального предпринимателя или физического лица");
             delegate = new TextField("ФИО представителя","Представитель юр.лица");
-            inn = new TextField("Реквизиты заявителя", "ОГРН для юр.лиц, ИНН для ИП");
+            inn = new TextField("Реквизиты заявителя (обязательное поле)",
+                    "ОГРН для юр.лиц, ИНН для ИП");
             inn.setHelperText("(номер записи в Едином государственном реестре юридических лиц"+
                     " / номер записи в Едином государственном реестре индивидуальных предпринимателей)");
             innDate = new DatePicker("Дата регистрации в реестре");
-            contact = new TextField("Контактный телефон");
-            passportSerries = new TextField("Паспорт серия", "Четыре цифры");
-            passportNumber = new TextField("Паспорт номер", "Шесть цифр");
+            contact = new TextField("Контактный телефон (обязательное поле)");
+            passportSerries = new TextField("Паспорт серия (обязательное поле)", "Четыре цифры");
+            passportNumber = new TextField("Паспорт номер (обязательное поле)", "Шесть цифр");
             pasportIssued = new TextArea("Паспорт выдан");
             pasportIssued.setHelperText("(кем, когда)");
             addressRegistration = new TextField("Адрес регистрации");
             addressRegistration.setHelperText("(место регистрации заявителя - индекс, адрес)");
             addressActual = new TextField("Адрес фактический");
             addressActual.setHelperText("(фактический адрес - индекс, адрес)");
-            object = new TextArea("Объект");
+            object = new TextArea("Объект (обязательное поле)");
             object.setHelperText("(наименование энергопринимающих устройств для присоединения)");
-            address = new TextArea("Адрес объекта");
+            address = new TextArea("Адрес объекта (обязательное поле)");
             address.setHelperText("(место нахождения энергопринимающих устройств)");
             specification = new TextArea("Характер нагрузки");
             specification.setHelperText("(характер нагрузки (вид экономической деятельности заявителя))");
 
             countPoints = new IntegerField("Кол-во точек подключения");
-            powerDemand = new NumberField("Мощность присоединяемая, кВт", "0,00 кВт");
+            powerDemand = new NumberField("Мощность присоединяемая, кВт (обязательное поле)", "0,00 кВт");
             //powerDemand.setHelperText("(максимальная мощность присоединяемых энергопринимающих устройств)");
+            powerDemand.setHelperText("(цифры, точка или запятая)");
             powerDemand.setStep(0.01);
             powerDemand.setAutocorrect(true);
             powerCurrent = new NumberField("Мощность ранее присоединённая, кВт", "0,00 кВт");
+            powerCurrent.setHelperText("(цифры, точка или запятая)");
             powerCurrent.setAutocorrect(true);
             powerMaximum = new NumberField("Мощность максимальная, кВт", "0,00 кВт");
             powerMaximum.setAutocorrect(true);
@@ -390,7 +388,46 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             field.setVisible(false);
         }
         this.getElement().getStyle().set("margin", "15px");
+        setListeners();
         accordionHistory.close();
+    }
+
+    protected void setListeners() {
+        demander.addValueChangeListener(e->{
+            if(!demander.isEmpty()) {
+                demander.getElement().getStyle().set("border-width","0px");
+            }
+        });
+        contact.addValueChangeListener(e->{
+            if(!contact.isEmpty()) {
+                contact.getElement().getStyle().set("border-width","0px");
+            }
+        });
+        passportSerries.addValueChangeListener(e->{
+            if(!passportSerries.isEmpty()) {
+                passportSerries.getElement().getStyle().set("border-width","0px");
+            }
+        });
+        passportNumber.addValueChangeListener(e->{
+            if(!passportNumber.isEmpty()) {
+                passportNumber.getElement().getStyle().set("border-width","0px");
+            }
+        });
+        inn.addValueChangeListener(e->{
+            if(!inn.isEmpty()) {
+                inn.getElement().getStyle().set("border-width","0px");
+            }
+        });
+        object.addValueChangeListener(e->{
+            if(!object.isEmpty()) {
+                object.getElement().getStyle().set("border-width","0px");
+            }
+        });
+        address.addValueChangeListener(e->{
+            if(!address.isEmpty()) {
+                address.getElement().getStyle().set("border-width","0px");
+            }
+        });
     }
 
     private void setWidthFormDemand() {
@@ -459,6 +496,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     private void changePower(NumberField field) {
         double currentP = 0.0;
         double demandP = 0.0;
+        powerCurrent.getElement().getStyle().set("border-width","0px");
+        powerDemand.getElement().getStyle().set("border-width","0px");
         currentP = powerCurrent.getValue() != null ? powerCurrent.getValue(): 0.0;
         demandP = powerDemand.getValue() != null ? powerDemand.getValue() : 0.0;
         powerMaximum.setValue(currentP + demandP);
@@ -482,6 +521,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     "Ошибка ввода числа", 5000,
                     Notification.Position.MIDDLE);
             notification.open();
+            field.setValue(0.0);
             field.focus();
         }
     }
@@ -519,7 +559,48 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
     }
 
-    protected abstract Boolean verifyField();
+    protected Boolean verifyField() {
+        final Boolean[] result = {true};
+        final Focusable[] fieldGoto = {null};
+        class Attention {
+            public void attention(AbstractField field, String message) {
+                Notification.show(String.format(message), 3000,
+                        Notification.Position.BOTTOM_START);
+                fieldGoto[0] = fieldGoto[0] == null ? (Focusable) field : fieldGoto[0];
+                field.getElement().getStyle().set("border-width","1px");
+                field.getElement().getStyle().set("border-style","dashed");
+                field.getElement().getStyle().set("border-color","red");
+                result[0] = false;
+            }
+        }
+        Attention attention = new Attention();
+        if(demander.isEmpty()) {
+            attention.attention(demander, "Не заполнено поле Заявитель");
+        }
+        if(contact.isEmpty() && contact.isVisible()) {
+            attention.attention(contact,"Не заполнено поле Контактный телефон");
+        }
+        if(passportSerries.isEmpty() && passportSerries.isVisible()) {
+            attention.attention(passportSerries,"Не заполнено поле Паспорт серия");
+        }
+        if(passportNumber.isEmpty() && passportNumber.isVisible()) {
+            attention.attention(passportNumber,"Не заполнено поле Паспорт номер");
+        }
+        if(inn.isEmpty() && inn.isVisible()) {
+            attention.attention(inn,"Не заполнено поле Реквизиты заявителя");
+        }
+        if(object.isEmpty()) {
+            attention.attention(object,"Не заполнено поле Объект");
+        }
+        if(address.isEmpty()) {
+            attention.attention(address,"Не заполнено поле Адрес объекта");
+        }
+        if(powerMaximum.isEmpty() && powerMaximum.isVisible()) {
+            attention.attention(powerDemand,"Не заполнено поле Мощность...");
+        }
+        if(fieldGoto[0] != null) fieldGoto[0].focus();
+        return result[0];
+    }
 
     protected void setReadOnly(Boolean readOnly) {
         AbstractField fields[] = {

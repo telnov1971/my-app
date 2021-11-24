@@ -112,7 +112,9 @@ public class DemandEditeGeneral extends GeneralForm {
 
     @Override
     protected Boolean verifyField() {
+        if(!super.verifyField()) return false;
         if(expirationsLayout.getExpirationsSize()==0){
+            safety.focus();
             expirationsLayout.setFocus();
             Notification.show(String.format("Не заполнены этапы работ"), 3000,
                     Notification.Position.BOTTOM_START);

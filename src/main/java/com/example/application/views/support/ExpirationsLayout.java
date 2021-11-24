@@ -85,14 +85,23 @@ public class ExpirationsLayout extends VerticalLayout {
         TextField fieldStep = new TextField();
         binderExpiration.forField(fieldStep).bind("step");
         columnStep.setEditorComponent(fieldStep);
+        fieldStep.addValueChangeListener(e->{
+            fieldStep.getElement().getStyle().set("border-width","0px");
+        });
 
         TextField fieldPlanProject = new TextField();
         binderExpiration.forField(fieldPlanProject).bind("planProject");
         columnPlanProject.setEditorComponent(fieldPlanProject);
+        fieldPlanProject.addValueChangeListener(e->{
+            fieldPlanProject.getElement().getStyle().set("border-width","0px");
+        });
 
         TextField fieldPlanUsage = new TextField();
         binderExpiration.forField(fieldPlanUsage).bind("planUsage");
         columnPlanUsage.setEditorComponent(fieldPlanUsage);
+        fieldPlanUsage.addValueChangeListener(e->{
+            fieldPlanUsage.getElement().getStyle().set("border-width","0px");
+        });
 
         NumberField fieldPowerMax= new NumberField();
         fieldPowerMax.setValue(1d);
@@ -123,6 +132,7 @@ public class ExpirationsLayout extends VerticalLayout {
         }).setAutoWidth(true);
 
         addButton.addClickListener(event -> {
+            expirationGrid.getElement().getStyle().set("border-width","0px");
             expirationsDataProvider.getItems().add(new Expiration("",
                     "","",powerMax,
                     safetyService.findById(3L).get()));
@@ -150,6 +160,18 @@ public class ExpirationsLayout extends VerticalLayout {
         editorExpiration.addCloseListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editorExpiration.isOpen())));
         Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> {
+            if(fieldStep.isEmpty()){
+                attention(fieldStep);
+                return;
+            }
+            if(fieldPlanProject.isEmpty()){
+                attention(fieldPlanProject);
+                return;
+            }
+            if(fieldPlanUsage.isEmpty()){
+                attention(fieldPlanUsage);
+                return;
+            }
             editorExpiration.save();
             addButton.setEnabled(true);
         });
@@ -180,6 +202,13 @@ public class ExpirationsLayout extends VerticalLayout {
         expirationGrid.setItems(expirations);
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
         expirations.remove(expirations.size() - 1);
+    }
+
+    private void attention(TextField field){
+        field.focus();
+        field.getElement().getStyle().set("border-width","3px");
+        field.getElement().getStyle().set("border-style","dotted");
+        field.getElement().getStyle().set("border-color","red");
     }
 
     public void findAllByDemand(Demand demand) {
@@ -221,6 +250,9 @@ public class ExpirationsLayout extends VerticalLayout {
         return expirations.size();
     }
     public void setFocus() {
+        expirationGrid.getElement().getStyle().set("border-width","3px");
+        expirationGrid.getElement().getStyle().set("border-style","dotted");
+        expirationGrid.getElement().getStyle().set("border-color","red");
         addButton.focus();
     }
 }

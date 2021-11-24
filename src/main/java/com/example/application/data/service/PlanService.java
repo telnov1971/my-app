@@ -15,6 +15,10 @@ public class PlanService extends CrudService<Plan, Long> {
         this.planRepository = planRepository;
     }
 
+    public Plan findById(long l) {
+        return planRepository.findById(l).get();
+    }
+
     @Override
     protected PlanRepository getRepository() {
         return planRepository;

@@ -109,13 +109,15 @@ public class DemandEditTo15 extends GeneralForm {
 
     @Override
     protected Boolean verifyField() {
-        if(powerMaximum.getValue() > 15.0) {
+        if(!super.verifyField()) return false;
+        if(!powerMaximum.isEmpty() && powerMaximum.getValue() > 15.0) {
             powerCurrent.focus();
             Notification.show(String.format("Максимальна мощность больше допустимой"), 3000,
                     Notification.Position.BOTTOM_START);
             return false;
         }
         if(expirationsLayout.getExpirationsSize()==0){
+            powerCurrent.focus();
             expirationsLayout.setFocus();
             Notification.show(String.format("Не заполнены этапы работ"), 3000,
                     Notification.Position.BOTTOM_START);
