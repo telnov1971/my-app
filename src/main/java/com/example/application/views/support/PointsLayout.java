@@ -23,12 +23,10 @@ import java.util.*;
 
 public class PointsLayout extends VerticalLayout {
     private Demand demand;
-    private HorizontalLayout pointsButtonLayout = new HorizontalLayout();
     private List<Point> points;
-    private Grid<Point> pointGrid = new Grid<>(Point.class, false);
+    private final Grid<Point> pointGrid = new Grid<>(Point.class, false);
     private ListDataProvider<Point> pointDataProvider;
-    private Binder<Point> binderPoints = new Binder<>(Point.class);
-    private Editor<Point> editorPoints;
+    private final Editor<Point> editorPoints;
 
     private final PointService pointService;
     private final VoltageService voltageService;
@@ -98,6 +96,7 @@ public class PointsLayout extends VerticalLayout {
         });
 
         editorPoints = pointGrid.getEditor();
+        Binder<Point> binderPoints = new Binder<>(Point.class);
         editorPoints.setBinder(binderPoints);
         editorPoints.setBuffered(true);
 
@@ -139,9 +138,9 @@ public class PointsLayout extends VerticalLayout {
             return edit;
         }).setAutoWidth(true);
 
-        editorPoints.addOpenListener(e -> editButtons.stream()
+        editorPoints.addOpenListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
-        editorPoints.addCloseListener(e -> editButtons.stream()
+        editorPoints.addCloseListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
         Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> editorPoints.save());
         save.addClassName("save");
@@ -153,8 +152,9 @@ public class PointsLayout extends VerticalLayout {
         editorColumn.setEditorComponent(buttons);
 
 
+        HorizontalLayout pointsButtonLayout = new HorizontalLayout();
         pointsButtonLayout.add(addButton,removeButton);
-        add(helpers,pointGrid,pointsButtonLayout);
+        add(helpers,pointGrid, pointsButtonLayout);
     }
 
     public void pointsClean() {
@@ -189,20 +189,6 @@ public class PointsLayout extends VerticalLayout {
         for(Point point : points) {
             point.setDemand(demand);
             historyService.saveHistory(demand, point, Point.class);
-//            History historyPoint = new History();
-//            try {
-//                String his = historyService.writeHistory(point);
-//                historyPoint.setHistory(his);
-//                historyPoint.setDemand(demand);
-//            } catch (Exception e) {System.out.println(e.getMessage());}
-//            try {
-//                if(!historyPoint.getHistory().equals("")) {
-//                    historyService.save(historyPoint);
-//                }
-//            } catch (Exception e) {
-//                System.out.println(e.getMessage());
-//                e.printStackTrace();
-//            }
             pointService.update(point);
         }
     }

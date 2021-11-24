@@ -47,7 +47,8 @@ public class DemandEditeGeneral extends GeneralForm {
                 safetyService,planService,priceService,sendService,userService,
                 historyService, fileStoredService, DType.GENERAL,noteService,components);
         this.MaxPower = 1000000000.0;
-        demandType.setValue(demandTypeService.findById(DemandType.GENERAL).get());
+        if(demandTypeService.findById(DemandType.GENERAL).isPresent())
+            demandType.setValue(demandTypeService.findById(DemandType.GENERAL).get());
 
         pointsLayout = new PointsLayout(pointService
                 ,voltageService
@@ -67,9 +68,9 @@ public class DemandEditeGeneral extends GeneralForm {
 
         accordionPoints.add("Точки подключения", this.pointsLayout);
         accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
-        powerMaximum.addValueChangeListener(e -> {
-            expirationsLayout.setPowerMax(powerMaximum.getValue());
-        });
+        powerMaximum.addValueChangeListener(e ->
+            expirationsLayout.setPowerMax(powerMaximum.getValue())
+        );
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory);
     }
 
@@ -103,10 +104,6 @@ public class DemandEditeGeneral extends GeneralForm {
         expirationsLayout.setDemand(demand);
         expirationsLayout.saveExpirations();
 
-//        filesLayout.setDemand(demand);
-//        filesLayout.saveFiles();
-//        notesLayout.setDemand(demand);
-//        notesLayout.saveNotes();
         return true;
     }
 
@@ -116,7 +113,7 @@ public class DemandEditeGeneral extends GeneralForm {
         if(expirationsLayout.getExpirationsSize()==0){
             safety.focus();
             expirationsLayout.setFocus();
-            Notification.show(String.format("Не заполнены этапы работ"), 3000,
+            Notification.show("Не заполнены этапы работ", 3000,
                     Notification.Position.BOTTOM_START);
             return false;
         }

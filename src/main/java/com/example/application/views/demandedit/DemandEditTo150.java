@@ -19,7 +19,6 @@ import com.vaadin.flow.router.RouteAlias;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Юридические лица и ИП до 150кВт (один источник электропитания)")
 public class DemandEditTo150 extends GeneralForm {
-    private final UserService userService;
     private final ExpirationsLayout expirationsLayout;
 
     public DemandEditTo150(ReasonService reasonService,
@@ -44,13 +43,13 @@ public class DemandEditTo150 extends GeneralForm {
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
                 historyService, fileStoredService, DType.TO150,noteService,components);
-        this.userService = userService;
         this.MaxPower = 150.0;
-        demandType.setValue(demandTypeService.findById(DemandType.TO150).get());
+        if(demandTypeService.findById(DemandType.TO150).isPresent())
+            demandType.setValue(demandTypeService.findById(DemandType.TO150).get());
 
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService);
 
-        Component fields[] = {delegate, inn, innDate, powerDemand, powerCurrent,
+        Component[] fields = {delegate, inn, innDate, powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, specification, plan, accordionExpiration};
         for(Component field : fields){
             field.setVisible(true);
@@ -111,14 +110,14 @@ public class DemandEditTo150 extends GeneralForm {
         if(!super.verifyField()) return false;
         if(!powerMaximum.isEmpty() && powerMaximum.getValue() > 150.0) {
             powerCurrent.focus();
-            Notification.show(String.format("Максимальна мощность больше допустимой"), 3000,
+            Notification.show("Максимальна мощность больше допустимой", 3000,
                     Notification.Position.BOTTOM_START);
             return false;
         }
         if(expirationsLayout.getExpirationsSize()==0){
             powerCurrent.focus();
             expirationsLayout.setFocus();
-            Notification.show(String.format("Не заполнены этапы работ"), 3000,
+            Notification.show("Не заполнены этапы работ", 3000,
                     Notification.Position.BOTTOM_START);
             return false;
         }

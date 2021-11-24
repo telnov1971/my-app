@@ -16,8 +16,7 @@ import com.vaadin.flow.router.RouteAlias;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Физические лица до 15 кВт (ком.-быт. нужды)")
 public class DemandEditTo15 extends GeneralForm {
-    private final UserService userService;
-    private ExpirationsLayout expirationsLayout;
+    private final ExpirationsLayout expirationsLayout;
 
     public DemandEditTo15(ReasonService reasonService,
                           DemandService demandService,
@@ -41,20 +40,19 @@ public class DemandEditTo15 extends GeneralForm {
                  pointService,generalService,voltageService,
                  safetyService,planService,priceService,sendService,userService,
                 historyService, fileStoredService, DType.TO15,noteService,components);
-        this.userService = userService;
         // сервисы
         this.MaxPower = 15.0;
-        demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
+        if(demandTypeService.findById(DemandType.TO15).isPresent())
+            demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
         expirationsLayout = new ExpirationsLayout(expirationService
                 ,safetyService, historyService);
-        safety.setValue(safetyService.findById(3L).get());
+        if(safetyService.findById(3L).isPresent())
+            safety.setValue(safetyService.findById(3L).get());
         safety.setReadOnly(true);
 
-        voltage.addValueChangeListener(e -> {
-            setOptional();
-        });
+        voltage.addValueChangeListener(e -> setOptional());
 
-        Component fields[] = {passportSerries,passportNumber,pasportIssued,
+        Component[] fields = {passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,
                 powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, accordionExpiration};
@@ -63,9 +61,9 @@ public class DemandEditTo15 extends GeneralForm {
         }
 
         accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
-        powerMaximum.addValueChangeListener(e -> {
-            expirationsLayout.setPowerMax(powerMaximum.getValue());
-        });
+        powerMaximum.addValueChangeListener(e ->
+            expirationsLayout.setPowerMax(powerMaximum.getValue())
+        );
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory);
     }
 
@@ -100,10 +98,6 @@ public class DemandEditTo15 extends GeneralForm {
         expirationsLayout.setDemand(demand);
         expirationsLayout.saveExpirations();
 
-//        filesLayout.setDemand(demand);
-//        filesLayout.saveFiles();
-//        notesLayout.setDemand(demand);
-//        notesLayout.saveNotes();
         return true;
     }
 
@@ -112,14 +106,14 @@ public class DemandEditTo15 extends GeneralForm {
         if(!super.verifyField()) return false;
         if(!powerMaximum.isEmpty() && powerMaximum.getValue() > 15.0) {
             powerCurrent.focus();
-            Notification.show(String.format("Максимальна мощность больше допустимой"), 3000,
+            Notification.show("Максимальна мощность больше допустимой", 3000,
                     Notification.Position.BOTTOM_START);
             return false;
         }
         if(expirationsLayout.getExpirationsSize()==0){
             powerCurrent.focus();
             expirationsLayout.setFocus();
-            Notification.show(String.format("Не заполнены этапы работ"), 3000,
+            Notification.show("Не заполнены этапы работ", 3000,
                     Notification.Position.BOTTOM_START);
             return false;
         }
@@ -127,10 +121,6 @@ public class DemandEditTo15 extends GeneralForm {
     }
 
     private void setOptional(){
-        if(voltage.getValue()!=null && voltage.getValue().getId()==1L) {
-            voltageIn.setVisible(true);
-        } else {
-            voltageIn.setVisible(false);
-        }
+        voltageIn.setVisible(voltage.getValue() != null && voltage.getValue().getId() == 1L);
     }
 }

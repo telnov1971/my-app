@@ -23,42 +23,38 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.WeakHashMap;
 
 @Route(value = "demandlist", layout = MainView.class)
 @RouteAlias(value = "", layout = MainView.class)
 @PageTitle("Список заявок")
 public class DemandList extends Div {
-    private TextField filterId = new TextField();
-    private TextField filterText = new TextField();
-    private Grid.Column<Demand> demanderColumn;
-    private Button clearFilter = new Button(new Icon(VaadinIcon.ERASER));
+    private final TextField filterId = new TextField();
+    private final TextField filterText = new TextField();
+    private final Grid.Column<Demand> demanderColumn;
+    private final Button clearFilter = new Button(new Icon(VaadinIcon.ERASER));
     private final Grid<Demand> grid = new Grid<>(Demand.class, false);
 
-    private BeanValidationBinder<Demand> binder;
     private final DemandService demandService;
     private final UserService userService;
 
-    @Autowired
+    //@Autowired
     public DemandList(DemandService demandService, UserService userService) {
         HorizontalLayout filterLayout = new HorizontalLayout();
         filterLayout.getElement().getStyle().set("margin", "10px");
-        VerticalLayout verticalLayout = new VerticalLayout();
         this.demandService = demandService;
         this.userService = userService;
         addClassNames("master-detail-view", "flex", "flex-col", "h-full");
@@ -68,8 +64,7 @@ public class DemandList extends Div {
         demanderColumn = grid.addColumn("demander").setHeader("Заявитель")
                 .setResizable(true).setWidth("200px");
         grid.addColumn("status.name").setAutoWidth(true).setHeader("Статус");
-        //grid.addColumn("createDate").setAutoWidth(true).setHeader("Дата создания");
-        Grid.Column<Demand> createDate = grid.addComponentColumn(demand -> new Label(demand.getCreateDate()
+        grid.addComponentColumn(demand -> new Label(demand.getCreateDate()
                         .format(DateTimeFormatter.ofPattern("uuuu-MM-dd | HH:mm:ss"))))
                 .setHeader("Дата и время").setAutoWidth(true);
         grid.addColumn("object").setHeader("Объект")
@@ -77,30 +72,24 @@ public class DemandList extends Div {
         grid.addColumn("address").setHeader("Адрес объекта")
                 .setResizable(true).setWidth("200px");
         grid.addColumn("demandType.name").setAutoWidth(true).setHeader("Тип");
-        /*
-        TemplateRenderer<Demand> doneRenderer = TemplateRenderer.<Demand>of(
-                "<iron-icon hidden='[[!item.done]]' icon='vaadin:check' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-primary-text-color);'></iron-icon><iron-icon hidden='[[item.done]]' icon='vaadin:minus' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-disabled-text-color);'></iron-icon>")
-                .withProperty("done", Demand::isDone);
-        grid.addColumn(doneRenderer).setHeader("Завершено").setAutoWidth(true);
-         */
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
-        Grid.Column<Demand> editorColumn = grid.addComponentColumn(demand -> {
+        grid.addComponentColumn(demand -> {
             Button edit = new Button(new Icon(VaadinIcon.EDIT));
             edit.addClassName("edit");
             edit.addClickListener(event -> {
-                if (demand.getDemandType().getId() == DemandType.TO15) {
+                if (Objects.equals(demand.getDemandType().getId(), DemandType.TO15)) {
                     UI.getCurrent().navigate(DemandEditTo15.class, new RouteParameters("demandID",
                             String.valueOf(demand.getId())));
                 }
-                if (demand.getDemandType().getId() == DemandType.TO150) {
+                if (Objects.equals(demand.getDemandType().getId(), DemandType.TO150)) {
                     UI.getCurrent().navigate(DemandEditTo150.class, new RouteParameters("demandID",
                             String.valueOf(demand.getId())));
                 }
-                if (demand.getDemandType().getId() == DemandType.TEMPORAL) {
+                if (Objects.equals(demand.getDemandType().getId(), DemandType.TEMPORAL)) {
                     UI.getCurrent().navigate(DemandEditTemporal.class, new RouteParameters("demandID",
                             String.valueOf(demand.getId())));
                 }
-                if (demand.getDemandType().getId() == DemandType.GENERAL) {
+                if (Objects.equals(demand.getDemandType().getId(), DemandType.GENERAL)) {
                     UI.getCurrent().navigate(DemandEditeGeneral.class, new RouteParameters("demandID",
                             String.valueOf(demand.getId())));
                 }
@@ -115,19 +104,19 @@ public class DemandList extends Div {
         grid.setHeightFull();
 
         grid.addItemDoubleClickListener(event ->{
-            if (event.getItem().getDemandType().getId() == DemandType.TO15) {
+            if (Objects.equals(event.getItem().getDemandType().getId(), DemandType.TO15)) {
                 UI.getCurrent().navigate(DemandEditTo15.class, new RouteParameters("demandID",
                         String.valueOf(event.getItem().getId())));
             }
-            if (event.getItem().getDemandType().getId() == DemandType.TO150) {
+            if (Objects.equals(event.getItem().getDemandType().getId(), DemandType.TO150)) {
                 UI.getCurrent().navigate(DemandEditTo150.class, new RouteParameters("demandID",
                         String.valueOf(event.getItem().getId())));
             }
-            if (event.getItem().getDemandType().getId() == DemandType.TEMPORAL) {
+            if (Objects.equals(event.getItem().getDemandType().getId(), DemandType.TEMPORAL)) {
                 UI.getCurrent().navigate(DemandEditTemporal.class, new RouteParameters("demandID",
                         String.valueOf(event.getItem().getId())));
             }
-            if (event.getItem().getDemandType().getId() == DemandType.GENERAL) {
+            if (Objects.equals(event.getItem().getDemandType().getId(), DemandType.GENERAL)) {
                 UI.getCurrent().navigate(DemandEditeGeneral.class, new RouteParameters("demandID",
                         String.valueOf(event.getItem().getId())));
             }
@@ -208,10 +197,12 @@ public class DemandList extends Div {
             }
             switch(role){
                 case ADMIN:
-                    grid.setItems(demandService.findById(id).get());
+                    if(demandService.findById(id).isPresent())
+                        grid.setItems(demandService.findById(id).get());
                     break;
                 case GARANT:
-                    grid.setItems(demandService.findByIdAndGarant(id,currentUser.getGarant()).get());
+                    if(demandService.findByIdAndGarant(id,currentUser.getGarant()).isPresent())
+                        grid.setItems(demandService.findByIdAndGarant(id,currentUser.getGarant()).get());
                     break;
             }
             return;

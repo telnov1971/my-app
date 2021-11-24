@@ -117,7 +117,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected final SendService sendService;
     protected final UserService userService;
     protected final HistoryService historyService;
-    private final FileStoredService fileStoredService;
+    protected final FileStoredService fileStoredService;
 
     public GeneralForm(ReasonService reasonService,
                        DemandService demandService,
@@ -163,9 +163,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         Label label = new Label("                                                ");
         label.setHeight("1px");
 
-        filesLayout = new FilesLayout(this.fileStoredService
-                , voltageService
-                , safetyService, historyService);
+        filesLayout = new FilesLayout(this.fileStoredService, historyService);
         notesLayout = new NotesLayout(noteService);
 
         historyLayout = new HistoryLayout(this.historyService);
@@ -278,7 +276,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
             safety = createSelect(Safety::getName, safetyService.findAll(),
                     "Категория надежности", Safety.class);
-            safety.setValue(safetyService.findById(3L).get());
+            if(safetyService.findById(3L).isPresent())
+                safety.setValue(safetyService.findById(3L).get());
             safety.setReadOnly(true);
 
             garant = createSelect(Garant::getName, garantService.findAllByActive(true),
@@ -299,7 +298,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
             status = createSelect(Status::getName, statusService.findAll(),
                     "Статус", Status.class);
-            status.setValue(statusService.findById(1L).get());
+            if(statusService.findById(1L).isPresent())
+                status.setValue(statusService.findById(1L).get());
             status.setReadOnly(true);
         }
 
@@ -339,15 +339,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         generalBinder.bindInstanceFields(this);
 
         // события формы
-        powerDemand.addBlurListener(e->{testPower(powerDemand);});
-        powerDemand.addValueChangeListener(e -> {
-            changePower(powerDemand);
-        });
+        powerDemand.addBlurListener(e->testPower(powerDemand));
+        powerDemand.addValueChangeListener(e -> changePower(powerDemand));
 
-        powerCurrent.addBlurListener(e->{testPower(powerCurrent);});
-        powerCurrent.addValueChangeListener(e -> {
-            changePower(powerCurrent);
-        });
+        powerCurrent.addBlurListener(e->testPower(powerCurrent));
+        powerCurrent.addValueChangeListener(e -> changePower(powerCurrent));
 
         // кол-во колонок формы от ширины окна
         setColumnCount(formDemand);
@@ -377,7 +373,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonBar.add(save,reset);
 
-        Component fields[] = {delegate, inn, innDate,
+        Component[] fields = {delegate, inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,
                 countPoints, accordionPoints, powerDemand, powerCurrent,
@@ -494,15 +490,16 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     private void changePower(NumberField field) {
-        double currentP = 0.0;
-        double demandP = 0.0;
+        double currentP;
+        double demandP;
         powerCurrent.getElement().getStyle().set("border-width","0px");
         powerDemand.getElement().getStyle().set("border-width","0px");
         currentP = powerCurrent.getValue() != null ? powerCurrent.getValue(): 0.0;
         demandP = powerDemand.getValue() != null ? powerDemand.getValue() : 0.0;
         powerMaximum.setValue(currentP + demandP);
         if((currentP + demandP) > 5.0) {
-            voltageIn.setValue(voltageService.findById(4L).get());
+            if(voltageService.findById(4L).isPresent())
+                voltageIn.setValue(voltageService.findById(4L).get());
             voltageIn.setReadOnly(true);
         } else {
             voltageIn.setReadOnly(false);
@@ -564,7 +561,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         final Focusable[] fieldGoto = {null};
         class Attention {
             public void attention(AbstractField field, String message) {
-                Notification.show(String.format(message), 3000,
+                Notification.show(message, 3000,
                         Notification.Position.BOTTOM_START);
                 fieldGoto[0] = fieldGoto[0] == null ? (Focusable) field : fieldGoto[0];
                 field.getElement().getStyle().set("border-width","1px");
@@ -603,7 +600,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     protected void setReadOnly(Boolean readOnly) {
-        AbstractField fields[] = {
+        AbstractField[] fields = {
                 demander,delegate,inn,innDate,contact,passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,reason,object,address,specification,
                 countPoints,powerDemand,powerCurrent,powerMaximum,voltage,safety,period,
@@ -692,8 +689,5 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
     }
 
-    public void saveEnable(Boolean enable) {
-        save.setEnabled(enable);
-    }
 }
 

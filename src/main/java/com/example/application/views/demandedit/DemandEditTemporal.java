@@ -8,7 +8,6 @@ import com.example.application.data.service.*;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.GeneralForm;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
@@ -42,9 +41,10 @@ public class DemandEditTemporal extends GeneralForm {
                 safetyService,planService,priceService,sendService,userService,
                 historyService, fileStoredService, DType.TEMPORAL,noteService,components);
         this.MaxPower = 1000000000.0;
-        demandType.setValue(demandTypeService.findById(DemandType.TEMPORAL).get());
+        if(demandTypeService.findById(DemandType.TEMPORAL).isPresent())
+            demandType.setValue(demandTypeService.findById(DemandType.TEMPORAL).get());
 
-        Component fields[] = {inn, innDate,
+        Component[] fields = {inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,
                 powerDemand, powerCurrent, powerMaximum, voltage, safety,
@@ -85,7 +85,6 @@ public class DemandEditTemporal extends GeneralForm {
 
     @Override
     protected Boolean verifyField() {
-        if(!super.verifyField()) return false;
-        return true;
+        return super.verifyField();
     }
 }

@@ -206,8 +206,8 @@ public class ExpirationsLayout extends VerticalLayout {
 
     private void attention(TextField field){
         field.focus();
-        field.getElement().getStyle().set("border-width","3px");
-        field.getElement().getStyle().set("border-style","dotted");
+        field.getElement().getStyle().set("border-width","1px");
+        field.getElement().getStyle().set("border-style","dashed");
         field.getElement().getStyle().set("border-color","red");
     }
 
