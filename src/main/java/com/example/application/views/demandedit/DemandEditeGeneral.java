@@ -53,9 +53,10 @@ public class DemandEditeGeneral extends GeneralForm {
         pointsLayout = new PointsLayout(pointService
                 ,voltageService
                 ,safetyService
-                ,historyService);
+                ,historyService
+                ,this);
 
-        expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService);
+        expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService, this);
 
         Component[] fields = {inn, innDate,
                 passportSerries,passportNumber,pasportIssued,

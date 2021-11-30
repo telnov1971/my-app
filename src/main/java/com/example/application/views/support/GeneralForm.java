@@ -50,6 +50,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected HorizontalLayout buttonBar = new HorizontalLayout();
     protected Button save = new Button("Сохранить");
     protected Button reset = new Button("Отменить");
+    protected Label attention = new Label();
+    private int editPnt = 0;
+    private int editExp = 0;
 
     // максимальная мощность по типу заявки
     protected Double MaxPower;
@@ -383,7 +386,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         buttonBar.setSpacing(true);
         reset.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonBar.add(save,reset);
+        buttonBar.add(save,reset,attention);
 
         Component[] fields = {delegate, inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
@@ -681,6 +684,27 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         pointBinder.readBean(null);
         generalBinder.readBean(null);
         populateForm(null);
+    }
+
+    protected void saveMode(int edEx, int edPt) {
+        editPnt += edPt;
+        editExp += edEx;
+        if(editPnt > 0 && editExp <= 0) {
+            save.setEnabled(false);
+            attention.setText("Вы не сохранили точки подключения");
+        }
+        if(editExp > 0 && editPnt <=0 ) {
+            save.setEnabled(false);
+            attention.setText("Вы не сохранили этапы работ");
+        }
+        if(editPnt > 0 && editExp > 0) {
+            save.setEnabled(false);
+            attention.setText("Вы не сохранили этапы работ и точки подлючения");
+        }
+        if(editPnt <= 0 && editExp <= 0) {
+            save.setEnabled(true);
+            attention.setText("");
+        }
     }
 
     @Override

@@ -47,7 +47,7 @@ public class DemandEditTo150 extends GeneralForm {
         if(demandTypeService.findById(DemandType.TO150).isPresent())
             demandType.setValue(demandTypeService.findById(DemandType.TO150).get());
 
-        expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService);
+        expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService, this);
 
         Component[] fields = {delegate, inn, innDate, powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, specification, plan, accordionExpiration};

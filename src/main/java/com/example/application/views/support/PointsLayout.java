@@ -23,6 +23,7 @@ import java.util.*;
 
 public class PointsLayout extends VerticalLayout {
     private Demand demand;
+    private GeneralForm formParent;
     private List<Point> points;
     private final Grid<Point> pointGrid = new Grid<>(Point.class, false);
     private ListDataProvider<Point> pointDataProvider;
@@ -40,7 +41,9 @@ public class PointsLayout extends VerticalLayout {
     public PointsLayout(PointService pointService
             , VoltageService voltageService
             , SafetyService safetyService
-            , HistoryService historyService) {
+            , HistoryService historyService
+            , GeneralForm formParent) {
+        this.formParent = formParent;
         this.pointService = pointService;
         this.voltageService = voltageService;
         this.safetyService = safetyService;
@@ -54,14 +57,14 @@ public class PointsLayout extends VerticalLayout {
                 pointGrid.addColumn(Point::getNumber)
                         .setHeader("№")
                         .setAutoWidth(true);
-        Grid.Column<Point> columnPowerDemand =
-                pointGrid.addColumn(Point::getPowerDemand)
-                        .setHeader("Мощ. прис., кВт")
-                        .setAutoWidth(true);
         Grid.Column<Point> columnPowerCurrent =
                 pointGrid.addColumn(Point::getPowerCurrent).
                         setAutoWidth(true).
                         setHeader("Мощ. ранее пр., кВт ");
+        Grid.Column<Point> columnPowerDemand =
+                pointGrid.addColumn(Point::getPowerDemand)
+                        .setHeader("Мощ. прис., кВт")
+                        .setAutoWidth(true);
         pointGrid.addColumn(Point::getPowerMaximum).
                 setAutoWidth(true).
                 setHeader("Мощ. мак., кВт ");
@@ -88,6 +91,10 @@ public class PointsLayout extends VerticalLayout {
         fieldPowerDemand.setValue(1d);
         //fieldPowerDemand.setHasControls(true);
         fieldPowerDemand.setMin(0);
+        fieldPowerDemand.addValueChangeListener(e -> {
+            if(!fieldPowerDemand.isEmpty())
+                fieldPowerDemand.getElement().getStyle().set("border-width","0px");
+        });
         binderPoints.forField(fieldPowerDemand).bind("powerDemand");
         columnPowerDemand.setEditorComponent(fieldPowerDemand);
 
@@ -143,6 +150,7 @@ public class PointsLayout extends VerticalLayout {
             addButton.setEnabled(false);
             removeButton.setEnabled(true);
             fieldPowerDemand.focus();
+            formParent.saveMode(0,1);
             //pointGrid.getDataProvider().refreshAll();
         });
 
@@ -169,6 +177,7 @@ public class PointsLayout extends VerticalLayout {
             editorPoints.save();
             addButton.setEnabled(true);
             pointGrid.getElement().getStyle().set("border-width","0px");
+            formParent.saveMode(0,-1);
         });
         save.addClassName("save");
         Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> {
@@ -178,6 +187,7 @@ public class PointsLayout extends VerticalLayout {
             }
             editorPoints.cancel();
             addButton.setEnabled(true);
+            formParent.saveMode(0,-1);
         });
         cancel.addClassName("cancel");
         Div divSave = new Div(save);

@@ -24,10 +24,14 @@ import java.util.*;
 
 public class ExpirationsLayout extends VerticalLayout {
     private Demand demand;
+    private GeneralForm formParent;
     private List<Expiration> expirations;
     private final Grid<Expiration> expirationGrid = new Grid<>(Expiration.class, false);
     private ListDataProvider<Expiration> expirationsDataProvider;
     private final Editor<Expiration> editorExpiration;
+    private TextField fieldStep;
+    private TextField fieldPlanProject;
+    private TextField fieldPlanUsage;
     private Grid.Column<Expiration> editorColumn;
     private Button addButton;
     private Button removeButton;
@@ -40,7 +44,9 @@ public class ExpirationsLayout extends VerticalLayout {
     private int count = 0;
 
     public ExpirationsLayout(ExpirationService expirationService
-            , SafetyService safetyService, HistoryService historyService) {
+            , SafetyService safetyService
+            , HistoryService historyService, GeneralForm formParent) {
+        this.formParent = formParent;
         this.expirationService = expirationService;
         this.safetyService = safetyService;
         this.historyService = historyService;
@@ -83,21 +89,21 @@ public class ExpirationsLayout extends VerticalLayout {
         editorExpiration.setBinder(binderExpiration);
         editorExpiration.setBuffered(true);
 
-        TextField fieldStep = new TextField();
+        fieldStep = new TextField();
         binderExpiration.forField(fieldStep).bind("step");
         columnStep.setEditorComponent(fieldStep);
         fieldStep.addValueChangeListener(e->{
             fieldStep.getElement().getStyle().set("border-width","0px");
         });
 
-        TextField fieldPlanProject = new TextField();
+        fieldPlanProject = new TextField();
         binderExpiration.forField(fieldPlanProject).bind("planProject");
         columnPlanProject.setEditorComponent(fieldPlanProject);
         fieldPlanProject.addValueChangeListener(e->{
             fieldPlanProject.getElement().getStyle().set("border-width","0px");
         });
 
-        TextField fieldPlanUsage = new TextField();
+        fieldPlanUsage = new TextField();
         binderExpiration.forField(fieldPlanUsage).bind("planUsage");
         columnPlanUsage.setEditorComponent(fieldPlanUsage);
         fieldPlanUsage.addValueChangeListener(e->{
@@ -143,6 +149,7 @@ public class ExpirationsLayout extends VerticalLayout {
             fieldStep.focus();
             addButton.setEnabled(false);
             removeButton.setEnabled(true);
+            formParent.saveMode(1,0);
         });
 
         removeButton = new Button("Удалить последнюю", event -> {
@@ -173,6 +180,7 @@ public class ExpirationsLayout extends VerticalLayout {
                 attention(fieldPlanUsage);
                 return;
             }
+            formParent.saveMode(-1,0);
             editorExpiration.save();
             addButton.setEnabled(true);
         });
@@ -185,6 +193,7 @@ public class ExpirationsLayout extends VerticalLayout {
                     && fieldPlanUsage.getValue().equals("")
             ) expirations.remove(expirations.size() - 1);
             expirationsDataProvider.refreshAll();
+            formParent.saveMode(-1,0);
         });
         cancel.addClassName("cancel");
         Div divSave = new Div(save);
@@ -195,6 +204,9 @@ public class ExpirationsLayout extends VerticalLayout {
         HorizontalLayout expirationsButtonLayout = new HorizontalLayout();
         expirationsButtonLayout.add(addButton,removeButton);
         add(helpers,expirationGrid, expirationsButtonLayout);
+    }
+
+    private void saveRow() {
     }
 
     public void pointAdd(Expiration expiration) {
@@ -253,6 +265,7 @@ public class ExpirationsLayout extends VerticalLayout {
     public int getExpirationsSize() {
         return expirations.size();
     }
+
     public void setFocus() {
         expirationGrid.getElement().getStyle().set("border-width","3px");
         expirationGrid.getElement().getStyle().set("border-style","dotted");
