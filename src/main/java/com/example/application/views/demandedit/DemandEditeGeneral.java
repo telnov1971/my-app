@@ -59,7 +59,7 @@ public class DemandEditeGeneral extends GeneralForm {
 
         Component[] fields = {inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
-                addressRegistration,addressActual,
+                addressRegistration,addressActual,addressEquals,
                 accordionPoints, specification, countTransformations,
                 countGenerations, techminGeneration, reservation, accordionExpiration};
         for(Component field : fields){

@@ -46,7 +46,7 @@ public class DemandEditTemporal extends GeneralForm {
 
         Component[] fields = {inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
-                addressRegistration,addressActual,
+                addressRegistration,addressActual,addressEquals,
                 powerDemand, powerCurrent, powerMaximum, voltage, safety,
                 specification, period, contract};
         for(Component field : fields){

@@ -7,6 +7,7 @@ import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -69,6 +70,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected TextArea pasportIssued;
     protected TextField addressRegistration;
     protected TextField addressActual;
+    protected Checkbox addressEquals;
 
     protected Select<Reason> reason;
     protected TextArea object;
@@ -212,6 +214,15 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             pasportIssued.setHelperText("(кем, когда)");
             addressRegistration = new TextField("Адрес регистрации");
             addressRegistration.setHelperText("(место регистрации заявителя - индекс, адрес)");
+            addressEquals = new Checkbox("Адрес регистрации совпадает с фактическим", false);
+            addressEquals.addValueChangeListener(event -> {
+                if(addressEquals.getValue()){
+                    addressActual.setValue(addressRegistration.getValue());
+                    addressActual.setEnabled(false);
+                } else {
+                    addressActual.setEnabled(true);
+                }
+            });
             addressActual = new TextField("Адрес фактический");
             addressActual.setHelperText("(фактический адрес - индекс, адрес)");
             object = new TextArea("Объект (обязательное поле)");
@@ -351,7 +362,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         formDemander.add(inn,innDate,label,
                 passportSerries,passportNumber,pasportIssued,
-                addressRegistration,addressActual);
+                addressRegistration,addressActual,addressEquals);
         setWidthFormDemander();
         accordionDemander.add("Данные заявителя", formDemander);
 
@@ -375,7 +386,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         Component[] fields = {delegate, inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
-                addressRegistration,addressActual,
+                addressRegistration,addressActual, addressEquals,
                 countPoints, accordionPoints, powerDemand, powerCurrent,
                 powerMaximum, voltage, voltageIn, safety, specification,
                 countTransformations,accordionExpiration,
@@ -407,6 +418,16 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         passportNumber.addValueChangeListener(e->{
             if(!passportNumber.isEmpty()) {
                 passportNumber.getElement().getStyle().set("border-width","0px");
+            }
+        });
+        addressRegistration.addValueChangeListener(e->{
+            if(!addressRegistration.isEmpty()) {
+                addressRegistration.getElement().getStyle().set("border-width","0px");
+            }
+        });
+        addressActual.addValueChangeListener(e->{
+            if(!addressActual.isEmpty()) {
+                addressActual.getElement().getStyle().set("border-width","0px");
             }
         });
         inn.addValueChangeListener(e->{
@@ -469,6 +490,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemander.setColspan(pasportIssued, 4);
         formDemander.setColspan(addressRegistration, 4);
         formDemander.setColspan(addressActual, 4);
+        formDemander.setColspan(addressEquals, 4);
     }
 
     private void setColumnCount(FormLayout form) {
@@ -586,6 +608,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         if(inn.isEmpty() && inn.isVisible()) {
             attention.attention(inn,"Не заполнено поле Реквизиты заявителя");
         }
+        if(addressRegistration.isEmpty() && addressRegistration.isVisible()) {
+            attention.attention(addressRegistration,"Не заполнено поле Адрес регистрации");
+        }
+        if(addressActual.isEmpty() && addressActual.isVisible()) {
+            attention.attention(addressActual,"Не заполнено поле Адрес фактический");
+        }
         if(object.isEmpty()) {
             attention.attention(object,"Не заполнено поле Объект");
         }
@@ -636,6 +664,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     filesLayout.setReadOnly();
                     notesLayout.setReadOnly();
                 } break;
+            }
+            if(addressActual.getValue().equals(addressRegistration.getValue())) {
+                addressActual.setEnabled(false);
+                addressEquals.setValue(true);
             }
         }
     }

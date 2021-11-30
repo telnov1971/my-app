@@ -53,7 +53,7 @@ public class DemandEditTo15 extends GeneralForm {
         voltage.addValueChangeListener(e -> setOptional());
 
         Component[] fields = {passportSerries,passportNumber,pasportIssued,
-                addressRegistration,addressActual,
+                addressRegistration,addressActual,addressEquals,
                 powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, accordionExpiration};
         for(Component field : fields){
