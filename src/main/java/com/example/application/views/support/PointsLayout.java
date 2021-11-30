@@ -28,6 +28,10 @@ public class PointsLayout extends VerticalLayout {
     private ListDataProvider<Point> pointDataProvider;
     private final Editor<Point> editorPoints;
 
+    private final Button addButton;
+    private final Button removeButton;
+    int count = 0;
+
     private final PointService pointService;
     private final VoltageService voltageService;
     private final SafetyService safetyService;
@@ -43,7 +47,8 @@ public class PointsLayout extends VerticalLayout {
         this.historyService = historyService;
         pointGrid.setHeightByRows(true);
         points = new ArrayList<>();
-        Label helpers = new Label("распределение по точкам присоединения");
+        Label helpers = new Label("распределение по точкам присоединения (ВНИМАНИЕ: после сохранения точки не удаляются, " +
+                "можно только редактировать)");
 
         Grid.Column<Point> columnNumber =
                 pointGrid.addColumn(Point::getNumber)
@@ -69,31 +74,10 @@ public class PointsLayout extends VerticalLayout {
                         .setAutoWidth(true)
                         .setHeader("Ур. напр. ");
         columnNumber.setSortable(true);
-        points.add(new Point());
+//        points.add(new Point());
         pointGrid.setItems(points);
         pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
-        points.remove(points.size() - 1);
-
-        Button addButton = new Button("Добавить точку", event -> {
-            Integer maxNumber = 0;
-            for (Point p : points) {
-                maxNumber = p.getNumber() > maxNumber ? p.getNumber() : maxNumber;
-            }
-            pointDataProvider.getItems().add(new Point(++maxNumber, 0.0,
-                    0.0,
-                    this.voltageService.findById(1L).get(),
-                    null,
-                    this.safetyService.findById(3L).get()
-            ));
-            pointDataProvider.refreshAll();
-            //pointGrid.getDataProvider().refreshAll();
-        });
-
-        Button removeButton = new Button("Удалить последнюю", event -> {
-            this.points.remove(points.size() - 1);
-            pointDataProvider.refreshAll();
-            //pointGrid.getDataProvider().refreshAll();
-        });
+//        points.remove(points.size() - 1);
 
         editorPoints = pointGrid.getEditor();
         Binder<Point> binderPoints = new Binder<>(Point.class);
@@ -113,13 +97,13 @@ public class PointsLayout extends VerticalLayout {
         binderPoints.forField(fieldPowerCurrent).bind("powerCurrent");
         columnPowerCurrent.setEditorComponent(fieldPowerCurrent);
 
-        Select<Safety> selectSafety = new Select();
+        Select<Safety> selectSafety = new Select<>();
         selectSafety.setItems(safetyService.findAll());
         selectSafety.setItemLabelGenerator(Safety::getName);
         binderPoints.forField(selectSafety).bind("safety");
         columnSafety.setEditorComponent(selectSafety);
 
-        Select<Voltage> selectVoltage = new Select();
+        Select<Voltage> selectVoltage = new Select<>();
         selectVoltage.setItems(voltageService.findAllByOptional(false));
         selectVoltage.setItemLabelGenerator(Voltage::getName);
         binderPoints.forField(selectVoltage).bind("voltage");
@@ -138,13 +122,63 @@ public class PointsLayout extends VerticalLayout {
             return edit;
         }).setAutoWidth(true);
 
+        addButton = new Button("Добавить точку");
+        removeButton = new Button("Удалить последнюю");
+        removeButton.setEnabled(false);
+
+        addButton.addClickListener(event -> {
+            Integer maxNumber = 0;
+            for (Point p : points) {
+                maxNumber = p.getNumber() > maxNumber ? p.getNumber() : maxNumber;
+            }
+            pointDataProvider.getItems().add(new Point(++maxNumber, 0.0,
+                    0.0,
+                    this.voltageService.findById(1L).get(),
+                    null,
+                    this.safetyService.findById(3L).get()
+            ));
+            pointDataProvider.refreshAll();
+            pointGrid.select(points.get(points.size()-1));
+            editorPoints.editItem(points.get(points.size()-1));
+            addButton.setEnabled(false);
+            removeButton.setEnabled(true);
+            fieldPowerDemand.focus();
+            //pointGrid.getDataProvider().refreshAll();
+        });
+
+        removeButton.addClickListener(event -> {
+            if(points.size() > count) {
+                this.points.remove(points.size() - 1);
+                pointDataProvider.refreshAll();
+                removeButton.setEnabled(points.size() != count);
+            } else {
+                removeButton.setEnabled(false);
+            }
+            addButton.setEnabled(true);
+        });
+
         editorPoints.addOpenListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
         editorPoints.addCloseListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
-        Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> editorPoints.save());
+        Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> {
+            if(fieldPowerDemand.getValue() == 0.0) {
+                attention(fieldPowerDemand);
+                return;
+            }
+            editorPoints.save();
+            addButton.setEnabled(true);
+            pointGrid.getElement().getStyle().set("border-width","0px");
+        });
         save.addClassName("save");
-        Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> editorPoints.cancel());
+        Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> {
+            if(fieldPowerDemand.getValue() == 0.0) {
+                points.remove(points.size() - 1);
+                pointDataProvider.refreshAll();
+            }
+            editorPoints.cancel();
+            addButton.setEnabled(true);
+        });
         cancel.addClassName("cancel");
         Div divSave = new Div(save);
         Div divCancel = new Div(cancel);
@@ -157,10 +191,6 @@ public class PointsLayout extends VerticalLayout {
         add(helpers,pointGrid, pointsButtonLayout);
     }
 
-    public void pointsClean() {
-        points = new ArrayList<>();
-    }
-
     public void pointAdd(Point point) {
         points.add(point);
         pointGrid.setItems(points);
@@ -169,14 +199,8 @@ public class PointsLayout extends VerticalLayout {
 
     public void findAllByDemand(Demand demand) {
         points = pointService.findAllByDemand(demand);
-        if(points.isEmpty()) {
-            pointAdd(new Point(1, 0.0,
-                    0.0,
-                    voltageService.findById(1L).get(),
-                    null,
-                    safetyService.findById(3L).get()));
-        }
-        Collections.sort(points);
+        count = points.size();
+        if(count > 1) Collections.sort(points);
         pointGrid.setItems(points);
         pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
     }
@@ -187,9 +211,28 @@ public class PointsLayout extends VerticalLayout {
 
     public void savePoints() {
         for(Point point : points) {
+            if((point.getPowerDemand() == 0.0)
+                    && (point.getPowerCurrent() == 0.0)) continue;
             point.setDemand(demand);
             historyService.saveHistory(demand, point, Point.class);
             pointService.update(point);
         }
+    }
+
+    private void attention(NumberField field){
+        field.focus();
+        field.getElement().getStyle().set("border-width","1px");
+        field.getElement().getStyle().set("border-style","dashed");
+        field.getElement().getStyle().set("border-color","red");
+    }
+
+    public int getPointSize() {
+        return points.size();
+    }
+    public void setFocus() {
+        pointGrid.getElement().getStyle().set("border-width","3px");
+        pointGrid.getElement().getStyle().set("border-style","dotted");
+        pointGrid.getElement().getStyle().set("border-color","red");
+        addButton.focus();
     }
 }

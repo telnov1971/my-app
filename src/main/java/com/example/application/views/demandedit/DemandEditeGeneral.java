@@ -110,6 +110,13 @@ public class DemandEditeGeneral extends GeneralForm {
     @Override
     protected Boolean verifyField() {
         if(!super.verifyField()) return false;
+        if(pointsLayout.getPointSize()==0){
+            specification.focus();
+            pointsLayout.setFocus();
+            Notification.show("Не заполнены точки подключения", 3000,
+                    Notification.Position.BOTTOM_START);
+            return false;
+        }
         if(expirationsLayout.getExpirationsSize()==0){
             safety.focus();
             expirationsLayout.setFocus();

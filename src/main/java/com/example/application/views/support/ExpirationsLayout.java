@@ -48,7 +48,8 @@ public class ExpirationsLayout extends VerticalLayout {
         expirations = new ArrayList<>();
         Label helpers = new Label("Сроки проектирования и поэтапного введения в эксплуатацию объекта"+
                 " (в том числе по этапам и очередям), планируемое поэтапное распределение максимальной мощности " +
-                "(обязательны к заполнению)");
+                "(обязательны к заполнению) (ВНИМАНИЕ: после сохранения этапы не удаляются, " +
+                "можно только редактировать)");
 
         Grid.Column<Expiration> columnStep =
                 expirationGrid.addColumn(Expiration::getStep)
@@ -70,12 +71,12 @@ public class ExpirationsLayout extends VerticalLayout {
                 expirationGrid.addColumn(expiration -> expiration.getSafety().getName())
                         .setAutoWidth(true)
                         .setHeader("Кат. надёж.");
-        Expiration temp = new Expiration();
-        temp.setSafety(safetyService.findById(3L).get());
-        expirations.add(temp);
+//        Expiration temp = new Expiration();
+//        temp.setSafety(safetyService.findById(3L).get());
+//        expirations.add(temp);
         expirationGrid.setItems(expirations);
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
-        expirations.remove(expirations.size() - 1);
+//        expirations.remove(expirations.size() - 1);
 
         editorExpiration = expirationGrid.getEditor();
         Binder<Expiration> binderExpiration = new Binder<>(Expiration.class);
@@ -135,7 +136,7 @@ public class ExpirationsLayout extends VerticalLayout {
             expirationGrid.getElement().getStyle().set("border-width","0px");
             expirationsDataProvider.getItems().add(new Expiration("",
                     "","",powerMax,
-                    safetyService.findById(3L).get()));
+                    safetyService.findById(3L).orElseGet(null)));
             expirationsDataProvider.refreshAll();
             expirationGrid.select(expirations.get(expirations.size() - 1));
             editorExpiration.editItem(expirations.get(expirations.size() - 1));
@@ -197,11 +198,11 @@ public class ExpirationsLayout extends VerticalLayout {
     }
 
     public void pointAdd(Expiration expiration) {
-        expiration.setSafety(safetyService.findById(3L).get());
-        expirations.add(expiration);
+//        expiration.setSafety(safetyService.findById(3L).orElseGet(null));
+//        expirations.add(expiration);
         expirationGrid.setItems(expirations);
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
-        expirations.remove(expirations.size() - 1);
+//        expirations.remove(expirations.size() - 1);
     }
 
     private void attention(TextField field){
@@ -226,6 +227,9 @@ public class ExpirationsLayout extends VerticalLayout {
 
     public void saveExpirations() {
         for(Expiration expiration : expirations) {
+            if(expiration.getStep().isEmpty()||
+                expiration.getPlanProject().isEmpty()||
+                expiration.getPlanUsage().isEmpty()) continue;;
             expiration.setDemand(demand);
             historyService.saveHistory(demand, expiration, Expiration.class);
             expirationService.update(expiration);
