@@ -34,6 +34,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -619,6 +620,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
         if(address.isEmpty()) {
             attention.attention(address,"Не заполнено поле Адрес объекта");
+        }
+        if(specification.isEmpty() && (demand.getDemandType().getId().equals(DemandType.TO150))) {
+            attention.attention(specification,"Не заполнено поле Характер нагрузки}");
         }
         if(powerMaximum.isEmpty() && powerMaximum.isVisible()) {
             attention.attention(powerDemand,"Не заполнено поле Мощность...");
