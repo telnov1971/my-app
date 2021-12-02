@@ -30,11 +30,11 @@ public class Demand extends AbstractEntity {
     private String delegate;
     // паспорт серия
     @Column(name = "pas_ser")
-    @Size(min=4,max=4,message="Серия паспорта состоит из 4 цифр")
+//    @Size(min=4,max=4,message="Серия паспорта состоит из 4 цифр")
     private String passportSerries;
     // пасорт номер
     @Column(name = "pas_num")
-    @Size(min=6,max=6,message="Номер паспорта состоит из 6 цифр")
+//    @Size(min=6,max=6,message="Номер паспорта состоит из 6 цифр")
     private String passportNumber;
     // пасорт выдан
     @Column(name = "pas_iss")

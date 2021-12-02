@@ -40,15 +40,15 @@ public class DemandEditTemporal extends GeneralForm {
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
                 historyService, fileStoredService, DType.TEMPORAL,noteService,components);
-        this.MaxPower = 1000000000.0;
+        this.MaxPower = 1000000.0;
         if(demandTypeService.findById(DemandType.TEMPORAL).isPresent())
             demandType.setValue(demandTypeService.findById(DemandType.TEMPORAL).get());
 
-        Component[] fields = {inn, innDate,
-                passportSerries,passportNumber,pasportIssued,
+        // inn, innDate, passportSerries,passportNumber, pasportIssued
+        Component[] fields = {typeDemander,
                 addressRegistration,addressActual,addressEquals,
                 powerDemand, powerCurrent, powerMaximum, voltage, safety,
-                specification, period, contract};
+                specification};
         for(Component field : fields){
             field.setVisible(true);
         }
@@ -86,5 +86,56 @@ public class DemandEditTemporal extends GeneralForm {
     @Override
     protected Boolean verifyField() {
         return super.verifyField();
+    }
+
+    @Override
+    protected void settingTemporalReasons() {
+        powerCurrent.setEnabled(true);
+        if(reason.getValue().getId() == 1){
+            powerCurrent.setValue(0.0);
+            powerCurrent.setEnabled(false);
+        }
+        if(reason.getValue().getId() == 5){
+            contract.setVisible(true);
+            period.setVisible(false);
+            this.MaxPower = 1000000.0;
+            powerMaximum.setHelperText("");
+            period.setHelperText("");
+        }
+        if(reason.getValue().getId() == 6){
+            contract.setVisible(false);
+            period.setVisible(true);
+            this.MaxPower = 150.0;
+            powerMaximum.setHelperText("Для передвижных объектов максимальная мощность не более 150 кВт");
+            period.setHelperText("Для передвижных объектов срок подключения не должен превышать 12 месяцев");
+        }
+    }
+
+    @Override
+    protected void settingTemporalDemander(){
+        // "Физическое лицо", "Юридическое лицо", "Индивидуальный предприниматель"
+        switch(typeDemander.getValue()){
+            case "Физическое лицо":
+                inn.setVisible(false);
+                innDate.setVisible(false);
+                passportSerries.setVisible(true);
+                passportNumber.setVisible(true);
+                pasportIssued.setVisible(true);
+                break;
+            case "Юридическое лицо":
+                inn.setVisible(true);
+                innDate.setVisible(true);
+                passportSerries.setVisible(false);
+                passportNumber.setVisible(false);
+                pasportIssued.setVisible(false);
+                break;
+            case "Индивидуальный предприниматель":
+                inn.setVisible(true);
+                innDate.setVisible(true);
+                passportSerries.setVisible(true);
+                passportNumber.setVisible(true);
+                pasportIssued.setVisible(true);
+                break;
+        }
     }
 }

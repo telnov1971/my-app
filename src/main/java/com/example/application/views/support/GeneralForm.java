@@ -23,22 +23,23 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
-import com.vaadin.flow.data.validator.DoubleRangeValidator;
-import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public abstract class GeneralForm extends Div implements BeforeEnterObserver {
+    protected Boolean result = true;
+    protected Focusable fieldGoto = null;
+
     protected final String DEMAND_ID = "demandID";
     protected DecimalFormat decimalFormat;
     protected FormLayout formDemand = new FormLayout();
@@ -50,7 +51,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected HorizontalLayout buttonBar = new HorizontalLayout();
     protected Button save = new Button("Сохранить");
     protected Button reset = new Button("Отменить");
-    protected Label attention = new Label();
+    protected Label attentionLabel = new Label();
     private int editPnt = 0;
     private int editExp = 0;
 
@@ -65,6 +66,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected Accordion accordionDemander = new Accordion();
     protected FormLayout formDemander = new FormLayout();
     protected TextArea demander;
+    protected Select<String> typeDemander;
     protected TextField delegate;
     protected TextField inn;
     protected DatePicker innDate;
@@ -177,18 +179,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         accordionHistory.add("История событий",historyLayout);
         accordionHistory.setWidthFull();
 
-        save.addClickListener(event -> {
-            if(save()) UI.getCurrent().navigate(DemandList.class);
-        });
-        reset.addClickListener(event -> {
-            try {
-                filesLayout.deleteFiles();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            UI.getCurrent().navigate(DemandList.class);
-        });
-
         // описание полей
         {
             demandId.setReadOnly(true);
@@ -206,8 +196,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             demander.setHelperText("(полное наименование заявителя – юридического лица;" +
                     " фамилия, имя, отчество заявителя – индивидуального предпринимателя или физического лица)");
             delegate = new TextField("ФИО представителя","Представитель юр.лица");
-            inn = new TextField("Реквизиты заявителя (обязательное поле)",
-                    "ОГРН для юр.лиц, ИНН для ИП");
+            inn = new TextField("Реквизиты заявителя (обязательное поле)");
+//                    "ОГРН для юр.лиц, ИНН для ИП");
             inn.setHelperText("(номер записи в Едином государственном реестре юридических лиц"+
                     " / номер записи в Едином государственном реестре индивидуальных предпринимателей)");
             innDate = new DatePicker("Дата регистрации в реестре");
@@ -216,18 +206,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             passportNumber = new TextField("Паспорт номер (обязательное поле)", "Шесть цифр");
             pasportIssued = new TextArea("Паспорт выдан");
             pasportIssued.setHelperText("(кем, когда)");
-            addressRegistration = new TextField("Адрес регистрации");
+            addressRegistration = new TextField("Адрес регистрации (обязательное поле)");
             addressRegistration.setHelperText("(место регистрации заявителя - индекс, адрес)");
             addressEquals = new Checkbox("Адрес регистрации совпадает с фактическим", false);
-            addressEquals.addValueChangeListener(event -> {
-                if(addressEquals.getValue()){
-                    addressActual.setValue(addressRegistration.getValue());
-                    addressActual.setEnabled(false);
-                } else {
-                    addressActual.setEnabled(true);
-                }
-            });
-            addressActual = new TextField("Адрес фактический");
+            addressActual = new TextField("Адрес фактический (обязательное поле)");
             addressActual.setHelperText("(фактический адрес - индекс, адрес)");
             object = new TextArea("Объект (обязательное поле)");
             object.setHelperText("(наименование энергопринимающих устройств для присоединения)");
@@ -247,6 +229,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             powerCurrent.setAutocorrect(true);
             powerMaximum = new NumberField("Мощность максимальная, кВт", "0,00 кВт");
             powerMaximum.setAutocorrect(true);
+            powerMaximum.setValue(0.0);
 
             countTransformations = new TextArea("Кол-во и мощ-ть присоединяемых трансформаторов");
             countGenerations = new TextArea("Кол-во и мощ-ть генераторов");
@@ -270,18 +253,15 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         // создание селекторов
         {
+
+            typeDemander = new Select<>();
+            typeDemander.setLabel("Тип заявителя");
+            typeDemander.setItems("Физическое лицо", "Юридическое лицо", "Индивидуальный предприниматель");
+
             List<Reason> reasonList = reasonService.findAll().stream().
                 filter(r -> r.getDtype().contains(dType)).collect(Collectors.toList());
             reason = createSelect(Reason::getName, reasonList,
-                    "Причина обращения", Reason.class);
-            reason.addValueChangeListener(e->{
-                if(reason.getValue().getId() == 1){
-                    powerCurrent.setValue(0.0);
-                    powerCurrent.setEnabled(false);
-                } else {
-                    powerCurrent.setEnabled(true);
-                }
-            });
+                    "Причина обращения (обязательное поле)", Reason.class);
 
             voltage = createSelect(Voltage::getName, voltageService.findAllByOptional(false),
                     "Класс напряжения", Voltage.class);
@@ -297,16 +277,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
             garant = createSelect(Garant::getName, garantService.findAllByActive(true),
                     "Гарантирующий поставщик", Garant.class);
-            garant.addValueChangeListener(e->{
-                if(garant.getValue().getId() != 1) {
-                    garantText.setVisible(true);
-                    garantText.setReadOnly(false);
-                } else {
-                    garantText.setValue("");
-                    garantText.setVisible(false);
-                    garantText.setReadOnly(true);
-                }
-            });
 
             plan = createSelect(Plan::getName, planService.findAll(),
                     "Рассрочка платежа", Plan.class);
@@ -321,31 +291,31 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         // настройка проверки значений полей
         {
             binderDemand.forField(inn)
-                    .withValidator(
-                            new StringLengthValidator(
-                                    "ИНН должен содержать от 10 до 13 знаков",
-                                    10, 13))
+//                    .withValidator(
+//                            new StringLengthValidator(
+//                                    "ИНН должен содержать от 10 до 13 знаков",
+//                                    10, 13))
                     .bind(Demand::getInn, Demand::setInn);
 
             pointBinder.forField(powerDemand)
-                    .withValidator(
-                            new DoubleRangeValidator(
-                                    "Мощность не может быть отрицательной",
-                                    0.0, null))
+//                    .withValidator(
+//                            new DoubleRangeValidator(
+//                                    "Мощность не может быть отрицательной",
+//                                    0.0, null))
                     .bind(Point::getPowerDemand, Point::setPowerDemand);
 
             pointBinder.forField(powerCurrent)
-                    .withValidator(
-                            new DoubleRangeValidator(
-                                    "Мощность не может быть отрицательной",
-                                    0.0, null))
+//                    .withValidator(
+//                            new DoubleRangeValidator(
+//                                    "Мощность не может быть отрицательной",
+//                                    0.0, null))
                     .bind(Point::getPowerCurrent, Point::setPowerCurrent);
 
             pointBinder.forField(powerMaximum)
-                    .withValidator(
-                            new DoubleRangeValidator(
-                                    "Мощность не может быть отрицательной",
-                                    0.0, null))
+//                    .withValidator(
+//                            new DoubleRangeValidator(
+//                                    "Мощность не может быть отрицательной",
+//                                    0.0, null))
                     .bind(Point::getPowerMaximum, null);
         }
 
@@ -353,18 +323,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         pointBinder.bindInstanceFields(this);
         generalBinder.bindInstanceFields(this);
 
-        // события формы
-        powerDemand.addBlurListener(e->testPower(powerDemand));
-        powerDemand.addValueChangeListener(e -> changePower(powerDemand));
-
-        powerCurrent.addBlurListener(e->testPower(powerCurrent));
-        powerCurrent.addValueChangeListener(e -> changePower(powerCurrent));
-
         // кол-во колонок формы от ширины окна
         setColumnCount(formDemand);
         setColumnCount(formDemander);
 
-        formDemander.add(inn,innDate,label,
+        formDemander.add(typeDemander,inn,innDate,label,
                 passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,addressEquals);
         setWidthFormDemander();
@@ -386,9 +349,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         buttonBar.setSpacing(true);
         reset.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonBar.add(save,reset,attention);
+        buttonBar.add(save,reset,attentionLabel);
 
-        Component[] fields = {delegate, inn, innDate,
+        Component[] fields = {delegate, typeDemander, inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual, addressEquals,
                 countPoints, accordionPoints, powerDemand, powerCurrent,
@@ -403,52 +366,89 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         accordionHistory.close();
     }
 
+    protected void settingTemporalReasons(){}
+
+    protected void settingTemporalDemander(){}
+
+    protected void deselect(AbstractField field){
+        if(!field.isEmpty()) {
+            field.getElement().getStyle().set("border-width","0px");
+        }
+    }
+
     protected void setListeners() {
-        demander.addValueChangeListener(e->{
-            if(!demander.isEmpty()) {
-                demander.getElement().getStyle().set("border-width","0px");
-            }
+        save.addClickListener(event -> {
+            if(save()) UI.getCurrent().navigate(DemandList.class);
         });
-        contact.addValueChangeListener(e->{
-            if(!contact.isEmpty()) {
-                contact.getElement().getStyle().set("border-width","0px");
+        reset.addClickListener(event -> {
+            try {
+                filesLayout.deleteFiles();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            UI.getCurrent().navigate(DemandList.class);
+        });
+        demander.addValueChangeListener(e -> deselect(demander));
+        contact.addValueChangeListener(e -> deselect(contact));
+        typeDemander.addValueChangeListener(e -> settingTemporalDemander());
+        inn.addValueChangeListener(e -> {
+            int length = inn.getValue().length();
+            if((length < 10) || (length > 13)) {
+                attention(inn,"Поле Реквизиты заявителя дожно содержать от 10 до 13 цифр");
+                if(inn != null) inn.focus();
+            } else {
+                inn.getElement().getStyle().set("border-width", "0px");
+            }
+            deselect(inn);
         });
         passportSerries.addValueChangeListener(e->{
-            if(!passportSerries.isEmpty()) {
-                passportSerries.getElement().getStyle().set("border-width","0px");
+            if(passportSerries.getValue().length() != 4) {
+                attention(passportSerries, "Поле Паспорт серия должно содержать 4 цифры");
+                if(passportSerries != null) passportSerries.focus();
+            } else {
+                passportSerries.getElement().getStyle().set("border-width", "0px");
             }
+            deselect(passportSerries);
         });
         passportNumber.addValueChangeListener(e->{
-            if(!passportNumber.isEmpty()) {
-                passportNumber.getElement().getStyle().set("border-width","0px");
+            if(passportNumber.getValue().length() != 6) {
+                attention(passportNumber,"Поле Паспорт номер  должно содержать 6 цифр");
+                if(passportNumber != null) passportNumber.focus();
+            } else {
+                passportNumber.getElement().getStyle().set("border-width", "0px");
+            }
+            deselect(passportNumber);
+        });
+        addressRegistration.addValueChangeListener(e -> deselect(addressRegistration));
+        addressEquals.addValueChangeListener(event -> {
+            if(addressEquals.getValue()){
+                addressActual.setValue(addressRegistration.getValue());
+                addressActual.setEnabled(false);
+            } else {
+                addressActual.setEnabled(true);
             }
         });
-        addressRegistration.addValueChangeListener(e->{
-            if(!addressRegistration.isEmpty()) {
-                addressRegistration.getElement().getStyle().set("border-width","0px");
+        addressActual.addValueChangeListener(e -> deselect(addressActual));
+        reason.addValueChangeListener(e -> {
+            settingTemporalReasons();
+            deselect(reason);
+        });
+        object.addValueChangeListener(e -> deselect(object));
+        address.addValueChangeListener(e -> deselect(address));
+        garant.addValueChangeListener(e->{
+            if(garant.getValue().getId() != 1) {
+                garantText.setVisible(true);
+                garantText.setReadOnly(false);
+            } else {
+                garantText.setValue("");
+                garantText.setVisible(false);
+                garantText.setReadOnly(true);
             }
         });
-        addressActual.addValueChangeListener(e->{
-            if(!addressActual.isEmpty()) {
-                addressActual.getElement().getStyle().set("border-width","0px");
-            }
-        });
-        inn.addValueChangeListener(e->{
-            if(!inn.isEmpty()) {
-                inn.getElement().getStyle().set("border-width","0px");
-            }
-        });
-        object.addValueChangeListener(e->{
-            if(!object.isEmpty()) {
-                object.getElement().getStyle().set("border-width","0px");
-            }
-        });
-        address.addValueChangeListener(e->{
-            if(!address.isEmpty()) {
-                address.getElement().getStyle().set("border-width","0px");
-            }
-        });
+        powerDemand.addBlurListener(e->testPower(powerDemand));
+        powerDemand.addValueChangeListener(e -> changePower(powerDemand));
+        powerCurrent.addBlurListener(e->testPower(powerCurrent));
+        powerCurrent.addValueChangeListener(e -> changePower(powerCurrent));
     }
 
     private void setWidthFormDemand() {
@@ -487,6 +487,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     private void setWidthFormDemander() {
+        formDemander.setColspan(typeDemander, 1);
         formDemander.setColspan(inn, 1);
         formDemander.setColspan(innDate, 1);
         formDemander.setColspan(passportNumber, 1);
@@ -497,7 +498,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemander.setColspan(addressEquals, 4);
     }
 
-    private void setColumnCount(FormLayout form) {
+    private void setColumnCount(@NotNull FormLayout form) {
         form.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("1em", 1),
                 new FormLayout.ResponsiveStep("40em", 2),
@@ -583,55 +584,63 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     protected Boolean verifyField() {
-        final Boolean[] result = {true};
-        final Focusable[] fieldGoto = {null};
-        class Attention {
-            public void attention(AbstractField field, String message) {
-                Notification.show(message, 3000,
-                        Notification.Position.BOTTOM_START);
-                fieldGoto[0] = fieldGoto[0] == null ? (Focusable) field : fieldGoto[0];
-                field.getElement().getStyle().set("border-width","1px");
-                field.getElement().getStyle().set("border-style","dashed");
-                field.getElement().getStyle().set("border-color","red");
-                result[0] = false;
-            }
-        }
-        Attention attention = new Attention();
+        fieldGoto = null;
+        result = true;
         if(demander.isEmpty()) {
-            attention.attention(demander, "Не заполнено поле Заявитель");
+            attention(demander, "Не заполнено поле Заявитель");
         }
         if(contact.isEmpty() && contact.isVisible()) {
-            attention.attention(contact,"Не заполнено поле Контактный телефон");
+            attention(contact,"Не заполнено поле Контактный телефон");
         }
         if(passportSerries.isEmpty() && passportSerries.isVisible()) {
-            attention.attention(passportSerries,"Не заполнено поле Паспорт серия");
+            attention(passportSerries,"Не заполнено поле Паспорт серия");
+        }
+        if(!passportSerries.isEmpty() && passportSerries.isVisible()) {
+            if(passportSerries.getValue().length() != 4)
+                attention(passportSerries,"Поле Паспорт серия должно содержать 4 цифры");
         }
         if(passportNumber.isEmpty() && passportNumber.isVisible()) {
-            attention.attention(passportNumber,"Не заполнено поле Паспорт номер");
+            attention(passportNumber,"Не заполнено поле Паспорт номер");
+        }
+        if(!passportNumber.isEmpty() && passportNumber.isVisible()) {
+            if(passportNumber.getValue().length() != 6)
+                attention(passportNumber,"Поле Паспорт номер  должно содержать 6 цифр");
         }
         if(inn.isEmpty() && inn.isVisible()) {
-            attention.attention(inn,"Не заполнено поле Реквизиты заявителя");
+            attention(inn,"Не заполнено поле Реквизиты заявителя");
+        }
+        if(!inn.isEmpty() && inn.isVisible()) {
+            int length = inn.getValue().length();
+            if((length < 10) || (length > 13))
+                attention(inn,"Поле Реквизиты заявителя дожно содержать от 10 до 13 цифр");
         }
         if(addressRegistration.isEmpty() && addressRegistration.isVisible()) {
-            attention.attention(addressRegistration,"Не заполнено поле Адрес регистрации");
+            attention(addressRegistration,"Не заполнено поле Адрес регистрации");
         }
         if(addressActual.isEmpty() && addressActual.isVisible()) {
-            attention.attention(addressActual,"Не заполнено поле Адрес фактический");
+            attention(addressActual,"Не заполнено поле Адрес фактический");
+        }
+        if(reason.getValue() == null) {
+            attention(reason,"Необходимо выбрать причину обращения");
         }
         if(object.isEmpty()) {
-            attention.attention(object,"Не заполнено поле Объект");
+            attention(object,"Не заполнено поле Объект");
         }
         if(address.isEmpty()) {
-            attention.attention(address,"Не заполнено поле Адрес объекта");
+            attention(address,"Не заполнено поле Адрес объекта");
         }
-        if(specification.isEmpty() && (demand.getDemandType().getId().equals(DemandType.TO150))) {
-            attention.attention(specification,"Не заполнено поле Характер нагрузки}");
+        if(specification.isEmpty() && (demandType.getValue().getId().equals(DemandType.TO150))) {
+            attention(specification,"Не заполнено поле Характер нагрузки}");
         }
-        if(powerMaximum.isEmpty() && powerMaximum.isVisible()) {
-            attention.attention(powerDemand,"Не заполнено поле Мощность...");
+        if((powerDemand.isEmpty() || powerDemand.getValue() == 0.0) && powerMaximum.isVisible()) {
+            attention(powerDemand,"Не заполнено поле Мощность...");
         }
-        if(fieldGoto[0] != null) fieldGoto[0].focus();
-        return result[0];
+        if((!powerMaximum.isEmpty() || powerMaximum.getValue() != 0.0)
+                && powerMaximum.getValue() > this.MaxPower) {
+            attention(powerDemand,"Максимальная мощность превышает допустимую...");
+        }
+        if(fieldGoto != null) fieldGoto.focus();
+        return result;
     }
 
     protected void setReadOnly(Boolean readOnly) {
@@ -691,19 +700,19 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         editExp += edEx;
         if(editPnt > 0 && editExp <= 0) {
             save.setEnabled(false);
-            attention.setText("Вы не сохранили точки подключения");
+            attentionLabel.setText("Вы не сохранили точки подключения");
         }
         if(editExp > 0 && editPnt <=0 ) {
             save.setEnabled(false);
-            attention.setText("Вы не сохранили этапы работ");
+            attentionLabel.setText("Вы не сохранили этапы работ");
         }
         if(editPnt > 0 && editExp > 0) {
             save.setEnabled(false);
-            attention.setText("Вы не сохранили этапы работ и точки подлючения");
+            attentionLabel.setText("Вы не сохранили этапы работ и точки подлючения");
         }
         if(editPnt <= 0 && editExp <= 0) {
             save.setEnabled(true);
-            attention.setText("");
+            attentionLabel.setText("");
         }
     }
 
@@ -747,6 +756,15 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 clearForm();
             }
         }
+    }
+    public void attention(AbstractField field, String message) {
+        Notification.show(message, 3000,
+                Notification.Position.BOTTOM_START);
+        fieldGoto = fieldGoto == null ? (Focusable) field : fieldGoto;
+        field.getElement().getStyle().set("border-width","1px");
+        field.getElement().getStyle().set("border-style","dashed");
+        field.getElement().getStyle().set("border-color","red");
+        result = false;
     }
 
 }
