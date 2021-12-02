@@ -35,9 +35,9 @@ public class DataGenerator {
             } else {
                 try {
                     userRepository.save(
-                            new User("user", "",true, Collections.singleton(Role.USER)));
+                            new User("user", "",true, "User", "666-666", Collections.singleton(Role.USER)));
                     userRepository.save(
-                            new User("admin", "",true, Collections.singleton(Role.USER)));
+                            new User("admin", "",true, "Admin", "007", Collections.singleton(Role.USER)));
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }

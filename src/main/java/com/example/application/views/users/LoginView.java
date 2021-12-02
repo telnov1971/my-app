@@ -1,17 +1,15 @@
 package com.example.application.views.users;
 
 import com.example.application.security.CustomRequestCache;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
-import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.dom.Element;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,7 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 //public class LoginView extends Div  implements BeforeEnterObserver {
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     public static final String ROUTE = "login";
-    private LoginForm login = new LoginForm();
+    private final LoginForm login = new LoginForm();
 
     public LoginView(AuthenticationManager authenticationManager, // запрашивает подтверждение входа
                      CustomRequestCache requestCache) {

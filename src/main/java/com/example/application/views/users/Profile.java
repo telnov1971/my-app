@@ -1,5 +1,6 @@
 package com.example.application.views.users;
 
+import com.example.application.data.entity.Role;
 import com.example.application.data.entity.User;
 import com.example.application.data.service.MailSenderService;
 import com.example.application.data.service.UserService;
@@ -25,6 +26,7 @@ import com.vaadin.flow.server.VaadinRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Route(value = "profile/:userID?", layout = MainView.class)
@@ -34,13 +36,14 @@ public class Profile extends Div implements BeforeEnterObserver {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final MailSenderService mailSenderService;
-    private final String USER_ID = "userID";
     private final User user = new User();
     private final BeanValidationBinder<User> userBinder = new BeanValidationBinder<>(User.class);
     private final TextField username;
     private final PasswordField password;
     private final PasswordField passwordVerify;
     private final EmailField email;
+    private final TextField fio;
+    private final TextField contact;
     private final Label notyfy;
     private final Button save = new Button("Зарегистрировать");
 
@@ -60,12 +63,16 @@ public class Profile extends Div implements BeforeEnterObserver {
         password = new PasswordField("Пароль");
         passwordVerify = new PasswordField("Проверка пароля");
         email = new EmailField("E-mail");
+        fio = new TextField("ФИО пользователя");
+        contact = new TextField("Контактный телефон");
         userBinder.bindInstanceFields(this);
 
         username.addValueChangeListener(e -> saveButtonActive());
         email.addValueChangeListener(e -> saveButtonActive());
         password.addValueChangeListener(e -> saveButtonActive());
         passwordVerify.addValueChangeListener(e -> saveButtonActive());
+        fio.addValueChangeListener(e -> saveButtonActive());
+        contact.addValueChangeListener(e -> saveButtonActive());
 
         save.addClickListener(event -> {
             if(username.getValue().equals("")) {
@@ -83,10 +90,21 @@ public class Profile extends Div implements BeforeEnterObserver {
                 notyfy.setVisible(true);
                 return;
             }
+            if(fio.getValue().equals("")) {
+                notyfy.setText("ФИО не может быть пустой");
+                notyfy.setVisible(true);
+                return;
+            }
+            if(contact.getValue().equals("")) {
+                notyfy.setText("Контактный телефон не может быть пустым");
+                notyfy.setVisible(true);
+                return;
+            }
             if(password.getValue().equals(passwordVerify.getValue())) {
                 if(userService.findByUsername(user.getUsername())==null){
                     userBinder.writeBeanIfValid(user);
                     user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+                    user.setRoles(Set.of(Role.USER));
                     user.setActive(false);
                     user.setActivationCode(UUID.randomUUID().toString());
                     sendMessage(user);
@@ -142,7 +160,7 @@ public class Profile extends Div implements BeforeEnterObserver {
         buttonBar.add(save, recover, reset);
 
         FormLayout userForm = new FormLayout();
-        userForm.add(username, email, password, passwordVerify);
+        userForm.add(username, email, password, passwordVerify, fio, contact);
         Label note = new Label("Для регистрации введите логин, е-майл и пароль. Для " +
                 "восстановления пароля введите логин или е-майл. Для активации аккаунта необходимо " +
                 "перейти по ссылке в присланом письме.");
@@ -155,7 +173,9 @@ public class Profile extends Div implements BeforeEnterObserver {
         save.setEnabled(!username.getValue().equals("") &&
                 !email.getValue().equals("") &&
                 !password.getValue().equals("") &&
-                !passwordVerify.getValue().equals(""));
+                !passwordVerify.getValue().equals("") &&
+                !fio.getValue().equals("") &&
+                !contact.getValue().equals(""));
     }
 
     @Override

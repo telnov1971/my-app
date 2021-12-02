@@ -24,20 +24,18 @@ import java.util.*;
 
 public class ExpirationsLayout extends VerticalLayout {
     private Demand demand;
-    private GeneralForm formParent;
     private List<Expiration> expirations;
     private final Grid<Expiration> expirationGrid = new Grid<>(Expiration.class, false);
     private ListDataProvider<Expiration> expirationsDataProvider;
     private final Editor<Expiration> editorExpiration;
-    private TextField fieldStep;
-    private TextField fieldPlanProject;
-    private TextField fieldPlanUsage;
-    private Grid.Column<Expiration> editorColumn;
-    private Button addButton;
+    private final TextField fieldStep;
+    private final TextField fieldPlanProject;
+    private final TextField fieldPlanUsage;
+    private final Grid.Column<Expiration> editorColumn;
+    private final Button addButton;
     private Button removeButton;
 
     private final ExpirationService expirationService;
-    private final SafetyService safetyService;
     private final HistoryService historyService;
 
     private double powerMax;
@@ -46,9 +44,7 @@ public class ExpirationsLayout extends VerticalLayout {
     public ExpirationsLayout(ExpirationService expirationService
             , SafetyService safetyService
             , HistoryService historyService, GeneralForm formParent) {
-        this.formParent = formParent;
         this.expirationService = expirationService;
-        this.safetyService = safetyService;
         this.historyService = historyService;
         expirationGrid.setHeightByRows(true);
         expirations = new ArrayList<>();
@@ -77,12 +73,8 @@ public class ExpirationsLayout extends VerticalLayout {
                 expirationGrid.addColumn(expiration -> expiration.getSafety().getName())
                         .setAutoWidth(true)
                         .setHeader("Кат. надёж.");
-//        Expiration temp = new Expiration();
-//        temp.setSafety(safetyService.findById(3L).get());
-//        expirations.add(temp);
         expirationGrid.setItems(expirations);
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
-//        expirations.remove(expirations.size() - 1);
 
         editorExpiration = expirationGrid.getEditor();
         Binder<Expiration> binderExpiration = new Binder<>(Expiration.class);
@@ -92,23 +84,17 @@ public class ExpirationsLayout extends VerticalLayout {
         fieldStep = new TextField();
         binderExpiration.forField(fieldStep).bind("step");
         columnStep.setEditorComponent(fieldStep);
-        fieldStep.addValueChangeListener(e->{
-            fieldStep.getElement().getStyle().set("border-width","0px");
-        });
+        fieldStep.addValueChangeListener(e-> formParent.deselect(fieldStep));
 
         fieldPlanProject = new TextField();
         binderExpiration.forField(fieldPlanProject).bind("planProject");
         columnPlanProject.setEditorComponent(fieldPlanProject);
-        fieldPlanProject.addValueChangeListener(e->{
-            fieldPlanProject.getElement().getStyle().set("border-width","0px");
-        });
+        fieldPlanProject.addValueChangeListener(e-> formParent.deselect(fieldPlanProject));
 
         fieldPlanUsage = new TextField();
         binderExpiration.forField(fieldPlanUsage).bind("planUsage");
         columnPlanUsage.setEditorComponent(fieldPlanUsage);
-        fieldPlanUsage.addValueChangeListener(e->{
-            fieldPlanUsage.getElement().getStyle().set("border-width","0px");
-        });
+        fieldPlanUsage.addValueChangeListener(e-> formParent.deselect(fieldPlanUsage));
 
         NumberField fieldPowerMax= new NumberField();
         fieldPowerMax.setValue(1d);
@@ -116,8 +102,8 @@ public class ExpirationsLayout extends VerticalLayout {
         binderExpiration.forField(fieldPowerMax).bind("powerMax");
         columnPowerMax.setEditorComponent(fieldPowerMax);
 
-        Select<Safety> selectSafety = new Select();
-        selectSafety.setItems(this.safetyService.findAll());
+        Select<Safety> selectSafety = new Select<>();
+        selectSafety.setItems(safetyService.findAll());
         selectSafety.setItemLabelGenerator(Safety::getName);
         binderExpiration.forField(selectSafety).bind("safety");
         columnSafety.setEditorComponent(selectSafety);
@@ -142,7 +128,7 @@ public class ExpirationsLayout extends VerticalLayout {
             expirationGrid.getElement().getStyle().set("border-width","0px");
             expirationsDataProvider.getItems().add(new Expiration("",
                     "","",powerMax,
-                    safetyService.findById(3L).orElseGet(null)));
+                    safetyService.findById(3L).get()));
             expirationsDataProvider.refreshAll();
             expirationGrid.select(expirations.get(expirations.size() - 1));
             editorExpiration.editItem(expirations.get(expirations.size() - 1));
@@ -206,15 +192,9 @@ public class ExpirationsLayout extends VerticalLayout {
         add(helpers,expirationGrid, expirationsButtonLayout);
     }
 
-    private void saveRow() {
-    }
-
-    public void pointAdd(Expiration expiration) {
-//        expiration.setSafety(safetyService.findById(3L).orElseGet(null));
-//        expirations.add(expiration);
+    public void pointAdd() {
         expirationGrid.setItems(expirations);
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
-//        expirations.remove(expirations.size() - 1);
     }
 
     private void attention(TextField field){
@@ -228,7 +208,7 @@ public class ExpirationsLayout extends VerticalLayout {
         expirations = expirationService.findAllByDemand(demand);
         count = expirations.toArray().length;
         if(expirations.isEmpty()) {
-            pointAdd(new Expiration());}
+            pointAdd();}
         expirationGrid.setItems(expirations);
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
     }
@@ -241,7 +221,7 @@ public class ExpirationsLayout extends VerticalLayout {
         for(Expiration expiration : expirations) {
             if(expiration.getStep().isEmpty()||
                 expiration.getPlanProject().isEmpty()||
-                expiration.getPlanUsage().isEmpty()) continue;;
+                expiration.getPlanUsage().isEmpty()) continue;
             expiration.setDemand(demand);
             historyService.saveHistory(demand, expiration, Expiration.class);
             expirationService.update(expiration);
@@ -256,10 +236,6 @@ public class ExpirationsLayout extends VerticalLayout {
 
     public void setPowerMax(double powerMax) {
         this.powerMax = powerMax;
-//        for(int i=0; i < expirations.size(); i++ ){
-//            expirations.get(i).setPowerMax(powerMax);
-//            expirationsDataProvider.refreshAll();
-//        }
     }
 
     public int getExpirationsSize() {

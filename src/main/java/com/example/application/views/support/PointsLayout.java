@@ -23,7 +23,6 @@ import java.util.*;
 
 public class PointsLayout extends VerticalLayout {
     private Demand demand;
-    private GeneralForm formParent;
     private List<Point> points;
     private final Grid<Point> pointGrid = new Grid<>(Point.class, false);
     private ListDataProvider<Point> pointDataProvider;
@@ -43,7 +42,6 @@ public class PointsLayout extends VerticalLayout {
             , SafetyService safetyService
             , HistoryService historyService
             , GeneralForm formParent) {
-        this.formParent = formParent;
         this.pointService = pointService;
         this.voltageService = voltageService;
         this.safetyService = safetyService;

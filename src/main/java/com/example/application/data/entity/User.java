@@ -1,10 +1,8 @@
 package com.example.application.data.entity;
 
 import com.example.application.data.AbstractEntity;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -29,6 +27,12 @@ public class User extends AbstractEntity implements UserDetails {
     @NotBlank(message = "Email не может быть пустым")
     private String email;
 
+    @NotBlank(message = "Поле ФИО не может быть пустым")
+    private String fio;
+
+    @NotBlank(message = "Поле Контатный телефон не может быть пустым")
+    private String contact;
+
     private String activationCode;
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
@@ -45,10 +49,12 @@ public class User extends AbstractEntity implements UserDetails {
 
     public User() {
     }
-    public User(String username, String password, boolean active, Set<Role> roles) {
+    public User(String username, String password, boolean active, String fio, String contact, Set<Role> roles) {
         this.username = username;
         this.password = password;
         this.active = active;
+        this.fio = fio;
+        this.contact = contact;
         this.roles = roles;
         this.email = "";
         this.demands = null;
@@ -146,5 +152,21 @@ public class User extends AbstractEntity implements UserDetails {
     }
     public void setGarant(Garant garant) {
         this.garant = garant;
+    }
+
+    public String getFio() {
+        return fio;
+    }
+
+    public void setFio(String fio) {
+        this.fio = fio;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
     }
 }

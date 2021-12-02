@@ -76,10 +76,6 @@ public class DemandEditTemporal extends GeneralForm {
         point.setDemand(demand);
         historyService.saveHistory(demand,point,Point.class);
         pointService.update(this.point);
-//        filesLayout.setDemand(demand);
-//        filesLayout.saveFiles();
-//        notesLayout.setDemand(demand);
-//        notesLayout.saveNotes();
         return true;
     }
 
