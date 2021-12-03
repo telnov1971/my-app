@@ -33,10 +33,11 @@ import java.util.UUID;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор профиля пользователя")
 public class Profile extends Div implements BeforeEnterObserver {
+    private boolean editMode = false;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final MailSenderService mailSenderService;
-    private final User user = new User();
+    private final User editUser = new User();
     private final BeanValidationBinder<User> userBinder = new BeanValidationBinder<>(User.class);
     private final TextField username;
     private final PasswordField password;
@@ -45,7 +46,7 @@ public class Profile extends Div implements BeforeEnterObserver {
     private final TextField fio;
     private final TextField contact;
     private final Label notyfy;
-    private final Button save = new Button("Зарегистрировать");
+    private final Button saveButton = new Button("Зарегистрировать");
 
     public Profile(UserService userService,
                    PasswordEncoder passwordEncoder,
@@ -74,76 +75,10 @@ public class Profile extends Div implements BeforeEnterObserver {
         fio.addValueChangeListener(e -> saveButtonActive());
         contact.addValueChangeListener(e -> saveButtonActive());
 
-        save.addClickListener(event -> {
-            if(username.getValue().equals("")) {
-                notyfy.setText("Имя пользователя не может быть пустым");
-                notyfy.setVisible(true);
-                return;
-            }
-            if(password.getValue().equals("")) {
-                notyfy.setText("Пароль не может быть пустым");
-                notyfy.setVisible(true);
-                return;
-            }
-            if(email.getValue().equals("")) {
-                notyfy.setText("Почта не может быть пустой");
-                notyfy.setVisible(true);
-                return;
-            }
-            if(fio.getValue().equals("")) {
-                notyfy.setText("ФИО не может быть пустой");
-                notyfy.setVisible(true);
-                return;
-            }
-            if(contact.getValue().equals("")) {
-                notyfy.setText("Контактный телефон не может быть пустым");
-                notyfy.setVisible(true);
-                return;
-            }
-            if(password.getValue().equals(passwordVerify.getValue())) {
-                if(userService.findByUsername(user.getUsername())==null){
-                    userBinder.writeBeanIfValid(user);
-                    user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-                    user.setRoles(Set.of(Role.USER));
-                    user.setActive(false);
-                    user.setActivationCode(UUID.randomUUID().toString());
-                    sendMessage(user);
+        saveButton.addClickListener(event -> {
+            registration();
+        });
 
-                    userService.update(this.user);
-                    UI.getCurrent().navigate("/");
-                } else {
-                    notyfy.setText("Такой пользователь уже существует");
-                    notyfy.setVisible(true);
-                }
-            } else {
-                notyfy.setText("Пароли не совпадают");
-                notyfy.setVisible(true);
-            }
-        });
-        Button recover = new Button("Восстановить");
-        recover.addClickListener(event -> {
-            if(password.getValue().equals(passwordVerify.getValue())) {
-                User existUser = null;
-                if(!username.getValue().equals(""))
-                    existUser = userService.findByUsername(username.getValue());
-                if(existUser==null && !email.getValue().equals(""))
-                    existUser = userService.findByEmail(email.getValue());
-                if(existUser!=null) {
-                    existUser.setPassword(this.passwordEncoder.encode(password.getValue()));
-                    existUser.setActive(false);
-                    existUser.setActivationCode(UUID.randomUUID().toString());
-                    userService.update(existUser);
-                    sendMessage(existUser);
-                    UI.getCurrent().navigate("/");
-                } else {
-                    notyfy.setText("Такой пользователь не существует");
-                    notyfy.setVisible(true);
-                }
-            } else {
-                notyfy.setText("Пароли не совпадают");
-                notyfy.setVisible(true);
-            }
-        });
         Button reset = new Button("Отменить");
         reset.addClickListener(event -> {
             // clear fields by setting null
@@ -156,46 +91,98 @@ public class Profile extends Div implements BeforeEnterObserver {
         buttonBar.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
         buttonBar.setSpacing(true);
         reset.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonBar.add(save, recover, reset);
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        buttonBar.add(saveButton, reset);
 
         FormLayout userForm = new FormLayout();
         userForm.add(username, email, password, passwordVerify, fio, contact);
-        Label note = new Label("Для регистрации введите логин, е-майл и пароль. Для " +
-                "восстановления пароля введите логин или е-майл. Для активации аккаунта необходимо " +
+        Label note = new Label("Для регистрации заполните все поля. " +
+                "Для активации аккаунта необходимо " +
                 "перейти по ссылке в присланом письме.");
         add(notyfy, userForm, buttonBar, note);
         this.getElement().getStyle().set("margin", "15px");
         saveButtonActive();
     }
 
+    private void registration() {
+        if(verifyFill()) {
+            if (password.getValue().equals(passwordVerify.getValue())) {
+                User existUser = userService.findByUsername(username.getValue());
+                if((existUser != null) && !editMode) {
+                    notyfy.setText("Такое имя пользователя уже существует");
+                    notyfy.setVisible(true);
+                    return;
+                }
+                userBinder.writeBeanIfValid(editUser);
+                if(!editMode){
+                    editUser.setPassword(this.passwordEncoder.encode(password.getValue()));
+                    editUser.setRoles(Set.of(Role.USER));
+                    editUser.setActive(false);
+                    editUser.setActivationCode(UUID.randomUUID().toString());
+                    sendMessage(editUser);
+                } else {
+                    if(password.getValue().equals(""))
+                        editUser.setPassword(existUser.getPassword());
+                    else
+                        editUser.setPassword(this.passwordEncoder.encode(password.getValue()));
+                }
+                userService.update(this.editUser);
+                if (!editMode) {
+                    UI.getCurrent().navigate("/");
+                }
+            } else {
+                notyfy.setText("Пароли не совпадают");
+                notyfy.setVisible(true);
+            }
+        }
+    }
+
+    private boolean verifyFill() {
+        if(username.getValue().equals("")) {
+            notyfy.setText("Имя пользователя не может быть пустым");
+            notyfy.setVisible(true);
+            return false;
+        }
+        if(!editMode && password.getValue().equals("")) {
+            notyfy.setText("Пароль не может быть пустым");
+            notyfy.setVisible(true);
+            return false;
+        }
+        if(email.getValue().equals("")) {
+            notyfy.setText("Почта не может быть пустой");
+            notyfy.setVisible(true);
+            return false;
+        }
+        if(fio.getValue().equals("")) {
+            notyfy.setText("ФИО не может быть пустой");
+            notyfy.setVisible(true);
+            return false;
+        }
+        if(contact.getValue().equals("")) {
+            notyfy.setText("Контактный телефон не может быть пустым");
+            notyfy.setVisible(true);
+            return false;
+        }
+        return true;
+    }
+
     private void saveButtonActive() {
-        save.setEnabled(!username.getValue().equals("") &&
+        saveButton.setEnabled(!username.getValue().equals("") &&
                 !email.getValue().equals("") &&
-                !password.getValue().equals("") &&
-                !passwordVerify.getValue().equals("") &&
+                (editMode || !password.getValue().equals("")) &&
+                (editMode || !passwordVerify.getValue().equals("")) &&
                 !fio.getValue().equals("") &&
                 !contact.getValue().equals(""));
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-//        Optional<Long> userId = event.getRouteParameters().getLong(USER_ID);
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-//        User user = userService.findByUsername(username);
-//        UI.getCurrent().navigate(Profile.class, new RouteParameters("userID",
-//                String.valueOf(user.getId())));
-
-//        if (userId.isPresent()) {
         if (username != null) {
-//            Optional<User> userFromBackend = userService.findById(userId.get());
             User userFromBackend = userService.findByUsername(username);
-//            if (userFromBackend.isPresent()) {
             if (userFromBackend != null) {
-//                if (userFromBackend.get().getUsername().
                 if (userFromBackend.getUsername().
                         equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
-//                    populateForm(userFromBackend.get());
                     populateForm(userFromBackend);
                 } else {
                     Notification.show("Это не Вы :(", 3000,
@@ -209,17 +196,27 @@ public class Profile extends Div implements BeforeEnterObserver {
     }
 
     private void clearForm() {
+        editMode = false;
         populateForm(null);
         notyfy.setVisible(false);
     }
 
     private void populateForm(User value) {
         if(value != null) {
-            user.setId(value.getId());
-            user.setUsername(value.getUsername());
-            user.setEmail(value.getEmail());
+            editMode = true;
+            editUser.setId(value.getId());
+            editUser.setUsername(value.getUsername());
+            editUser.setEmail(value.getEmail());
+            editUser.setPassword(value.getPassword());
+            editUser.setActive(value.getActive());
+            editUser.setRoles(value.getRoles());
+            editUser.setFio(value.getFio());
+            editUser.setContact(value.getContact());
+            saveButton.setText("Сохранить");
         }
-        userBinder.readBean(user);
+        userBinder.readBean(editUser);
+        password.setValue("");
+        passwordVerify.setValue("");
     }
 
     private void sendMessage(User user){

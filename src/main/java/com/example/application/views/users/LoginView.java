@@ -85,7 +85,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         i18n.getForm().setTitle("");
         i18n.getForm().setSubmit("Войти");
         i18n.getForm().setPassword("Пароль");
-        i18n.getForm().setForgotPassword("Зарегистрироваться / Восстановить пароль");
+        i18n.getForm().setForgotPassword("Зарегистрироваться");
         i18n.getErrorMessage().setTitle("Неверное имя/пароль");
         i18n.getErrorMessage()
                 .setMessage("Проверьте имя/пароль и попробуйте ещё раз.");

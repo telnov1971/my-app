@@ -17,20 +17,20 @@ public class User extends AbstractEntity implements UserDetails {
     @NotBlank(message = "Имя пользователя не может быть пустым")
     private String username;
 
-    @NotBlank(message = "Пароль не может быть пустым")
-    //@EqualsAndHashCode.Exclude
+//    @NotBlank(message = "Пароль не может быть пустым")
+//    @EqualsAndHashCode.Exclude
     private String password;
-    //@EqualsAndHashCode.Exclude
+//    @EqualsAndHashCode.Exclude
     private boolean active;
 
     @Email(message = "Email не корректный")
-    @NotBlank(message = "Email не может быть пустым")
+//    @NotBlank(message = "Email не может быть пустым")
     private String email;
 
-    @NotBlank(message = "Поле ФИО не может быть пустым")
+//    @NotBlank(message = "Поле ФИО не может быть пустым")
     private String fio;
 
-    @NotBlank(message = "Поле Контатный телефон не может быть пустым")
+//    @NotBlank(message = "Поле Контатный телефон не может быть пустым")
     private String contact;
 
     private String activationCode;
