@@ -42,6 +42,7 @@ public class DemandEditTo15 extends GeneralForm {
                 historyService, fileStoredService, DType.TO15,noteService,components);
         // сервисы
         this.MaxPower = 15.0;
+        demander.setHelperText(demander.getHelperText() + " или физического лица");
         if(demandTypeService.findById(DemandType.TO15).isPresent())
             demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
         expirationsLayout = new ExpirationsLayout(expirationService

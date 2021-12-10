@@ -20,3 +20,4 @@ webpack.generated.js
 
 package.json
 pnpm-lock.yaml
+/out/artifacts/po/po.war

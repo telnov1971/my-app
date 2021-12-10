@@ -119,6 +119,12 @@ public class PointsLayout extends VerticalLayout {
             Button edit = new Button(new Icon(VaadinIcon.EDIT));
             edit.addClassName("edit");
             edit.addClickListener(e -> {
+                if(formParent.reason.getValue().getId() == 1) {
+                    fieldPowerCurrent.setValue(0.0);
+                    fieldPowerCurrent.setReadOnly(true);
+                } else {
+                    fieldPowerCurrent.setReadOnly(false);
+                }
                 if(point.getNumber() == 1) {
                     selectSafety.setReadOnly(false);
                     selectVoltage.setReadOnly(false);
@@ -139,6 +145,12 @@ public class PointsLayout extends VerticalLayout {
         removeButton.setEnabled(false);
 
         addButton.addClickListener(event -> {
+            if(formParent.reason.getValue().getId() == 1) {
+                fieldPowerCurrent.setValue(0.0);
+                fieldPowerCurrent.setReadOnly(true);
+            } else {
+                fieldPowerCurrent.setReadOnly(false);
+            }
             Integer maxNumber = 0;
             for (Point p : points) {
                 maxNumber = p.getNumber() > maxNumber ? p.getNumber() : maxNumber;
@@ -224,7 +236,7 @@ public class PointsLayout extends VerticalLayout {
         pointsButtonLayout.add(addButton,removeButton);
         Label helpersRow = new Label("Категорию надёжности и уровень напряжения нужно " +
                 "указать только для первой точки подключения");
-        helpersRow.getElement().getStyle().set("font-size","0.7em");
+        helpersRow.getElement().getStyle().set("font-size","0.8em");
         helpersRow.getElement().getStyle().set("font-style","italic");
         add(helpers,pointGrid,helpersRow,pointsButtonLayout);
     }

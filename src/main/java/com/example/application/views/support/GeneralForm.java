@@ -193,8 +193,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
             demander = new TextArea("Заявитель (обязательное поле)",
                     "Наименование организации, ФИО заявителя");
-            demander.setHelperText("(полное наименование заявителя – юридического лица;" +
-                    " фамилия, имя, отчество заявителя – индивидуального предпринимателя или физического лица)");
+            demander.setHelperText("полное наименование заявителя – юридического лица;" +
+                    " фамилия, имя, отчество заявителя – индивидуального предпринимателя");
             delegate = new TextField("ФИО представителя","Представитель юр.лица");
             inn = new TextField("Реквизиты заявителя (обязательное поле)");
 //                    "ОГРН для юр.лиц, ИНН для ИП");
@@ -430,6 +430,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         });
         addressActual.addValueChangeListener(e -> deselect(addressActual));
         reason.addValueChangeListener(e -> {
+            if(reason.getValue().getId() == 1) {
+                powerCurrent.setValue(0.0);
+                powerCurrent.setReadOnly(true);
+            } else {
+                powerCurrent.setReadOnly(false);
+            }
             settingTemporalReasons();
             deselect(reason);
         });
