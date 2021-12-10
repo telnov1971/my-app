@@ -12,6 +12,7 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -95,6 +97,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected Select<Voltage> voltage;
     protected Select<Voltage> voltageIn;
     protected Select<Safety> safety;
+    protected List<Point> points;
 
     protected General general = new General();
     protected Binder<General> generalBinder = new Binder<>(General.class);
@@ -466,6 +469,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         });
         object.addValueChangeListener(e -> deselect(object));
         address.addValueChangeListener(e -> deselect(address));
+        specification.addValueChangeListener(e -> deselect(specification));
         garant.addValueChangeListener(e->{
             if(garant.getValue().getId() != 1) {
                 garantText.setVisible(true);
@@ -623,27 +627,31 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         if(contact.isEmpty() && contact.isVisible()) {
             attention(contact,"Не заполнено поле Контактный телефон");
         }
-        if(passportSerries.isEmpty() &&
-                passportSerries.isVisible() &&
-                !typeDemander.getValue().equals("Индивидуальный предприниматель")) {
-            attention(passportSerries,"Не заполнено поле Паспорт серия");
+        if(typeDemander.isVisible() && typeDemander.getValue() == null) {
+            attention(typeDemander,"Не заполнено поле Тип заявителя");
         }
-        if(!passportSerries.isEmpty() &&
-                passportSerries.isVisible() &&
-                !typeDemander.getValue().equals("Индивидуальный предприниматель")) {
-            if(passportSerries.getValue().length() != 4)
-                attention(passportSerries,"Поле Паспорт серия должно содержать 4 цифры");
-        }
-        if(passportNumber.isEmpty() &&
-                passportNumber.isVisible() &&
-                !typeDemander.getValue().equals("Индивидуальный предприниматель")) {
-            attention(passportNumber,"Не заполнено поле Паспорт номер");
-        }
-        if(!passportNumber.isEmpty() &&
-                passportNumber.isVisible() &&
-                !typeDemander.getValue().equals("Индивидуальный предприниматель")) {
-            if(passportNumber.getValue().length() != 6)
-                attention(passportNumber,"Поле Паспорт номер  должно содержать 6 цифр");
+        if(!typeDemander.isVisible() ||
+                (typeDemander.getValue() != null &&
+                !typeDemander.getValue().equals("Индивидуальный предприниматель"))) {
+            if (passportSerries.isEmpty() &&
+                    passportSerries.isVisible()
+                    ) {
+                attention(passportSerries, "Не заполнено поле Паспорт серия");
+            }
+            if (!passportSerries.isEmpty() &&
+                    passportSerries.isVisible()) {
+                if (passportSerries.getValue().length() != 4)
+                    attention(passportSerries, "Поле Паспорт серия должно содержать 4 цифры");
+            }
+            if (passportNumber.isEmpty() &&
+                    passportNumber.isVisible()) {
+                attention(passportNumber, "Не заполнено поле Паспорт номер");
+            }
+            if (!passportNumber.isEmpty() &&
+                    passportNumber.isVisible()) {
+                if (passportNumber.getValue().length() != 6)
+                    attention(passportNumber, "Поле Паспорт номер  должно содержать 6 цифр");
+            }
         }
         if(inn.isEmpty() && inn.isVisible()) {
             attention(inn,"Не заполнено поле Реквизиты заявителя");
@@ -671,16 +679,18 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         if(specification.isEmpty() && (demandType.getValue().getId().equals(DemandType.TO150))) {
             attention(specification,"Не заполнено поле Характер нагрузки}");
         }
-        if((powerCurrent.isEmpty() || powerCurrent.getValue() == 0.0) &&
-                powerMaximum.isVisible() && (reason.getValue().getId() == 2L)) {
-            attention(powerCurrent,"При увеличении мощности нужно указать ранее присоединённую...");
+        if(reason.getValue() != null) {
+            if ((powerCurrent.isEmpty() || powerCurrent.getValue() == 0.0) &&
+                    powerMaximum.isVisible() && (reason.getValue().getId() == 2L)) {
+                attention(powerCurrent, "При увеличении мощности нужно указать ранее присоединённую...");
+            }
         }
-        if((powerDemand.isEmpty() || powerDemand.getValue() == 0.0) && powerMaximum.isVisible()) {
-            attention(powerDemand,"Не заполнено поле Мощность...");
+        if ((powerDemand.isEmpty() || powerDemand.getValue() == 0.0) && powerMaximum.isVisible()) {
+            attention(powerDemand, "Не заполнено поле Мощность...");
         }
-        if((!powerMaximum.isEmpty() || powerMaximum.getValue() != 0.0)
+        if ((!powerMaximum.isEmpty() || powerMaximum.getValue() != 0.0)
                 && powerMaximum.getValue() > this.MaxPower) {
-            attention(powerDemand,"Максимальная мощность превышает допустимую...");
+            attention(powerDemand, "Максимальная мощность превышает допустимую...");
         }
         if(fieldGoto != null) fieldGoto.focus();
         return result;
@@ -803,12 +813,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             }
         }
     }
+
     public void attention(AbstractField field, String message) {
         Notification.show(message, 3000,
                 Notification.Position.BOTTOM_START);
         fieldGoto = fieldGoto == null ? (Focusable) field : fieldGoto;
-        field.getElement().getStyle().set("margin","auto");
-        field.getElement().getStyle().set("padding","auto");
+        field.getElement().getStyle().set("margin","0.1em");
+        field.getElement().getStyle().set("padding","0.1em");
         field.getElement().getStyle().set("border-radius","0.5em");
         field.getElement().getStyle().set("border-width","1px");
         field.getElement().getStyle().set("border-style","dashed");

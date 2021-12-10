@@ -106,7 +106,7 @@ public class ExpirationsLayout extends VerticalLayout {
         selectSafety.setItems(safetyService.findAll());
         selectSafety.setItemLabelGenerator(Safety::getName);
         binderExpiration.forField(selectSafety).bind("safety");
-        columnSafety.setEditorComponent(selectSafety);
+        //columnSafety.setEditorComponent(selectSafety);
 
         addButton = new Button("Добавить этап");
 
@@ -126,9 +126,18 @@ public class ExpirationsLayout extends VerticalLayout {
 
         addButton.addClickListener(event -> {
             expirationGrid.getElement().getStyle().set("border-width","0px");
-            expirationsDataProvider.getItems().add(new Expiration("",
+            Expiration expiration = new Expiration("",
                     "","",powerMax,
-                    safetyService.findById(3L).get()));
+                    safetyService.findById(3L).get());
+            if(formParent.safety.isVisible()){
+                expiration.setSafety(formParent.safety.getValue());
+            }
+            if(formParent.accordionPoints.isVisible()){
+                if(formParent.points != null && formParent.points.size() > 0){
+                    expiration.setSafety(formParent.points.get(0).getSafety());
+                }
+            }
+            expirationsDataProvider.getItems().add(expiration);
             expirationsDataProvider.refreshAll();
             expirationGrid.select(expirations.get(expirations.size() - 1));
             editorExpiration.editItem(expirations.get(expirations.size() - 1));
@@ -201,6 +210,9 @@ public class ExpirationsLayout extends VerticalLayout {
 
     private void attention(TextField field){
         field.focus();
+        field.getElement().getStyle().set("margin","0.1em");
+        field.getElement().getStyle().set("padding","0.1em");
+        field.getElement().getStyle().set("border-radius","0.5em");
         field.getElement().getStyle().set("border-width","1px");
         field.getElement().getStyle().set("border-style","dashed");
         field.getElement().getStyle().set("border-color","red");

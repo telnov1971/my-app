@@ -48,6 +48,7 @@ public class PointsLayout extends VerticalLayout {
         this.historyService = historyService;
         pointGrid.setHeightByRows(true);
         points = new ArrayList<>();
+        formParent.points = points;
         Label helpers = new Label("распределение по точкам присоединения (ВНИМАНИЕ: после сохранения точки не удаляются, " +
                 "можно только редактировать)");
 
@@ -149,6 +150,11 @@ public class PointsLayout extends VerticalLayout {
         removeButton.setEnabled(false);
 
         addButton.addClickListener(event -> {
+            if(formParent.reason.getValue() == null) {
+                formParent.attention(formParent.reason,"Необходимо выбрать причину обращения");
+                formParent.reason.focus();
+                return;
+            }
             if(formParent.reason.getValue().getId() == 1) {
                 fieldPowerCurrent.setValue(0.0);
                 fieldPowerCurrent.setReadOnly(true);
@@ -282,6 +288,9 @@ public class PointsLayout extends VerticalLayout {
 
     private void attention(NumberField field){
         field.focus();
+        field.getElement().getStyle().set("margin","0.1em");
+        field.getElement().getStyle().set("padding","0.1em");
+        field.getElement().getStyle().set("border-radius","0.5em");
         field.getElement().getStyle().set("border-width","1px");
         field.getElement().getStyle().set("border-style","dashed");
         field.getElement().getStyle().set("border-color","red");
