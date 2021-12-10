@@ -25,6 +25,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.validation.constraints.NotNull;
@@ -368,7 +369,31 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
     protected void settingTemporalReasons(){}
 
-    protected void settingTemporalDemander(){}
+    protected void settingTemporalDemander() {
+        switch (typeDemander.getValue()) {
+            case "Физическое лицо":
+                inn.setVisible(false);
+                innDate.setVisible(false);
+                passportSerries.setVisible(true);
+                passportNumber.setVisible(true);
+                pasportIssued.setVisible(true);
+                break;
+            case "Юридическое лицо":
+                inn.setVisible(true);
+                innDate.setVisible(true);
+                passportSerries.setVisible(false);
+                passportNumber.setVisible(false);
+                pasportIssued.setVisible(false);
+                break;
+            case "Индивидуальный предприниматель":
+                inn.setVisible(true);
+                innDate.setVisible(true);
+                passportSerries.setVisible(true);
+                passportNumber.setVisible(true);
+                pasportIssued.setVisible(true);
+                break;
+        }
+    }
 
     protected void deselect(AbstractField field){
         if(!field.isEmpty()) {
@@ -598,17 +623,25 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         if(contact.isEmpty() && contact.isVisible()) {
             attention(contact,"Не заполнено поле Контактный телефон");
         }
-        if(passportSerries.isEmpty() && passportSerries.isVisible()) {
+        if(passportSerries.isEmpty() &&
+                passportSerries.isVisible() &&
+                !typeDemander.getValue().equals("Индивидуальный предприниматель")) {
             attention(passportSerries,"Не заполнено поле Паспорт серия");
         }
-        if(!passportSerries.isEmpty() && passportSerries.isVisible()) {
+        if(!passportSerries.isEmpty() &&
+                passportSerries.isVisible() &&
+                !typeDemander.getValue().equals("Индивидуальный предприниматель")) {
             if(passportSerries.getValue().length() != 4)
                 attention(passportSerries,"Поле Паспорт серия должно содержать 4 цифры");
         }
-        if(passportNumber.isEmpty() && passportNumber.isVisible()) {
+        if(passportNumber.isEmpty() &&
+                passportNumber.isVisible() &&
+                !typeDemander.getValue().equals("Индивидуальный предприниматель")) {
             attention(passportNumber,"Не заполнено поле Паспорт номер");
         }
-        if(!passportNumber.isEmpty() && passportNumber.isVisible()) {
+        if(!passportNumber.isEmpty() &&
+                passportNumber.isVisible() &&
+                !typeDemander.getValue().equals("Индивидуальный предприниматель")) {
             if(passportNumber.getValue().length() != 6)
                 attention(passportNumber,"Поле Паспорт номер  должно содержать 6 цифр");
         }
@@ -637,6 +670,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
         if(specification.isEmpty() && (demandType.getValue().getId().equals(DemandType.TO150))) {
             attention(specification,"Не заполнено поле Характер нагрузки}");
+        }
+        if((powerCurrent.isEmpty() || powerCurrent.getValue() == 0.0) &&
+                powerMaximum.isVisible() && (reason.getValue().getId() == 2L)) {
+            attention(powerCurrent,"При увеличении мощности нужно указать ранее присоединённую...");
         }
         if((powerDemand.isEmpty() || powerDemand.getValue() == 0.0) && powerMaximum.isVisible()) {
             attention(powerDemand,"Не заполнено поле Мощность...");
@@ -770,6 +807,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         Notification.show(message, 3000,
                 Notification.Position.BOTTOM_START);
         fieldGoto = fieldGoto == null ? (Focusable) field : fieldGoto;
+        field.getElement().getStyle().set("margin","auto");
+        field.getElement().getStyle().set("padding","auto");
+        field.getElement().getStyle().set("border-radius","0.5em");
         field.getElement().getStyle().set("border-width","1px");
         field.getElement().getStyle().set("border-style","dashed");
         field.getElement().getStyle().set("border-color","red");

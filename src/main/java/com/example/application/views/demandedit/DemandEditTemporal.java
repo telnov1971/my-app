@@ -106,32 +106,4 @@ public class DemandEditTemporal extends GeneralForm {
             period.setHelperText("Для передвижных объектов срок подключения не должен превышать 12 месяцев");
         }
     }
-
-    @Override
-    protected void settingTemporalDemander(){
-        // "Физическое лицо", "Юридическое лицо", "Индивидуальный предприниматель"
-        switch(typeDemander.getValue()){
-            case "Физическое лицо":
-                inn.setVisible(false);
-                innDate.setVisible(false);
-                passportSerries.setVisible(true);
-                passportNumber.setVisible(true);
-                pasportIssued.setVisible(true);
-                break;
-            case "Юридическое лицо":
-                inn.setVisible(true);
-                innDate.setVisible(true);
-                passportSerries.setVisible(false);
-                passportNumber.setVisible(false);
-                pasportIssued.setVisible(false);
-                break;
-            case "Индивидуальный предприниматель":
-                inn.setVisible(true);
-                innDate.setVisible(true);
-                passportSerries.setVisible(true);
-                passportNumber.setVisible(true);
-                pasportIssued.setVisible(true);
-                break;
-        }
-    }
 }

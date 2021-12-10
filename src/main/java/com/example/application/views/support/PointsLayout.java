@@ -91,7 +91,7 @@ public class PointsLayout extends VerticalLayout {
         fieldPowerDemand.setMin(0);
         fieldPowerDemand.addValueChangeListener(e -> {
             if(!fieldPowerDemand.isEmpty())
-                fieldPowerDemand.getElement().getStyle().set("border-width","0px");
+                formParent.deselect(fieldPowerDemand);
         });
         binderPoints.forField(fieldPowerDemand).bind("powerDemand");
         columnPowerDemand.setEditorComponent(fieldPowerDemand);
@@ -101,6 +101,10 @@ public class PointsLayout extends VerticalLayout {
         fieldPowerCurrent.setMin(0);
         binderPoints.forField(fieldPowerCurrent).bind("powerCurrent");
         columnPowerCurrent.setEditorComponent(fieldPowerCurrent);
+        fieldPowerCurrent.addValueChangeListener(e -> {
+            if(!fieldPowerCurrent.isEmpty())
+                formParent.deselect(fieldPowerCurrent);
+        });
 
         Select<Safety> selectSafety = new Select<>();
         selectSafety.setItems(safetyService.findAll());
@@ -198,6 +202,13 @@ public class PointsLayout extends VerticalLayout {
         editorPoints.addCloseListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
         Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> {
+            if(fieldPowerCurrent.getValue() == 0.0 &&
+                    (formParent.reason.getValue().getId() == 2L ||
+                            formParent.reason.getValue().getId() == 7L ||
+                            formParent.reason.getValue().getId() == 8L)) {
+                attention(fieldPowerCurrent);
+                return;
+            }
             if(fieldPowerDemand.getValue() == 0.0) {
                 attention(fieldPowerDemand);
                 return;

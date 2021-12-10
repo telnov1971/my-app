@@ -58,8 +58,7 @@ public class DemandEditeGeneral extends GeneralForm {
 
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService, this);
 
-        Component[] fields = {inn, innDate,
-                passportSerries,passportNumber,pasportIssued,
+        Component[] fields = {typeDemander,
                 addressRegistration,addressActual,addressEquals,
                 accordionPoints, specification, countTransformations,
                 countGenerations, techminGeneration, reservation, accordionExpiration};

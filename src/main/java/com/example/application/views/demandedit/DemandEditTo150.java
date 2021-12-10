@@ -49,7 +49,8 @@ public class DemandEditTo150 extends GeneralForm {
 
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService, this);
 
-        Component[] fields = {delegate, inn, innDate, powerDemand, powerCurrent,
+        typeDemander.setItems("Юридическое лицо", "Индивидуальный предприниматель");
+        Component[] fields = {delegate, typeDemander, inn, innDate, powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, specification, plan, accordionExpiration};
         for(Component field : fields){
             field.setVisible(true);
@@ -123,5 +124,22 @@ public class DemandEditTo150 extends GeneralForm {
             return false;
         }
         return true;
+    }
+
+    @Override
+    protected void settingTemporalDemander(){
+        // "Физическое лицо", "Юридическое лицо", "Индивидуальный предприниматель"
+        switch(typeDemander.getValue()){
+            case "Юридическое лицо":
+                passportSerries.setVisible(false);
+                passportNumber.setVisible(false);
+                pasportIssued.setVisible(false);
+                break;
+            case "Индивидуальный предприниматель":
+                passportSerries.setVisible(true);
+                passportNumber.setVisible(true);
+                pasportIssued.setVisible(true);
+                break;
+        }
     }
 }
