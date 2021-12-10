@@ -75,9 +75,7 @@ public class Profile extends Div implements BeforeEnterObserver {
         fio.addValueChangeListener(e -> saveButtonActive());
         contact.addValueChangeListener(e -> saveButtonActive());
 
-        saveButton.addClickListener(event -> {
-            registration();
-        });
+        saveButton.addClickListener(event -> registration());
 
         Button reset = new Button("Отменить");
         reset.addClickListener(event -> {

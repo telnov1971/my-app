@@ -700,15 +700,18 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         editExp += edEx;
         if(editPnt > 0 && editExp <= 0) {
             save.setEnabled(false);
-            attentionLabel.setText("Вы не сохранили точки подключения");
+            attentionLabel.setText("Вы не сохранили точки подключения. " +
+                    "Нажмите СОХРАНИТЬ в таблице точек подлючения");
         }
         if(editExp > 0 && editPnt <=0 ) {
             save.setEnabled(false);
-            attentionLabel.setText("Вы не сохранили этапы работ");
+            attentionLabel.setText("Вы не сохранили этапы работ. " +
+                    "Нажмите СОХРАНИТЬ в таблице этапов");
         }
         if(editPnt > 0 && editExp > 0) {
             save.setEnabled(false);
-            attentionLabel.setText("Вы не сохранили этапы работ и точки подлючения");
+            attentionLabel.setText("Вы не сохранили этапы работ и точки подлючения. " +
+                    "Нажмите СОХРАНИТЬ в таблице этапов и таблице точек подлючения");
         }
         if(editPnt <= 0 && editExp <= 0) {
             save.setEnabled(true);

@@ -170,6 +170,7 @@ public class ExpirationsLayout extends VerticalLayout {
             editorExpiration.save();
             addButton.setEnabled(true);
         });
+        save.setText("СОХРАНИТЬ");
         save.addClassName("save");
         Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> {
             editorExpiration.cancel();
@@ -181,6 +182,7 @@ public class ExpirationsLayout extends VerticalLayout {
             expirationsDataProvider.refreshAll();
             formParent.saveMode(-1,0);
         });
+        cancel.setText("ОТМЕНИТЬ");
         cancel.addClassName("cancel");
         Div divSave = new Div(save);
         Div divCancel = new Div(cancel);

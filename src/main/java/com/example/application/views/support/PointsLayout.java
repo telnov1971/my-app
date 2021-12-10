@@ -115,11 +115,18 @@ public class PointsLayout extends VerticalLayout {
         columnVoltage.setEditorComponent(selectVoltage);
 
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
-        Grid.Column<Point> editorColumn = pointGrid.addComponentColumn(points -> {
+        Grid.Column<Point> editorColumn = pointGrid.addComponentColumn(point -> {
             Button edit = new Button(new Icon(VaadinIcon.EDIT));
             edit.addClassName("edit");
             edit.addClickListener(e -> {
-                editorPoints.editItem(points);
+                if(point.getNumber() == 1) {
+                    selectSafety.setReadOnly(false);
+                    selectVoltage.setReadOnly(false);
+                } else {
+                    selectSafety.setReadOnly(true);
+                    selectVoltage.setReadOnly(true);
+                }
+                editorPoints.editItem(point);
                 fieldPowerDemand.focus();
             });
             edit.setEnabled(!editorPoints.isOpen());
@@ -136,12 +143,23 @@ public class PointsLayout extends VerticalLayout {
             for (Point p : points) {
                 maxNumber = p.getNumber() > maxNumber ? p.getNumber() : maxNumber;
             }
-            pointDataProvider.getItems().add(new Point(++maxNumber, 0.0,
-                    0.0,
-                    this.voltageService.findById(1L).get(),
-                    null,
-                    this.safetyService.findById(3L).get()
-            ));
+            if(points.size() >= 1) {
+                pointDataProvider.getItems().add(new Point(++maxNumber, 0.0,
+                        0.0,
+                        points.get(0).getVoltage(),
+                        null,
+                        points.get(0).getSafety()
+                ));
+                selectSafety.setReadOnly(true);
+                selectVoltage.setReadOnly(true);
+            } else {
+                pointDataProvider.getItems().add(new Point(++maxNumber, 0.0,
+                        0.0,
+                        this.voltageService.findById(1L).get(),
+                        null,
+                        this.safetyService.findById(3L).get()
+                ));
+            }
             pointDataProvider.refreshAll();
             pointGrid.select(points.get(points.size()-1));
             editorPoints.editItem(points.get(points.size()-1));
@@ -173,10 +191,18 @@ public class PointsLayout extends VerticalLayout {
                 return;
             }
             editorPoints.save();
+            for(int i = 1; i < points.size(); i++) {
+                Point p = points.get(i);
+                p.setVoltage(points.get(0).getVoltage());
+                p.setSafety(points.get(0).getSafety());
+                points.set(i,p);
+            }
             addButton.setEnabled(true);
             pointGrid.getElement().getStyle().set("border-width","0px");
             formParent.saveMode(0,-1);
+            pointDataProvider.refreshAll();
         });
+        save.setText("СОХРАНИТЬ");
         save.addClassName("save");
         Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> {
             if(fieldPowerDemand.getValue() == 0.0) {
@@ -187,16 +213,20 @@ public class PointsLayout extends VerticalLayout {
             addButton.setEnabled(true);
             formParent.saveMode(0,-1);
         });
+        cancel.setText("ОТМЕНИТЬ");
         cancel.addClassName("cancel");
         Div divSave = new Div(save);
         Div divCancel = new Div(cancel);
         Div buttons = new Div(divSave, divCancel);
         editorColumn.setEditorComponent(buttons);
 
-
         HorizontalLayout pointsButtonLayout = new HorizontalLayout();
         pointsButtonLayout.add(addButton,removeButton);
-        add(helpers,pointGrid, pointsButtonLayout);
+        Label helpersRow = new Label("Категорию надёжности и уровень напряжения нужно " +
+                "указать только для первой точки подключения");
+        helpersRow.getElement().getStyle().set("font-size","0.7em");
+        helpersRow.getElement().getStyle().set("font-style","italic");
+        add(helpers,pointGrid,helpersRow,pointsButtonLayout);
     }
 
     public void pointAdd(Point point) {
