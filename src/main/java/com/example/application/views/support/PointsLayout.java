@@ -27,6 +27,7 @@ public class PointsLayout extends VerticalLayout {
     private final Grid<Point> pointGrid = new Grid<>(Point.class, false);
     private ListDataProvider<Point> pointDataProvider;
     private final Editor<Point> editorPoints;
+    private final GeneralForm formParent;
 
     private final Button addButton;
     private final Button removeButton;
@@ -46,9 +47,11 @@ public class PointsLayout extends VerticalLayout {
         this.voltageService = voltageService;
         this.safetyService = safetyService;
         this.historyService = historyService;
+        this.formParent = formParent;
         pointGrid.setHeightByRows(true);
         points = new ArrayList<>();
         formParent.points = points;
+        formParent.pointsLayout = this;
         Label helpers = new Label("распределение по точкам присоединения (ВНИМАНИЕ: после сохранения точки не удаляются, " +
                 "можно только редактировать)");
 
@@ -266,6 +269,7 @@ public class PointsLayout extends VerticalLayout {
 
     public void findAllByDemand(Demand demand) {
         points = pointService.findAllByDemand(demand);
+        formParent.points = points;
         count = points.size();
         if(count > 1) Collections.sort(points);
         pointGrid.setItems(points);
@@ -303,6 +307,7 @@ public class PointsLayout extends VerticalLayout {
         pointGrid.getElement().getStyle().set("border-width","3px");
         pointGrid.getElement().getStyle().set("border-style","dotted");
         pointGrid.getElement().getStyle().set("border-color","red");
+        pointGrid.focus();
         addButton.focus();
     }
 }

@@ -6,6 +6,7 @@ import com.example.application.data.entity.Safety;
 import com.example.application.data.service.ExpirationService;
 import com.example.application.data.service.HistoryService;
 import com.example.application.data.service.SafetyService;
+import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
@@ -13,6 +14,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -23,6 +25,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import java.util.*;
 
 public class ExpirationsLayout extends VerticalLayout {
+    private GeneralForm formParent;
     private Demand demand;
     private List<Expiration> expirations;
     private final Grid<Expiration> expirationGrid = new Grid<>(Expiration.class, false);
@@ -46,6 +49,7 @@ public class ExpirationsLayout extends VerticalLayout {
             , HistoryService historyService, GeneralForm formParent) {
         this.expirationService = expirationService;
         this.historyService = historyService;
+        this.formParent = formParent;
         expirationGrid.setHeightByRows(true);
         expirations = new ArrayList<>();
         Label helpers = new Label("Сроки проектирования и поэтапного введения в эксплуатацию объекта"+
@@ -135,6 +139,12 @@ public class ExpirationsLayout extends VerticalLayout {
             if(formParent.accordionPoints.isVisible()){
                 if(formParent.points != null && formParent.points.size() > 0){
                     expiration.setSafety(formParent.points.get(0).getSafety());
+                } else {
+                    Notification.show("Нужно заполнить точки подключения", 3000,
+                            Notification.Position.BOTTOM_START);
+                    if(formParent.pointsLayout != null)
+                        formParent.pointsLayout.setFocus();
+                    return;
                 }
             }
             expirationsDataProvider.getItems().add(expiration);
@@ -232,11 +242,18 @@ public class ExpirationsLayout extends VerticalLayout {
     }
 
     public void saveExpirations() {
+        Safety safety = null;
+        if(formParent.pointsLayout != null) {
+            if(formParent.points.size() > 0) {
+                safety = formParent.points.get(0).getSafety();
+            }
+        }
         for(Expiration expiration : expirations) {
             if(expiration.getStep().isEmpty()||
                 expiration.getPlanProject().isEmpty()||
                 expiration.getPlanUsage().isEmpty()) continue;
             expiration.setDemand(demand);
+            if(safety != null) expiration.setSafety(safety);
             historyService.saveHistory(demand, expiration, Expiration.class);
             expirationService.update(expiration);
         }

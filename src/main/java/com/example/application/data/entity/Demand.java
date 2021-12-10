@@ -28,6 +28,9 @@ public class Demand extends AbstractEntity {
     private String demander;
     // представитель
     private String delegate;
+    //
+    @Column(name = "type_demander")
+    private String typeDemander;
     // паспорт серия
     @Column(name = "pas_ser")
 //    @Size(min=4,max=4,message="Серия паспорта состоит из 4 цифр")
@@ -309,5 +312,11 @@ public class Demand extends AbstractEntity {
     }
     public void setGarantText(String garantText) {
         this.garantText = garantText;
+    }
+    public String getTypeDemander() {/**/
+        return typeDemander;
+    }
+    public void setTypeDemander(String typeDemander) {
+        this.typeDemander = typeDemander;
     }
 }

@@ -12,7 +12,6 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -26,7 +25,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.validation.constraints.NotNull;
@@ -34,10 +32,10 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected Boolean result = true;
@@ -87,6 +85,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected TextArea specification;
 
     protected Accordion accordionPoints = new Accordion();
+    protected PointsLayout pointsLayout;
     protected Accordion accordionExpiration = new Accordion();
     protected Point point = new Point();
     protected Binder<Point> pointBinder = new Binder<>(Point.class);
@@ -418,7 +417,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         });
         demander.addValueChangeListener(e -> deselect(demander));
         contact.addValueChangeListener(e -> deselect(contact));
-        typeDemander.addValueChangeListener(e -> settingTemporalDemander());
+        typeDemander.addValueChangeListener(e -> {
+            deselect(typeDemander);
+            settingTemporalDemander();
+        });
         inn.addValueChangeListener(e -> {
             int length = inn.getValue().length();
             if((length < 10) || (length > 13)) {
@@ -594,6 +596,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             }
             return false;
         }
+        if(typeDemander.isVisible()){
+            if(typeDemander.getValue() != null) {
+                demand.setTypeDemander(typeDemander.getValue());
+            }
+        }
         demand.setChange(true);
         demand.setChangeDate(LocalDateTime.now());
         if(binderDemand.writeBeanIfValid(demand)) {
@@ -716,6 +723,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         demandType.setReadOnly(true);
         createdate.setReadOnly(true);
         if(value != null) {
+            if(typeDemander.isVisible()){
+                if(value.getTypeDemander() != null) {
+                    typeDemander.setValue(value.getTypeDemander());
+                }
+            }
             demandId.setValue(demand.getId().toString());
             filesLayout.findAllByDemand(demand);
             notesLayout.findAllByDemand(demand);
