@@ -47,6 +47,8 @@ public class HistoryService extends CrudService<History,Long> {
         }
         temp = createHistory(demand.getDemander(),oldDemand.getDemander());
         history = history + (!temp.equals("") ? "Заявитель: " + temp + "\n": "");
+        temp = createHistory(demand.getTypeDemander(),oldDemand.getTypeDemander());
+        history = history + (!temp.equals("") ? "Тип заявителя: " + temp + "\n": "");
         temp = createHistory(demand.getPassportSerries(),oldDemand.getPassportSerries());
         history = history + (!temp.equals("") ? "Паспорт серия: " + temp + "\n" : "");
         temp = createHistory(demand.getPassportNumber(),oldDemand.getPassportNumber());

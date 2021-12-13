@@ -6,7 +6,6 @@ import com.example.application.data.entity.Safety;
 import com.example.application.data.service.ExpirationService;
 import com.example.application.data.service.HistoryService;
 import com.example.application.data.service.SafetyService;
-import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
@@ -25,7 +24,6 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import java.util.*;
 
 public class ExpirationsLayout extends VerticalLayout {
-    private GeneralForm formParent;
     private Demand demand;
     private List<Expiration> expirations;
     private final Grid<Expiration> expirationGrid = new Grid<>(Expiration.class, false);
@@ -49,7 +47,6 @@ public class ExpirationsLayout extends VerticalLayout {
             , HistoryService historyService, GeneralForm formParent) {
         this.expirationService = expirationService;
         this.historyService = historyService;
-        this.formParent = formParent;
         formParent.expirationsLayout = this;
         expirationGrid.setHeightByRows(true);
         expirations = new ArrayList<>();
@@ -74,10 +71,9 @@ public class ExpirationsLayout extends VerticalLayout {
                 expirationGrid.addColumn(Expiration::getPowerMax).
                         setAutoWidth(true).
                         setHeader("Макс.мощность");
-        Grid.Column<Expiration> columnSafety =
-                expirationGrid.addColumn(expiration -> expiration.getSafety().getName())
-                        .setAutoWidth(true)
-                        .setHeader("Кат. надёж.");
+        expirationGrid.addColumn(expiration -> expiration.getSafety().getName())
+                .setAutoWidth(true)
+                .setHeader("Кат. надёж.");
         expirationGrid.setItems(expirations);
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
 
@@ -231,18 +227,11 @@ public class ExpirationsLayout extends VerticalLayout {
     }
 
     public void saveExpirations() {
-//        Safety safety = null;
-//        if(formParent.pointsLayout != null) {
-//            if(formParent.points.size() > 0) {
-//                safety = formParent.points.get(0).getSafety();
-//            }
-//        }
         for(Expiration expiration : expirations) {
             if(expiration.getStep().isEmpty()||
                 expiration.getPlanProject().isEmpty()||
                 expiration.getPlanUsage().isEmpty()) continue;
             expiration.setDemand(demand);
-//            if(safety != null) expiration.setSafety(safety);
             historyService.saveHistory(demand, expiration, Expiration.class);
             expirationService.update(expiration);
         }

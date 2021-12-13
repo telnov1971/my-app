@@ -101,10 +101,6 @@ public class DemandEditTo150 extends GeneralForm {
         expirationsLayout.setDemand(demand);
         expirationsLayout.saveExpirations();
 
-//        filesLayout.setDemand(demand);
-//        filesLayout.saveFiles();
-//        notesLayout.setDemand(demand);
-//        notesLayout.saveNotes();
         return true;
     }
 

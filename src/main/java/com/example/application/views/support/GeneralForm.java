@@ -23,8 +23,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
-import com.vaadin.flow.dom.Element;
-import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.internal.Pair;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -41,7 +39,7 @@ import java.util.stream.Collectors;
 
 
 public abstract class GeneralForm extends Div implements BeforeEnterObserver {
-    protected Pair<Focusable, Boolean> alertHere = new Pair<Focusable, Boolean>(null,true);
+    protected Pair<Focusable, Boolean> alertHere = new Pair<>(null, true);
 
     protected final String DEMAND_ID = "demandID";
     protected DecimalFormat decimalFormat;
@@ -248,13 +246,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             period = new TextArea("Срок подключения по временной схеме");
             contract = new TextField("Реквизиты договора");
             contract.setHelperText("(реквизиты договора на технологическое присоединение)");
-//            contract.getElement().setAttribute("title","реквизиты договора на технологическое присоединение");
             garantText = new TextField("Наименование гарантирующего поставщика (обязательное) *");
             garantText.addClassName("v-captiontext");
             garantText.addClassName("v-required-field-indicator");
-//            .v-caption {}
-//  .v-captiontext {}
-//  .v-required-field-indicator {}
         }
 
         // создание селекторов
@@ -297,31 +291,15 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         // настройка проверки значений полей
         {
             binderDemand.forField(inn)
-//                    .withValidator(
-//                            new StringLengthValidator(
-//                                    "ИНН должен содержать от 10 до 13 знаков",
-//                                    10, 13))
                     .bind(Demand::getInn, Demand::setInn);
 
             pointBinder.forField(powerDemand)
-//                    .withValidator(
-//                            new DoubleRangeValidator(
-//                                    "Мощность не может быть отрицательной",
-//                                    0.0, null))
                     .bind(Point::getPowerDemand, Point::setPowerDemand);
 
             pointBinder.forField(powerCurrent)
-//                    .withValidator(
-//                            new DoubleRangeValidator(
-//                                    "Мощность не может быть отрицательной",
-//                                    0.0, null))
                     .bind(Point::getPowerCurrent, Point::setPowerCurrent);
 
             pointBinder.forField(powerMaximum)
-//                    .withValidator(
-//                            new DoubleRangeValidator(
-//                                    "Мощность не может быть отрицательной",
-//                                    0.0, null))
                     .bind(Point::getPowerMaximum, null);
         }
 
@@ -426,9 +404,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                         ,alertHere.getFirst());
                 if(inn != null) inn.focus();
             } else {
-                inn.getElement().getStyle().set("border-width", "0px");
+                ViewHelper.deselect(inn);
             }
-            ViewHelper.deselect(inn);
         });
         passportSerries.addValueChangeListener(e->{
             if(passportSerries.getValue().length() != 4) {
@@ -490,38 +467,17 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     private void setWidthFormDemand() {
-        formDemand.setColspan(demandId,1);
-        formDemand.setColspan(createdate, 1);
-        formDemand.setColspan(demandType, 1);
-        formDemand.setColspan(status, 1);
-        formDemand.setColspan(demander, 4);
-        formDemand.setColspan(delegate, 4);
-        formDemand.setColspan(contact, 1);
-        formDemand.setColspan(accordionDemander, 4);
-        formDemand.setColspan(reason, 4);
-        formDemand.setColspan(object, 4);
-        formDemand.setColspan(address, 4);
-        formDemand.setColspan(specification, 4);
-
-        formDemand.setColspan(countPoints, 1);
-        formDemand.setColspan(accordionPoints, 4);
-        formDemand.setColspan(powerDemand, 1);
-        formDemand.setColspan(powerCurrent, 1);
-        formDemand.setColspan(powerMaximum, 1);
-        formDemand.setColspan(voltage, 1);
-        formDemand.setColspan(safety, 1);
-
-        formDemand.setColspan(countTransformations, 4);
-        formDemand.setColspan(countGenerations, 4);
-        formDemand.setColspan(techminGeneration, 4);
-        formDemand.setColspan(reservation, 4);
-        formDemand.setColspan(period, 4);
-        formDemand.setColspan(contract, 4);
-        formDemand.setColspan(accordionExpiration, 4);
-        formDemand.setColspan(garant, 1);
-        formDemand.setColspan(plan, 1);
-        formDemand.setColspan(accordionHistory,4);
-        formDemand.setColspan(garantText,4);
+        Component[] oneColumn = {demandId,createdate,demandType,status,contact,countPoints,powerDemand
+                ,powerCurrent,powerMaximum,voltage,safety,garant,plan};
+        for (Component component : oneColumn) {
+            formDemand.setColspan(component,1);
+        }
+        Component[] fourColumn = {demander,delegate,accordionDemander,reason,object,address,specification
+                ,accordionPoints,countTransformations,countGenerations,techminGeneration,reservation
+                ,period,contract,accordionExpiration,accordionHistory,garantText};
+        for (Component component : fourColumn) {
+            formDemand.setColspan(component,4);
+        }
     }
 
     private void setWidthFormDemander() {

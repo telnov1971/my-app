@@ -5,7 +5,6 @@ import com.example.application.data.service.HistoryService;
 import com.example.application.data.service.PointService;
 import com.example.application.data.service.SafetyService;
 import com.example.application.data.service.VoltageService;
-import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
@@ -19,7 +18,6 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.internal.Pair;
 
 import java.util.*;
 
@@ -196,7 +194,6 @@ public class PointsLayout extends VerticalLayout {
             removeButton.setEnabled(true);
             fieldPowerDemand.focus();
             formParent.saveMode(0,1);
-            //pointGrid.getDataProvider().refreshAll();
         });
 
         removeButton.addClickListener(event -> {
@@ -264,12 +261,6 @@ public class PointsLayout extends VerticalLayout {
         helpersRow.getElement().getStyle().set("font-size","0.8em");
         helpersRow.getElement().getStyle().set("font-style","italic");
         add(helpers,pointGrid,helpersRow,pointsButtonLayout);
-    }
-
-    public void pointAdd(Point point) {
-        points.add(point);
-        pointGrid.setItems(points);
-        pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
     }
 
     public void findAllByDemand(Demand demand) {

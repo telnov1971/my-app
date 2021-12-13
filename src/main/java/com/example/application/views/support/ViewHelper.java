@@ -32,7 +32,7 @@ public class ViewHelper {
         Notification.show(message, 3000,
                 Notification.Position.BOTTOM_START);
         Focusable toField = fieldGoto == null ? (Focusable) field : fieldGoto;
-        Pair<Focusable,Boolean> result = new Pair<Focusable,Boolean>(toField,false);
+        Pair<Focusable,Boolean> result = new Pair<>(toField,false);
         alert(field.getElement());
         return result;
     }
