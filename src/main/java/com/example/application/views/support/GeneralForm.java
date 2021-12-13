@@ -25,6 +25,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.Style;
+import com.vaadin.flow.internal.Pair;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,8 +41,7 @@ import java.util.stream.Collectors;
 
 
 public abstract class GeneralForm extends Div implements BeforeEnterObserver {
-    protected Boolean result = true;
-    protected Focusable fieldGoto = null;
+    protected Pair<Focusable, Boolean> alertHere = new Pair<Focusable, Boolean>(null,true);
 
     protected final String DEMAND_ID = "demandID";
     protected DecimalFormat decimalFormat;
@@ -427,7 +427,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         inn.addValueChangeListener(e -> {
             int length = inn.getValue().length();
             if((length < 10) || (length > 13)) {
-                attention(inn,"Поле Реквизиты заявителя дожно содержать от 10 до 13 цифр");
+                alertHere = ViewHelper.attention(inn,
+                        "Поле Реквизиты заявителя дожно содержать от 10 до 13 цифр"
+                        ,alertHere.getFirst());
                 if(inn != null) inn.focus();
             } else {
                 inn.getElement().getStyle().set("border-width", "0px");
@@ -436,7 +438,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         });
         passportSerries.addValueChangeListener(e->{
             if(passportSerries.getValue().length() != 4) {
-                attention(passportSerries, "Поле Паспорт серия должно содержать 4 цифры");
+                alertHere = ViewHelper.attention(passportSerries
+                        , "Поле Паспорт серия должно содержать 4 цифры"
+                        ,alertHere.getFirst());
                 if(passportSerries != null) passportSerries.focus();
             } else {
                 passportSerries.getElement().getStyle().set("border-width", "0px");
@@ -445,7 +449,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         });
         passportNumber.addValueChangeListener(e->{
             if(passportNumber.getValue().length() != 6) {
-                attention(passportNumber,"Поле Паспорт номер  должно содержать 6 цифр");
+                alertHere = ViewHelper.attention(passportNumber
+                        ,"Поле Паспорт номер  должно содержать 6 цифр"
+                        ,alertHere.getFirst());
                 if(passportNumber != null) passportNumber.focus();
             } else {
                 passportNumber.getElement().getStyle().set("border-width", "0px");
@@ -629,16 +635,15 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     protected Boolean verifyField() {
-        fieldGoto = null;
-        result = true;
+        alertHere = new Pair<Focusable, Boolean>(null,true);
         if(demander.isEmpty()) {
-            attention(demander, "Не заполнено поле Заявитель");
+            alertHere = ViewHelper.attention(demander,"Не заполнено поле Заявитель",alertHere.getFirst());
         }
         if(contact.isEmpty() && contact.isVisible()) {
-            attention(contact,"Не заполнено поле Контактный телефон");
+            alertHere = ViewHelper.attention(contact,"Не заполнено поле Контактный телефон",alertHere.getFirst());
         }
         if(typeDemander.isVisible() && typeDemander.getValue() == null) {
-            attention(typeDemander,"Не заполнено поле Тип заявителя");
+            alertHere = ViewHelper.attention(typeDemander,"Не заполнено поле Тип заявителя",alertHere.getFirst());
         }
         if(!typeDemander.isVisible() ||
                 (typeDemander.getValue() != null &&
@@ -646,68 +651,75 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             if (passportSerries.isEmpty() &&
                     passportSerries.isVisible()
                     ) {
-                attention(passportSerries, "Не заполнено поле Паспорт серия");
+                alertHere = ViewHelper.attention(passportSerries, "Не заполнено поле Паспорт серия",alertHere.getFirst());
             }
             if (!passportSerries.isEmpty() &&
                     passportSerries.isVisible()) {
                 if (passportSerries.getValue().length() != 4)
-                    attention(passportSerries, "Поле Паспорт серия должно содержать 4 цифры");
+                    alertHere = ViewHelper.attention(passportSerries
+                            ,"Поле Паспорт серия должно содержать 4 цифры",alertHere.getFirst());
             }
             if (passportNumber.isEmpty() &&
                     passportNumber.isVisible()) {
-                attention(passportNumber, "Не заполнено поле Паспорт номер");
+                alertHere = ViewHelper.attention(passportNumber, "Не заполнено поле Паспорт номер",alertHere.getFirst());
             }
             if (!passportNumber.isEmpty() &&
                     passportNumber.isVisible()) {
                 if (passportNumber.getValue().length() != 6)
-                    attention(passportNumber, "Поле Паспорт номер  должно содержать 6 цифр");
+                    alertHere = ViewHelper.attention(passportNumber
+                            ,"Поле Паспорт номер  должно содержать 6 цифр",alertHere.getFirst());
             }
         }
         if(inn.isEmpty() && inn.isVisible()) {
-            attention(inn,"Не заполнено поле Реквизиты заявителя");
+            alertHere = ViewHelper.attention(inn,"Не заполнено поле Реквизиты заявителя",alertHere.getFirst());
         }
         if(!inn.isEmpty() && inn.isVisible()) {
             int length = inn.getValue().length();
             if((length < 10) || (length > 13))
-                attention(inn,"Поле Реквизиты заявителя дожно содержать от 10 до 13 цифр");
+                alertHere = ViewHelper.attention(inn
+                        ,"Поле Реквизиты заявителя дожно содержать от 10 до 13 цифр",alertHere.getFirst());
         }
         if(addressRegistration.isEmpty() && addressRegistration.isVisible()) {
-            attention(addressRegistration,"Не заполнено поле Адрес регистрации");
+            alertHere = ViewHelper.attention(addressRegistration
+                    ,"Не заполнено поле Адрес регистрации",alertHere.getFirst());
         }
         if(addressActual.isEmpty() && addressActual.isVisible()) {
-            attention(addressActual,"Не заполнено поле Адрес фактический");
+            alertHere = ViewHelper.attention(addressActual,"Не заполнено поле Адрес фактический",alertHere.getFirst());
         }
         if(reason.getValue() == null) {
-            attention(reason,"Необходимо выбрать причину обращения");
+            alertHere = ViewHelper.attention(reason,"Необходимо выбрать причину обращения",alertHere.getFirst());
         }
         if(object.isEmpty()) {
-            attention(object,"Не заполнено поле Объект");
+            alertHere = ViewHelper.attention(object,"Не заполнено поле Объект",alertHere.getFirst());
         }
         if(address.isEmpty()) {
-            attention(address,"Не заполнено поле Адрес объекта");
+            alertHere = ViewHelper.attention(address,"Не заполнено поле Адрес объекта",alertHere.getFirst());
         }
         if(specification.isEmpty() && (demandType.getValue().getId().equals(DemandType.TO150))) {
-            attention(specification,"Не заполнено поле Характер нагрузки}");
+            alertHere = ViewHelper.attention(specification,"Не заполнено поле Характер нагрузки}",alertHere.getFirst());
         }
         if(reason.getValue() != null) {
             if ((powerCurrent.isEmpty() || powerCurrent.getValue() == 0.0) &&
                     powerMaximum.isVisible() && (reason.getValue().getId() == 2L)) {
-                attention(powerCurrent, "При увеличении мощности нужно указать ранее присоединённую...");
+                alertHere = ViewHelper.attention(powerCurrent
+                        ,"При увеличении мощности нужно указать ранее присоединённую..."
+                        ,alertHere.getFirst());
             }
         }
         if ((powerDemand.isEmpty() || powerDemand.getValue() == 0.0) && powerMaximum.isVisible()) {
-            attention(powerDemand, "Не заполнено поле Мощность...");
+            alertHere = ViewHelper.attention(powerDemand, "Не заполнено поле Мощность...",alertHere.getFirst());
         }
         if ((!powerMaximum.isEmpty() || powerMaximum.getValue() != 0.0)
                 && powerMaximum.getValue() > this.MaxPower) {
-            attention(powerDemand, "Максимальная мощность превышает допустимую...");
+            alertHere = ViewHelper.attention(powerDemand
+                    ,"Максимальная мощность превышает допустимую...",alertHere.getFirst());
         }
-        if(fieldGoto != null) fieldGoto.focus();
-        return result;
+        if(alertHere.getFirst() != null) alertHere.getFirst().focus();
+        return alertHere.getSecond();
     }
 
     protected void setReadOnly(Boolean readOnly) {
-        AbstractField[] fields = {
+         AbstractField[] fields = {
                 demander,delegate,inn,innDate,contact,passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,reason,object,address,specification,
                 countPoints,powerDemand,powerCurrent,powerMaximum,voltage,safety,period,
@@ -827,37 +839,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 clearForm();
             }
         }
-    }
-
-    public void attention(AbstractField field, String message) {
-        Notification.show(message, 3000,
-                Notification.Position.BOTTOM_START);
-        fieldGoto = fieldGoto == null ? (Focusable) field : fieldGoto;
-//        field.getElement().getStyle().set("margin","0.1em");
-//        field.getElement().getStyle().set("padding","0.1em");
-//        field.getElement().getStyle().set("border-radius","0.5em");
-//        field.getElement().getStyle().set("border-width","1px");
-//        field.getElement().getStyle().set("border-style","dashed");
-//        field.getElement().getStyle().set("border-color","red");
-        alert(field.getElement());
-        result = false;
-    }
-
-    public void alert(Element element){
-        Style style = element.getStyle();
-        style.set("margin","0.1em");
-        style.set("padding","0.1em");
-        style.set("border-radius","0.5em");
-        style.set("border-width","1px");
-        style.set("border-style","dashed");
-        style.set("border-color","red");
-    }
-
-    public void noAlert(Element element){
-        Style style = element.getStyle();
-        style.remove("margin");
-        style.remove("padding");
-        style.remove("border");
     }
 }
 

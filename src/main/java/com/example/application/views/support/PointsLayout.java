@@ -5,6 +5,7 @@ import com.example.application.data.service.HistoryService;
 import com.example.application.data.service.PointService;
 import com.example.application.data.service.SafetyService;
 import com.example.application.data.service.VoltageService;
+import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
@@ -18,6 +19,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.internal.Pair;
 
 import java.util.*;
 
@@ -154,7 +156,10 @@ public class PointsLayout extends VerticalLayout {
 
         addButton.addClickListener(event -> {
             if(formParent.reason.getValue() == null) {
-                formParent.attention(formParent.reason,"Необходимо выбрать причину обращения");
+                formParent.alertHere =
+                        ViewHelper.attention(formParent.reason
+                                ,"Необходимо выбрать причину обращения"
+                                ,formParent.alertHere.getFirst());
                 formParent.reason.focus();
                 return;
             }
@@ -230,7 +235,7 @@ public class PointsLayout extends VerticalLayout {
                 points.set(i,p);
             }
             addButton.setEnabled(true);
-            formParent.noAlert(pointGrid.getElement());
+            ViewHelper.noAlert(pointGrid.getElement());
             formParent.expirationsLayout.setNewSafety(points.get(0).getSafety());
             formParent.saveMode(0,-1);
             pointDataProvider.refreshAll();

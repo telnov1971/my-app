@@ -130,7 +130,7 @@ public class ExpirationsLayout extends VerticalLayout {
         }).setAutoWidth(true);
 
         addButton.addClickListener(event -> {
-            formParent.noAlert(expirationGrid.getElement());
+            ViewHelper.noAlert(expirationGrid.getElement());
             Expiration expiration = new Expiration("",
                     "","",powerMax,
                     safetyService.findById(3L).get());
@@ -175,15 +175,15 @@ public class ExpirationsLayout extends VerticalLayout {
                 .forEach(button -> button.setEnabled(!editorExpiration.isOpen())));
         Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> {
             if(fieldStep.isEmpty()){
-                formParent.alert(fieldStep.getElement());
+                ViewHelper.alert(fieldStep.getElement());
                 return;
             }
             if(fieldPlanProject.isEmpty()){
-                formParent.alert(fieldPlanProject.getElement());
+                ViewHelper.alert(fieldPlanProject.getElement());
                 return;
             }
             if(fieldPlanUsage.isEmpty()){
-                formParent.alert(fieldPlanUsage.getElement());
+                ViewHelper.alert(fieldPlanUsage.getElement());
                 return;
             }
             formParent.saveMode(-1,0);
@@ -265,7 +265,7 @@ public class ExpirationsLayout extends VerticalLayout {
     }
 
     public void setFocus() {
-        formParent.alert(expirationGrid.getElement());
+        ViewHelper.alert(expirationGrid.getElement());
         addButton.focus();
     }
 
