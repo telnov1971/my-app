@@ -61,7 +61,8 @@ public class DemandEditTo15 extends GeneralForm {
             field.setVisible(true);
         }
 
-        accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
+        accordionExpiration.add("Этапы выполнения работ (открыть/закрыть по клику мышкой)"
+                ,this.expirationsLayout);
         powerMaximum.addValueChangeListener(e ->
             expirationsLayout.setPowerMax(powerMaximum.getValue())
         );

@@ -68,6 +68,7 @@ public class DemandEditTemporal extends GeneralForm {
             }
         }
         pointBinder.readBean(this.point);
+        safety.setReadOnly(true);
     }
 
     public boolean save() {

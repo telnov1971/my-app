@@ -97,7 +97,7 @@ public class PointsLayout extends VerticalLayout {
         fieldPowerDemand.setMin(0);
         fieldPowerDemand.addValueChangeListener(e -> {
             if(!fieldPowerDemand.isEmpty())
-                formParent.deselect(fieldPowerDemand);
+                ViewHelper.deselect(fieldPowerDemand);
         });
         binderPoints.forField(fieldPowerDemand).bind("powerDemand");
         columnPowerDemand.setEditorComponent(fieldPowerDemand);
@@ -109,12 +109,11 @@ public class PointsLayout extends VerticalLayout {
         columnPowerCurrent.setEditorComponent(fieldPowerCurrent);
         fieldPowerCurrent.addValueChangeListener(e -> {
             if(!fieldPowerCurrent.isEmpty())
-                formParent.deselect(fieldPowerCurrent);
+                ViewHelper.deselect(fieldPowerCurrent);
         });
 
-        Select<Safety> selectSafety = new Select<>();
-        selectSafety.setItems(safetyService.findAll());
-        selectSafety.setItemLabelGenerator(Safety::getName);
+        Select<Safety> selectSafety = ViewHelper.createSelect(Safety::getName, safetyService.findAll(),
+                "", Safety.class);
         binderPoints.forField(selectSafety).bind("safety");
         columnSafety.setEditorComponent(selectSafety);
 

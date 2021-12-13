@@ -89,17 +89,17 @@ public class ExpirationsLayout extends VerticalLayout {
         fieldStep = new TextField();
         binderExpiration.forField(fieldStep).bind("step");
         columnStep.setEditorComponent(fieldStep);
-        fieldStep.addValueChangeListener(e-> formParent.deselect(fieldStep));
+        fieldStep.addValueChangeListener(e-> ViewHelper.deselect(fieldStep));
 
         fieldPlanProject = new TextField();
         binderExpiration.forField(fieldPlanProject).bind("planProject");
         columnPlanProject.setEditorComponent(fieldPlanProject);
-        fieldPlanProject.addValueChangeListener(e-> formParent.deselect(fieldPlanProject));
+        fieldPlanProject.addValueChangeListener(e-> ViewHelper.deselect(fieldPlanProject));
 
         fieldPlanUsage = new TextField();
         binderExpiration.forField(fieldPlanUsage).bind("planUsage");
         columnPlanUsage.setEditorComponent(fieldPlanUsage);
-        fieldPlanUsage.addValueChangeListener(e-> formParent.deselect(fieldPlanUsage));
+        fieldPlanUsage.addValueChangeListener(e-> ViewHelper.deselect(fieldPlanUsage));
 
         NumberField fieldPowerMax= new NumberField();
         fieldPowerMax.setValue(1d);
@@ -107,11 +107,9 @@ public class ExpirationsLayout extends VerticalLayout {
         binderExpiration.forField(fieldPowerMax).bind("powerMax");
         columnPowerMax.setEditorComponent(fieldPowerMax);
 
-        Select<Safety> selectSafety = new Select<>();
-        selectSafety.setItems(safetyService.findAll());
-        selectSafety.setItemLabelGenerator(Safety::getName);
+        Select<Safety> selectSafety = ViewHelper.createSelect(Safety::getName, safetyService.findAll(),
+                "Категория надежности", Safety.class);
         binderExpiration.forField(selectSafety).bind("safety");
-        //columnSafety.setEditorComponent(selectSafety);
 
         addButton = new Button("Добавить этап");
 

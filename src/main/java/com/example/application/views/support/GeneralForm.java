@@ -182,7 +182,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         historyLayout = new HistoryLayout(this.historyService);
         historyLayout.setWidthFull();
-        accordionHistory.add("История событий",historyLayout);
+        accordionHistory.add("История событий (открыть/закрыть по клику мышкой)",historyLayout);
         accordionHistory.setWidthFull();
 
         // описание полей
@@ -193,7 +193,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             createdate.setValue(LocalDateTime.now());
             createdate.setReadOnly(true);
 
-            demandType = createSelect(DemandType::getName, demandTypeService.findAll(),
+            demandType = ViewHelper.createSelect(DemandType::getName, demandTypeService.findAll(),
                     "Тип заявки", DemandType.class);
             demandType.setReadOnly(true);
 
@@ -266,28 +266,28 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
             List<Reason> reasonList = reasonService.findAll().stream().
                 filter(r -> r.getDtype().contains(dType)).collect(Collectors.toList());
-            reason = createSelect(Reason::getName, reasonList,
+            reason = ViewHelper.createSelect(Reason::getName, reasonList,
                     "Причина обращения (обязательное поле)", Reason.class);
 
-            voltage = createSelect(Voltage::getName, voltageService.findAllByOptional(false),
+            voltage = ViewHelper.createSelect(Voltage::getName, voltageService.findAllByOptional(false),
                     "Класс напряжения", Voltage.class);
 
-            voltageIn = createSelect(Voltage::getName, voltageService.findAllByOptional(true),
+            voltageIn = ViewHelper.createSelect(Voltage::getName, voltageService.findAllByOptional(true),
                     "Уровень напряжения на вводе", Voltage.class);
 
-            safety = createSelect(Safety::getName, safetyService.findAll(),
+            safety = ViewHelper.createSelect(Safety::getName, safetyService.findAll(),
                     "Категория надежности", Safety.class);
             if(safetyService.findById(3L).isPresent())
                 safety.setValue(safetyService.findById(3L).get());
             safety.setReadOnly(true);
 
-            garant = createSelect(Garant::getName, garantService.findAllByActive(true),
+            garant = ViewHelper.createSelect(Garant::getName, garantService.findAllByActive(true),
                     "Гарантирующий поставщик", Garant.class);
 
-            plan = createSelect(Plan::getName, planService.findAll(),
+            plan = ViewHelper.createSelect(Plan::getName, planService.findAll(),
                     "Рассрочка платежа", Plan.class);
 
-            status = createSelect(Status::getName, statusService.findAll(),
+            status = ViewHelper.createSelect(Status::getName, statusService.findAll(),
                     "Статус", Status.class);
             if(statusService.findById(1L).isPresent())
                 status.setValue(statusService.findById(1L).get());
@@ -337,7 +337,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,addressEquals);
         setWidthFormDemander();
-        accordionDemander.add("Данные заявителя", formDemander);
+        accordionDemander.add("Данные заявителя (открыть/закрыть по клику мышкой)", formDemander);
 
         formDemand.add(demandId,createdate, demandType, status, label);
         formDemand.add(demander,delegate,contact);
@@ -400,12 +400,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
     }
 
-    protected void deselect(AbstractField field){
-        if(!field.isEmpty()) {
-            field.getElement().getStyle().set("border-width","0px");
-        }
-    }
-
     protected void setListeners() {
         save.addClickListener(event -> {
             if(save()) UI.getCurrent().navigate(DemandList.class);
@@ -418,10 +412,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             }
             UI.getCurrent().navigate(DemandList.class);
         });
-        demander.addValueChangeListener(e -> deselect(demander));
-        contact.addValueChangeListener(e -> deselect(contact));
+        demander.addValueChangeListener(e -> ViewHelper.deselect(demander));
+        contact.addValueChangeListener(e -> ViewHelper.deselect(contact));
         typeDemander.addValueChangeListener(e -> {
-            deselect(typeDemander);
+            ViewHelper.deselect(typeDemander);
             settingTemporalDemander();
         });
         inn.addValueChangeListener(e -> {
@@ -434,31 +428,29 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             } else {
                 inn.getElement().getStyle().set("border-width", "0px");
             }
-            deselect(inn);
+            ViewHelper.deselect(inn);
         });
         passportSerries.addValueChangeListener(e->{
             if(passportSerries.getValue().length() != 4) {
                 alertHere = ViewHelper.attention(passportSerries
                         , "Поле Паспорт серия должно содержать 4 цифры"
                         ,alertHere.getFirst());
-                if(passportSerries != null) passportSerries.focus();
+                passportSerries.focus();
             } else {
-                passportSerries.getElement().getStyle().set("border-width", "0px");
+                ViewHelper.deselect(passportSerries);
             }
-            deselect(passportSerries);
         });
         passportNumber.addValueChangeListener(e->{
             if(passportNumber.getValue().length() != 6) {
                 alertHere = ViewHelper.attention(passportNumber
                         ,"Поле Паспорт номер  должно содержать 6 цифр"
                         ,alertHere.getFirst());
-                if(passportNumber != null) passportNumber.focus();
+                passportNumber.focus();
             } else {
-                passportNumber.getElement().getStyle().set("border-width", "0px");
+                ViewHelper.deselect(passportNumber);
             }
-            deselect(passportNumber);
         });
-        addressRegistration.addValueChangeListener(e -> deselect(addressRegistration));
+        addressRegistration.addValueChangeListener(e -> ViewHelper.deselect(addressRegistration));
         addressEquals.addValueChangeListener(event -> {
             if(addressEquals.getValue()){
                 addressActual.setValue(addressRegistration.getValue());
@@ -467,7 +459,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 addressActual.setEnabled(true);
             }
         });
-        addressActual.addValueChangeListener(e -> deselect(addressActual));
+        addressActual.addValueChangeListener(e -> ViewHelper.deselect(addressActual));
         reason.addValueChangeListener(e -> {
             if(reason.getValue().getId() == 1) {
                 powerCurrent.setValue(0.0);
@@ -476,11 +468,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 powerCurrent.setReadOnly(false);
             }
             settingTemporalReasons();
-            deselect(reason);
+            ViewHelper.deselect(reason);
         });
-        object.addValueChangeListener(e -> deselect(object));
-        address.addValueChangeListener(e -> deselect(address));
-        specification.addValueChangeListener(e -> deselect(specification));
+        object.addValueChangeListener(e -> ViewHelper.deselect(object));
+        address.addValueChangeListener(e -> ViewHelper.deselect(address));
+        specification.addValueChangeListener(e -> ViewHelper.deselect(specification));
         garant.addValueChangeListener(e->{
             if(garant.getValue().getId() != 1) {
                 garantText.setVisible(true);
@@ -551,15 +543,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 new FormLayout.ResponsiveStep("50em", 3),
                 new FormLayout.ResponsiveStep("68em", 4)
         );
-    }
-
-    protected <C> Select<C> createSelect(ItemLabelGenerator<C> gen, List<C> list,
-                                        String label, Class<C> clazz){
-        Select<C> select = new Select<>();
-        select.setLabel(label);
-        select.setItemLabelGenerator(gen);
-        select.setItems(list);
-        return select;
     }
 
     private void changePower(NumberField field) {
@@ -635,7 +618,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     protected Boolean verifyField() {
-        alertHere = new Pair<Focusable, Boolean>(null,true);
+        alertHere = new Pair<>(null, true);
         if(demander.isEmpty()) {
             alertHere = ViewHelper.attention(demander,"Не заполнено поле Заявитель",alertHere.getFirst());
         }

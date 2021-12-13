@@ -56,7 +56,7 @@ public class DemandEditeGeneral extends GeneralForm {
                 ,historyService
                 ,this);
 
-        expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService, this);
+        expirationsLayout = new ExpirationsLayout(expirationService,safetyService,historyService,this);
 
         Component[] fields = {typeDemander,
                 addressRegistration,addressActual,addressEquals,
@@ -66,8 +66,10 @@ public class DemandEditeGeneral extends GeneralForm {
             field.setVisible(true);
         }
 
-        accordionPoints.add("Точки подключения", this.pointsLayout);
-        accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
+        accordionPoints.add("Точки подключения (открыть/закрыть по клику мышкой)"
+                ,this.pointsLayout);
+        accordionExpiration.add("Этапы выполнения работ (открыть/закрыть по клику мышкой)"
+                ,this.expirationsLayout);
         powerMaximum.addValueChangeListener(e ->
             expirationsLayout.setPowerMax(powerMaximum.getValue())
         );
