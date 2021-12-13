@@ -86,6 +86,7 @@ public class DemandEditTo150 extends GeneralForm {
                 } break;
             }
         }
+        safety.setReadOnly(true);
         specification.setLabel("Характер нагрузки (обязательное поле)");
         pointBinder.readBean(this.point);
     }

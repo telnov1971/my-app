@@ -23,6 +23,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -87,6 +89,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected Accordion accordionPoints = new Accordion();
     protected PointsLayout pointsLayout;
     protected Accordion accordionExpiration = new Accordion();
+    protected ExpirationsLayout expirationsLayout;
     protected Point point = new Point();
     protected Binder<Point> pointBinder = new Binder<>(Point.class);
     protected IntegerField countPoints;
@@ -830,14 +833,31 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         Notification.show(message, 3000,
                 Notification.Position.BOTTOM_START);
         fieldGoto = fieldGoto == null ? (Focusable) field : fieldGoto;
-        field.getElement().getStyle().set("margin","0.1em");
-        field.getElement().getStyle().set("padding","0.1em");
-        field.getElement().getStyle().set("border-radius","0.5em");
-        field.getElement().getStyle().set("border-width","1px");
-        field.getElement().getStyle().set("border-style","dashed");
-        field.getElement().getStyle().set("border-color","red");
+//        field.getElement().getStyle().set("margin","0.1em");
+//        field.getElement().getStyle().set("padding","0.1em");
+//        field.getElement().getStyle().set("border-radius","0.5em");
+//        field.getElement().getStyle().set("border-width","1px");
+//        field.getElement().getStyle().set("border-style","dashed");
+//        field.getElement().getStyle().set("border-color","red");
+        alert(field.getElement());
         result = false;
     }
 
+    public void alert(Element element){
+        Style style = element.getStyle();
+        style.set("margin","0.1em");
+        style.set("padding","0.1em");
+        style.set("border-radius","0.5em");
+        style.set("border-width","1px");
+        style.set("border-style","dashed");
+        style.set("border-color","red");
+    }
+
+    public void noAlert(Element element){
+        Style style = element.getStyle();
+        style.remove("margin");
+        style.remove("padding");
+        style.remove("border");
+    }
 }
 

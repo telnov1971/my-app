@@ -50,6 +50,7 @@ public class ExpirationsLayout extends VerticalLayout {
         this.expirationService = expirationService;
         this.historyService = historyService;
         this.formParent = formParent;
+        formParent.expirationsLayout = this;
         expirationGrid.setHeightByRows(true);
         expirations = new ArrayList<>();
         Label helpers = new Label("Сроки проектирования и поэтапного введения в эксплуатацию объекта"+
@@ -129,7 +130,7 @@ public class ExpirationsLayout extends VerticalLayout {
         }).setAutoWidth(true);
 
         addButton.addClickListener(event -> {
-            expirationGrid.getElement().getStyle().set("border-width","0px");
+            formParent.noAlert(expirationGrid.getElement());
             Expiration expiration = new Expiration("",
                     "","",powerMax,
                     safetyService.findById(3L).get());
@@ -174,15 +175,15 @@ public class ExpirationsLayout extends VerticalLayout {
                 .forEach(button -> button.setEnabled(!editorExpiration.isOpen())));
         Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> {
             if(fieldStep.isEmpty()){
-                attention(fieldStep);
+                formParent.alert(fieldStep.getElement());
                 return;
             }
             if(fieldPlanProject.isEmpty()){
-                attention(fieldPlanProject);
+                formParent.alert(fieldPlanProject.getElement());
                 return;
             }
             if(fieldPlanUsage.isEmpty()){
-                attention(fieldPlanUsage);
+                formParent.alert(fieldPlanUsage.getElement());
                 return;
             }
             formParent.saveMode(-1,0);
@@ -218,16 +219,6 @@ public class ExpirationsLayout extends VerticalLayout {
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
     }
 
-    private void attention(TextField field){
-        field.focus();
-        field.getElement().getStyle().set("margin","0.1em");
-        field.getElement().getStyle().set("padding","0.1em");
-        field.getElement().getStyle().set("border-radius","0.5em");
-        field.getElement().getStyle().set("border-width","1px");
-        field.getElement().getStyle().set("border-style","dashed");
-        field.getElement().getStyle().set("border-color","red");
-    }
-
     public void findAllByDemand(Demand demand) {
         expirations = expirationService.findAllByDemand(demand);
         count = expirations.toArray().length;
@@ -242,18 +233,18 @@ public class ExpirationsLayout extends VerticalLayout {
     }
 
     public void saveExpirations() {
-        Safety safety = null;
-        if(formParent.pointsLayout != null) {
-            if(formParent.points.size() > 0) {
-                safety = formParent.points.get(0).getSafety();
-            }
-        }
+//        Safety safety = null;
+//        if(formParent.pointsLayout != null) {
+//            if(formParent.points.size() > 0) {
+//                safety = formParent.points.get(0).getSafety();
+//            }
+//        }
         for(Expiration expiration : expirations) {
             if(expiration.getStep().isEmpty()||
                 expiration.getPlanProject().isEmpty()||
                 expiration.getPlanUsage().isEmpty()) continue;
             expiration.setDemand(demand);
-            if(safety != null) expiration.setSafety(safety);
+//            if(safety != null) expiration.setSafety(safety);
             historyService.saveHistory(demand, expiration, Expiration.class);
             expirationService.update(expiration);
         }
@@ -274,9 +265,16 @@ public class ExpirationsLayout extends VerticalLayout {
     }
 
     public void setFocus() {
-        expirationGrid.getElement().getStyle().set("border-width","3px");
-        expirationGrid.getElement().getStyle().set("border-style","dotted");
-        expirationGrid.getElement().getStyle().set("border-color","red");
+        formParent.alert(expirationGrid.getElement());
         addButton.focus();
+    }
+
+    public void setNewSafety(Safety safety) {
+        for(int i=0; i < expirations.size(); i++){
+            Expiration expiration = expirations.get(i);
+            expiration.setSafety(safety);
+            expirations.set(i, expiration);
+        }
+        expirationsDataProvider.refreshAll();
     }
 }

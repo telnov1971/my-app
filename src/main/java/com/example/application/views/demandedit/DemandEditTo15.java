@@ -85,6 +85,7 @@ public class DemandEditTo15 extends GeneralForm {
                 } break;
             }
         }
+        safety.setReadOnly(true);
         pointBinder.readBean(this.point);
         setOptional();
     }

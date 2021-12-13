@@ -230,7 +230,8 @@ public class PointsLayout extends VerticalLayout {
                 points.set(i,p);
             }
             addButton.setEnabled(true);
-            pointGrid.getElement().getStyle().set("border-width","0px");
+            formParent.noAlert(pointGrid.getElement());
+            formParent.expirationsLayout.setNewSafety(points.get(0).getSafety());
             formParent.saveMode(0,-1);
             pointDataProvider.refreshAll();
         });
