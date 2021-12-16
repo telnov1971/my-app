@@ -61,15 +61,11 @@ public class PointsLayout extends VerticalLayout {
         Select<Voltage> selectVoltage = new Select<>();
         editorPoints = pointGrid.getEditor();
 
-        Grid.Column<Point> columnNumber =
-                pointGrid.addColumn(Point::getNumber)
-                        .setHeader("№")
-                        .setAutoWidth(true);
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
         Grid.Column<Point> editorColumn = pointGrid.addComponentColumn(point -> {
             Button edit = new Button(new Icon(VaadinIcon.EDIT));
             edit.addClassName("edit");
-            edit.setText("ОТКРЫТЬ");
+//            edit.setText("ОТКРЫТЬ");
             edit.getElement().setAttribute("title","открыть");
             edit.addClickListener(e -> {
                 if(formParent.reason.getValue().getId() == 1) {
@@ -92,6 +88,10 @@ public class PointsLayout extends VerticalLayout {
             editButtons.add(edit);
             return edit;
         }).setWidth("8ex");
+        Grid.Column<Point> columnNumber =
+                pointGrid.addColumn(Point::getNumber)
+                        .setHeader("№")
+                        .setAutoWidth(true);
         Grid.Column<Point> columnPowerCurrent =
                 pointGrid.addColumn(Point::getPowerCurrent).
                         setAutoWidth(true).
@@ -238,7 +238,7 @@ public class PointsLayout extends VerticalLayout {
             formParent.saveMode(0,-1);
             pointDataProvider.refreshAll();
         });
-        save.setText("СОХРАНИТЬ");
+//        save.setText("СОХРАНИТЬ");
         save.addClassName("save");
         save.getElement().setAttribute("title","сохранить");
         Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> {
@@ -250,7 +250,7 @@ public class PointsLayout extends VerticalLayout {
             addButton.setEnabled(true);
             formParent.saveMode(0,-1);
         });
-        cancel.setText("ОТМЕНИТЬ");
+//        cancel.setText("ОТМЕНИТЬ");
         cancel.addClassName("cancel");
         cancel.getElement().setAttribute("title","отменить");
         Div divSave = new Div(save);

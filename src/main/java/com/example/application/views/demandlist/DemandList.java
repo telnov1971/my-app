@@ -60,12 +60,12 @@ public class DemandList extends Div {
         addClassNames("master-detail-view", "flex", "flex-col", "h-full");
 
         // Configure Grid
-        grid.addColumn("id").setResizable(true).setWidth("5ex").setHeader("ID");
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
         grid.addComponentColumn(demand -> {
             Button edit = new Button(new Icon(VaadinIcon.EDIT));
-            edit.setText("ОТКРЫТЬ");
+//            edit.setText("ОТКРЫТЬ");
             edit.addClassName("edit");
+            edit.getElement().setAttribute("title","открыть");
             edit.addClickListener(event -> {
                 if (Objects.equals(demand.getDemandType().getId(), DemandType.TO15)) {
                     UI.getCurrent().navigate(DemandEditTo15.class, new RouteParameters("demandID",
@@ -87,7 +87,8 @@ public class DemandList extends Div {
             edit.setEnabled(true);
             editButtons.add(edit);
             return edit;
-        }).setWidth("8ex");
+        }).setResizable(true).setWidth("20px");
+        grid.addColumn("id").setResizable(true).setWidth("5ex").setHeader("ID");
         demanderColumn = grid.addColumn("demander").setHeader("Заявитель")
                 .setResizable(true).setWidth("20ex");
         grid.addColumn("status.name").setResizable(true).setWidth("10ex").setHeader("Статус");
@@ -163,8 +164,7 @@ public class DemandList extends Div {
 
         filterLayout.add(filterId,filterText,clearFilter);
         filterLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
-        //verticalLayout.add(filterLayout,grid);
-        grid.getElement().setAttribute("title","кликните дважды для открытия заявки");
+//        grid.getElement().setAttribute("title","кликните дважды для открытия заявки");
         TextField space = new TextField();
         space.setWidthFull();
         space.setReadOnly(true);

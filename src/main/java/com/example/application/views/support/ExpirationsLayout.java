@@ -10,6 +10,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -58,7 +59,7 @@ public class ExpirationsLayout extends VerticalLayout {
                 "можно только редактировать)");
         //helpers.setHeight("1em");
         helpers.setReadOnly(true);
-        helpers.setWidth("100%");
+        helpers.setWidthFull();
         helpers.getElement().getStyle().set("font-size","1em");
         editorExpiration = expirationGrid.getEditor();
         fieldStep = new TextField();
@@ -79,7 +80,7 @@ public class ExpirationsLayout extends VerticalLayout {
                 addButton.setEnabled(false);
             });
             edit.setEnabled(!editorExpiration.isOpen());
-            edit.setText("ОТКРЫТЬ");
+//            edit.setText("ОТКРЫТЬ");
             edit.getElement().setAttribute("title","открыть");
             editButtons.add(edit);
             return edit;
@@ -191,7 +192,7 @@ public class ExpirationsLayout extends VerticalLayout {
             editorExpiration.save();
             addButton.setEnabled(true);
         });
-        save.setText("СОХРАНИТЬ");
+//        save.setText("СОХРАНИТЬ");
         save.addClassName("save");
         save.getElement().setAttribute("title","сохранить");
         Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> {
@@ -204,7 +205,7 @@ public class ExpirationsLayout extends VerticalLayout {
             expirationsDataProvider.refreshAll();
             formParent.saveMode(-1,0);
         });
-        cancel.setText("ОТМЕНИТЬ");
+//        cancel.setText("ОТМЕНИТЬ");
         cancel.addClassName("cancel");
         cancel.getElement().setAttribute("title","отменить");
         Div divSave = new Div(save);
