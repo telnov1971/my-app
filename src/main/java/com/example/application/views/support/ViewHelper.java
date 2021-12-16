@@ -5,6 +5,7 @@ import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.internal.Pair;
@@ -27,10 +28,15 @@ public class ViewHelper {
         style.set("border-width","0px");
     }
 
-    public static Pair<Focusable,Boolean> attention(AbstractField field, String message, Focusable fieldGoto) {
+    public static Pair<Focusable,Boolean> attention(AbstractField field
+            , String message
+            , Focusable fieldGoto
+            , TextArea space) {
 
         Notification.show(message, 3000,
                 Notification.Position.BOTTOM_START);
+        space.setLabel("Ошибки заполенеия");
+        space.setValue(space.getValue() + "\n" + message);
         Focusable toField = fieldGoto == null ? (Focusable) field : fieldGoto;
         Pair<Focusable,Boolean> result = new Pair<>(toField,false);
         alert(field.getElement());

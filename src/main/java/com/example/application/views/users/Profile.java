@@ -46,6 +46,7 @@ public class Profile extends Div implements BeforeEnterObserver {
     private final TextField fio;
     private final TextField contact;
     private final Label notyfy;
+    private final Label note;
     private final Button saveButton = new Button("Зарегистрировать");
 
     public Profile(UserService userService,
@@ -94,10 +95,13 @@ public class Profile extends Div implements BeforeEnterObserver {
 
         FormLayout userForm = new FormLayout();
         userForm.add(username, email, password, passwordVerify, fio, contact);
-        Label note = new Label("Для регистрации заполните все поля. " +
+        note = new Label("Для регистрации заполните все поля. " +
                 "Для активации аккаунта необходимо " +
                 "перейти по ссылке в присланом письме.");
-        add(notyfy, userForm, buttonBar, note);
+        note.getElement().getStyle().set("color", "red");
+        note.getElement().getStyle().set("font-size", "1.5em");
+        note.setHeight("2em");
+        add(notyfy, note, userForm, buttonBar);
         this.getElement().getStyle().set("margin", "15px");
         saveButtonActive();
     }
@@ -211,6 +215,7 @@ public class Profile extends Div implements BeforeEnterObserver {
             editUser.setFio(value.getFio());
             editUser.setContact(value.getContact());
             saveButton.setText("Сохранить");
+            note.setVisible(false);
         }
         userBinder.readBean(editUser);
         password.setValue("");

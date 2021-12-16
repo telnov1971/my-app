@@ -66,7 +66,7 @@ public class DemandEditTo150 extends GeneralForm {
                 plan.setReadOnly(false);
             }
         });
-        add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory);
+        add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory,space);
     }
 
     @Override

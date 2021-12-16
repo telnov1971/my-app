@@ -60,21 +60,11 @@ public class DemandList extends Div {
         addClassNames("master-detail-view", "flex", "flex-col", "h-full");
 
         // Configure Grid
-        grid.addColumn("id").setAutoWidth(false).setWidth("3em").setHeader("ID");
-        demanderColumn = grid.addColumn("demander").setHeader("Заявитель")
-                .setResizable(true).setWidth("200px");
-        grid.addColumn("status.name").setAutoWidth(true).setHeader("Статус");
-        grid.addComponentColumn(demand -> new Label(demand.getCreateDate()
-                        .format(DateTimeFormatter.ofPattern("uuuu-MM-dd | HH:mm:ss"))))
-                .setHeader("Дата и время").setAutoWidth(true);
-        grid.addColumn("object").setHeader("Объект")
-                .setResizable(true).setWidth("200px");
-        grid.addColumn("address").setHeader("Адрес объекта")
-                .setResizable(true).setWidth("200px");
-        grid.addColumn("demandType.name").setAutoWidth(true).setHeader("Тип");
+        grid.addColumn("id").setResizable(true).setWidth("5ex").setHeader("ID");
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
         grid.addComponentColumn(demand -> {
             Button edit = new Button(new Icon(VaadinIcon.EDIT));
+            edit.setText("ОТКРЫТЬ");
             edit.addClassName("edit");
             edit.addClickListener(event -> {
                 if (Objects.equals(demand.getDemandType().getId(), DemandType.TO15)) {
@@ -97,7 +87,18 @@ public class DemandList extends Div {
             edit.setEnabled(true);
             editButtons.add(edit);
             return edit;
-        }).setWidth("3em");
+        }).setWidth("8ex");
+        demanderColumn = grid.addColumn("demander").setHeader("Заявитель")
+                .setResizable(true).setWidth("20ex");
+        grid.addColumn("status.name").setResizable(true).setWidth("10ex").setHeader("Статус");
+        grid.addColumn("object").setHeader("Объект")
+                .setResizable(true).setWidth("20ex");
+        grid.addColumn("address").setHeader("Адрес объекта")
+                .setResizable(true).setWidth("20ex");
+        grid.addColumn("demandType.name").setResizable(true).setWidth("7ex").setHeader("Тип");
+        grid.addComponentColumn(demand -> new Label(demand.getCreateDate()
+                        .format(DateTimeFormatter.ofPattern("uuuu-MM-dd _ HH:mm:ss"))))
+                .setHeader("Дата и время").setResizable(true).setWidth("10ex");
 
         gridSetting(null,null);
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
@@ -164,7 +165,11 @@ public class DemandList extends Div {
         filterLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
         //verticalLayout.add(filterLayout,grid);
         grid.getElement().setAttribute("title","кликните дважды для открытия заявки");
-        add(filterLayout,grid);
+        TextField space = new TextField();
+        space.setWidthFull();
+        space.setReadOnly(true);
+
+        add(filterLayout,grid,space);
     }
 
     private void gridSetting(Long id, String text) {

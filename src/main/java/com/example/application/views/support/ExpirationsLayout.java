@@ -10,7 +10,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -18,6 +17,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -29,6 +29,7 @@ public class ExpirationsLayout extends VerticalLayout {
     private final Grid<Expiration> expirationGrid = new Grid<>(Expiration.class, false);
     private ListDataProvider<Expiration> expirationsDataProvider;
     private final Editor<Expiration> editorExpiration;
+    private final TextArea helpers;
     private final TextField fieldStep;
     private final TextField fieldPlanProject;
     private final TextField fieldPlanUsage;
@@ -50,10 +51,39 @@ public class ExpirationsLayout extends VerticalLayout {
         formParent.expirationsLayout = this;
         expirationGrid.setHeightByRows(true);
         expirations = new ArrayList<>();
-        Label helpers = new Label("Сроки проектирования и поэтапного введения в эксплуатацию объекта"+
+        helpers = new TextArea();
+        helpers.setValue("Сроки проектирования и поэтапного введения в эксплуатацию объекта"+
                 " (в том числе по этапам и очередям), планируемое поэтапное распределение максимальной мощности " +
                 "(обязательны к заполнению) (ВНИМАНИЕ: после сохранения этапы не удаляются, " +
                 "можно только редактировать)");
+        //helpers.setHeight("1em");
+        helpers.setReadOnly(true);
+        helpers.setWidth("100%");
+        helpers.getElement().getStyle().set("font-size","1em");
+        editorExpiration = expirationGrid.getEditor();
+        fieldStep = new TextField();
+        fieldPlanProject = new TextField();
+        fieldPlanUsage = new TextField();
+        NumberField fieldPowerMax= new NumberField();
+        Select<Safety> selectSafety = ViewHelper.createSelect(Safety::getName, safetyService.findAll(),
+                "Категория надежности", Safety.class);
+        Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
+        addButton = new Button("Добавить этап");
+
+        editorColumn = expirationGrid.addComponentColumn(expiration -> {
+            Button edit = new Button(new Icon(VaadinIcon.EDIT));
+            edit.addClassName("edit");
+            edit.addClickListener(e -> {
+                editorExpiration.editItem(expiration);
+                fieldStep.focus();
+                addButton.setEnabled(false);
+            });
+            edit.setEnabled(!editorExpiration.isOpen());
+            edit.setText("ОТКРЫТЬ");
+            edit.getElement().setAttribute("title","открыть");
+            editButtons.add(edit);
+            return edit;
+        }).setWidth("8ex");
 
         Grid.Column<Expiration> columnStep =
                 expirationGrid.addColumn(Expiration::getStep)
@@ -77,51 +107,28 @@ public class ExpirationsLayout extends VerticalLayout {
         expirationGrid.setItems(expirations);
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
 
-        editorExpiration = expirationGrid.getEditor();
         Binder<Expiration> binderExpiration = new Binder<>(Expiration.class);
         editorExpiration.setBinder(binderExpiration);
         editorExpiration.setBuffered(true);
 
-        fieldStep = new TextField();
         binderExpiration.forField(fieldStep).bind("step");
         columnStep.setEditorComponent(fieldStep);
         fieldStep.addValueChangeListener(e-> ViewHelper.deselect(fieldStep));
 
-        fieldPlanProject = new TextField();
         binderExpiration.forField(fieldPlanProject).bind("planProject");
         columnPlanProject.setEditorComponent(fieldPlanProject);
         fieldPlanProject.addValueChangeListener(e-> ViewHelper.deselect(fieldPlanProject));
 
-        fieldPlanUsage = new TextField();
         binderExpiration.forField(fieldPlanUsage).bind("planUsage");
         columnPlanUsage.setEditorComponent(fieldPlanUsage);
         fieldPlanUsage.addValueChangeListener(e-> ViewHelper.deselect(fieldPlanUsage));
 
-        NumberField fieldPowerMax= new NumberField();
         fieldPowerMax.setValue(1d);
         fieldPowerMax.setMin(0);
         binderExpiration.forField(fieldPowerMax).bind("powerMax");
         columnPowerMax.setEditorComponent(fieldPowerMax);
 
-        Select<Safety> selectSafety = ViewHelper.createSelect(Safety::getName, safetyService.findAll(),
-                "Категория надежности", Safety.class);
         binderExpiration.forField(selectSafety).bind("safety");
-
-        addButton = new Button("Добавить этап");
-
-        Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
-        editorColumn = expirationGrid.addComponentColumn(expiration -> {
-            Button edit = new Button(new Icon(VaadinIcon.EDIT));
-            edit.addClassName("edit");
-            edit.addClickListener(e -> {
-                editorExpiration.editItem(expiration);
-                fieldStep.focus();
-                addButton.setEnabled(false);
-            });
-            edit.setEnabled(!editorExpiration.isOpen());
-            editButtons.add(edit);
-            return edit;
-        }).setAutoWidth(true);
 
         addButton.addClickListener(event -> {
             ViewHelper.noAlert(expirationGrid.getElement());
@@ -186,6 +193,7 @@ public class ExpirationsLayout extends VerticalLayout {
         });
         save.setText("СОХРАНИТЬ");
         save.addClassName("save");
+        save.getElement().setAttribute("title","сохранить");
         Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> {
             editorExpiration.cancel();
             addButton.setEnabled(true);
@@ -198,6 +206,7 @@ public class ExpirationsLayout extends VerticalLayout {
         });
         cancel.setText("ОТМЕНИТЬ");
         cancel.addClassName("cancel");
+        cancel.getElement().setAttribute("title","отменить");
         Div divSave = new Div(save);
         Div divCancel = new Div(cancel);
         Div buttons = new Div(divSave, divCancel);

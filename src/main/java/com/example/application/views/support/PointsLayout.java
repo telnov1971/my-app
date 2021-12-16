@@ -54,11 +54,44 @@ public class PointsLayout extends VerticalLayout {
         formParent.pointsLayout = this;
         Label helpers = new Label("распределение по точкам присоединения (ВНИМАНИЕ: после сохранения точки не удаляются, " +
                 "можно только редактировать)");
+        NumberField fieldPowerDemand = new NumberField();
+        NumberField fieldPowerCurrent = new NumberField();
+        Select<Safety> selectSafety = ViewHelper.createSelect(Safety::getName, safetyService.findAll(),
+                "", Safety.class);
+        Select<Voltage> selectVoltage = new Select<>();
+        editorPoints = pointGrid.getEditor();
 
         Grid.Column<Point> columnNumber =
                 pointGrid.addColumn(Point::getNumber)
                         .setHeader("№")
                         .setAutoWidth(true);
+        Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
+        Grid.Column<Point> editorColumn = pointGrid.addComponentColumn(point -> {
+            Button edit = new Button(new Icon(VaadinIcon.EDIT));
+            edit.addClassName("edit");
+            edit.setText("ОТКРЫТЬ");
+            edit.getElement().setAttribute("title","открыть");
+            edit.addClickListener(e -> {
+                if(formParent.reason.getValue().getId() == 1) {
+                    fieldPowerCurrent.setValue(0.0);
+                    fieldPowerCurrent.setReadOnly(true);
+                } else {
+                    fieldPowerCurrent.setReadOnly(false);
+                }
+                if(point.getNumber() == 1) {
+                    selectSafety.setReadOnly(false);
+                    selectVoltage.setReadOnly(false);
+                } else {
+                    selectSafety.setReadOnly(true);
+                    selectVoltage.setReadOnly(true);
+                }
+                editorPoints.editItem(point);
+                fieldPowerDemand.focus();
+            });
+            edit.setEnabled(!editorPoints.isOpen());
+            editButtons.add(edit);
+            return edit;
+        }).setWidth("8ex");
         Grid.Column<Point> columnPowerCurrent =
                 pointGrid.addColumn(Point::getPowerCurrent).
                         setAutoWidth(true).
@@ -84,12 +117,10 @@ public class PointsLayout extends VerticalLayout {
         pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
 //        points.remove(points.size() - 1);
 
-        editorPoints = pointGrid.getEditor();
         Binder<Point> binderPoints = new Binder<>(Point.class);
         editorPoints.setBinder(binderPoints);
         editorPoints.setBuffered(true);
 
-        NumberField fieldPowerDemand = new NumberField();
         fieldPowerDemand.setValue(1d);
         //fieldPowerDemand.setHasControls(true);
         fieldPowerDemand.setMin(0);
@@ -100,7 +131,6 @@ public class PointsLayout extends VerticalLayout {
         binderPoints.forField(fieldPowerDemand).bind("powerDemand");
         columnPowerDemand.setEditorComponent(fieldPowerDemand);
 
-        NumberField fieldPowerCurrent = new NumberField();
         fieldPowerCurrent.setValue(1d);
         fieldPowerCurrent.setMin(0);
         binderPoints.forField(fieldPowerCurrent).bind("powerCurrent");
@@ -110,42 +140,13 @@ public class PointsLayout extends VerticalLayout {
                 ViewHelper.deselect(fieldPowerCurrent);
         });
 
-        Select<Safety> selectSafety = ViewHelper.createSelect(Safety::getName, safetyService.findAll(),
-                "", Safety.class);
         binderPoints.forField(selectSafety).bind("safety");
         columnSafety.setEditorComponent(selectSafety);
 
-        Select<Voltage> selectVoltage = new Select<>();
         selectVoltage.setItems(voltageService.findAllByOptional(false));
         selectVoltage.setItemLabelGenerator(Voltage::getName);
         binderPoints.forField(selectVoltage).bind("voltage");
         columnVoltage.setEditorComponent(selectVoltage);
-
-        Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
-        Grid.Column<Point> editorColumn = pointGrid.addComponentColumn(point -> {
-            Button edit = new Button(new Icon(VaadinIcon.EDIT));
-            edit.addClassName("edit");
-            edit.addClickListener(e -> {
-                if(formParent.reason.getValue().getId() == 1) {
-                    fieldPowerCurrent.setValue(0.0);
-                    fieldPowerCurrent.setReadOnly(true);
-                } else {
-                    fieldPowerCurrent.setReadOnly(false);
-                }
-                if(point.getNumber() == 1) {
-                    selectSafety.setReadOnly(false);
-                    selectVoltage.setReadOnly(false);
-                } else {
-                    selectSafety.setReadOnly(true);
-                    selectVoltage.setReadOnly(true);
-                }
-                editorPoints.editItem(point);
-                fieldPowerDemand.focus();
-            });
-            edit.setEnabled(!editorPoints.isOpen());
-            editButtons.add(edit);
-            return edit;
-        }).setAutoWidth(true);
 
         addButton = new Button("Добавить точку");
         removeButton = new Button("Удалить последнюю");
@@ -156,7 +157,8 @@ public class PointsLayout extends VerticalLayout {
                 formParent.alertHere =
                         ViewHelper.attention(formParent.reason
                                 ,"Необходимо выбрать причину обращения"
-                                ,formParent.alertHere.getFirst());
+                                ,formParent.alertHere.getFirst()
+                                ,formParent.space);
                 formParent.reason.focus();
                 return;
             }
@@ -238,6 +240,7 @@ public class PointsLayout extends VerticalLayout {
         });
         save.setText("СОХРАНИТЬ");
         save.addClassName("save");
+        save.getElement().setAttribute("title","сохранить");
         Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> {
             if(fieldPowerDemand.getValue() == 0.0) {
                 points.remove(points.size() - 1);
@@ -249,6 +252,7 @@ public class PointsLayout extends VerticalLayout {
         });
         cancel.setText("ОТМЕНИТЬ");
         cancel.addClassName("cancel");
+        cancel.getElement().setAttribute("title","отменить");
         Div divSave = new Div(save);
         Div divCancel = new Div(cancel);
         Div buttons = new Div(divSave, divCancel);

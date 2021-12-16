@@ -66,7 +66,7 @@ public class DemandEditTo15 extends GeneralForm {
         powerMaximum.addValueChangeListener(e ->
             expirationsLayout.setPowerMax(powerMaximum.getValue())
         );
-        add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory);
+        add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory,space);
     }
 
     @Override
