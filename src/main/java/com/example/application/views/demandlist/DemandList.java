@@ -87,19 +87,19 @@ public class DemandList extends Div {
             edit.setEnabled(true);
             editButtons.add(edit);
             return edit;
-        }).setResizable(true).setWidth("20px");
-        grid.addColumn("id").setResizable(true).setWidth("5ex").setHeader("ID");
+        }).setResizable(true).setAutoWidth(true);
+        grid.addColumn("id").setResizable(true).setAutoWidth(true).setHeader("ID");
         demanderColumn = grid.addColumn("demander").setHeader("Заявитель")
-                .setResizable(true).setWidth("20ex");
-        grid.addColumn("status.name").setResizable(true).setWidth("10ex").setHeader("Статус");
+                .setResizable(true).setAutoWidth(true);
+        grid.addColumn("status.name").setResizable(true).setAutoWidth(true).setHeader("Статус");
         grid.addColumn("object").setHeader("Объект")
-                .setResizable(true).setWidth("20ex");
+                .setResizable(true).setAutoWidth(true);
         grid.addColumn("address").setHeader("Адрес объекта")
-                .setResizable(true).setWidth("20ex");
-        grid.addColumn("demandType.name").setResizable(true).setWidth("7ex").setHeader("Тип");
+                .setResizable(true).setAutoWidth(true);
+        grid.addColumn("demandType.name").setResizable(true).setAutoWidth(true).setHeader("Тип");
         grid.addComponentColumn(demand -> new Label(demand.getCreateDate()
                         .format(DateTimeFormatter.ofPattern("uuuu-MM-dd _ HH:mm:ss"))))
-                .setHeader("Дата и время").setResizable(true).setWidth("10ex");
+                .setHeader("Дата и время").setResizable(true).setAutoWidth(true);
 
         gridSetting(null,null);
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);

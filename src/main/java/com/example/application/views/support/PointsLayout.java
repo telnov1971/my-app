@@ -52,7 +52,8 @@ public class PointsLayout extends VerticalLayout {
         points = new ArrayList<>();
         formParent.points = points;
         formParent.pointsLayout = this;
-        Label helpers = new Label("распределение по точкам присоединения (ВНИМАНИЕ: после сохранения точки не удаляются, " +
+        Label helpers = new Label("распределение по точкам присоединения" +
+                " (ВНИМАНИЕ: после сохранения точки не удаляются, " +
                 "можно только редактировать)");
         NumberField fieldPowerDemand = new NumberField();
         NumberField fieldPowerCurrent = new NumberField();
@@ -65,7 +66,6 @@ public class PointsLayout extends VerticalLayout {
         Grid.Column<Point> editorColumn = pointGrid.addComponentColumn(point -> {
             Button edit = new Button(new Icon(VaadinIcon.EDIT));
             edit.addClassName("edit");
-//            edit.setText("ОТКРЫТЬ");
             edit.getElement().setAttribute("title","открыть");
             edit.addClickListener(e -> {
                 if(formParent.reason.getValue().getId() == 1) {
@@ -87,30 +87,36 @@ public class PointsLayout extends VerticalLayout {
             edit.setEnabled(!editorPoints.isOpen());
             editButtons.add(edit);
             return edit;
-        }).setWidth("8ex");
+        }).setAutoWidth(true).setResizable(true);
         Grid.Column<Point> columnNumber =
                 pointGrid.addColumn(Point::getNumber)
                         .setHeader("№")
+                        .setResizable(true)
                         .setAutoWidth(true);
         Grid.Column<Point> columnPowerCurrent =
-                pointGrid.addColumn(Point::getPowerCurrent).
-                        setAutoWidth(true).
-                        setHeader("Мощ. ранее пр., кВт ");
+                pointGrid.addColumn(Point::getPowerCurrent)
+                        .setAutoWidth(true)
+                        .setHeader("Мощ. ранее пр., кВт ")
+                        .setResizable(true);
         Grid.Column<Point> columnPowerDemand =
                 pointGrid.addColumn(Point::getPowerDemand)
                         .setHeader("Мощ. прис., кВт")
-                        .setAutoWidth(true);
-        pointGrid.addColumn(Point::getPowerMaximum).
-                setAutoWidth(true).
-                setHeader("Мощ. мак., кВт ");
+                        .setAutoWidth(true)
+                        .setResizable(true);
+        pointGrid.addColumn(Point::getPowerMaximum)
+                .setAutoWidth(true)
+                .setHeader("Мощ. мак., кВт ")
+                .setResizable(true);
         Grid.Column<Point> columnSafety =
                 pointGrid.addColumn(point -> point.getSafety().getName())
                         .setAutoWidth(true)
-                        .setHeader("Кат. надёж.");
+                        .setHeader("Кат. надёж.")
+                        .setResizable(true);
         Grid.Column<Point> columnVoltage =
                 pointGrid.addColumn(point -> point.getVoltage().getName())
                         .setAutoWidth(true)
-                        .setHeader("Ур. напр. ");
+                        .setHeader("Ур. напр. ")
+                        .setResizable(true);
         columnNumber.setSortable(true);
 //        points.add(new Point());
         pointGrid.setItems(points);

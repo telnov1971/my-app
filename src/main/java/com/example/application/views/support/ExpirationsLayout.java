@@ -84,26 +84,31 @@ public class ExpirationsLayout extends VerticalLayout {
             edit.getElement().setAttribute("title","открыть");
             editButtons.add(edit);
             return edit;
-        }).setWidth("8ex");
+        }).setAutoWidth(true).setResizable(true);
 
         Grid.Column<Expiration> columnStep =
                 expirationGrid.addColumn(Expiration::getStep)
                         .setHeader("Этап/Очередь")
-                        .setAutoWidth(true);
+                        .setAutoWidth(true)
+                        .setResizable(true);
         Grid.Column<Expiration> columnPlanProject =
-                expirationGrid.addColumn(Expiration::getPlanProject).
-                        setAutoWidth(true).
-                        setHeader("Срок проектирования");
+                expirationGrid.addColumn(Expiration::getPlanProject)
+                        .setAutoWidth(true)
+                        .setHeader("Срок проектирования")
+                        .setResizable(true);
         Grid.Column<Expiration> columnPlanUsage =
-                expirationGrid.addColumn(Expiration::getPlanUsage).
-                        setAutoWidth(true).
-                        setHeader("Срок ввода");
+                expirationGrid.addColumn(Expiration::getPlanUsage)
+                        .setAutoWidth(true)
+                        .setHeader("Срок ввода")
+                        .setResizable(true);
         Grid.Column<Expiration> columnPowerMax =
-                expirationGrid.addColumn(Expiration::getPowerMax).
-                        setAutoWidth(true).
-                        setHeader("Макс.мощность");
+                expirationGrid.addColumn(Expiration::getPowerMax)
+                        .setAutoWidth(true)
+                        .setResizable(true)
+                        .setHeader("Макс.мощность");
         expirationGrid.addColumn(expiration -> expiration.getSafety().getName())
                 .setAutoWidth(true)
+                .setResizable(true)
                 .setHeader("Кат. надёж.");
         expirationGrid.setItems(expirations);
         expirationsDataProvider = (ListDataProvider<Expiration>) expirationGrid.getDataProvider();
