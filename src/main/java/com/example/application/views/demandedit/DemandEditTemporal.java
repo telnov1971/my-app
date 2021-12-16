@@ -54,7 +54,7 @@ public class DemandEditTemporal extends GeneralForm {
         }
 
         //accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
-        add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory);
+        add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory,space);
     }
 
     @Override

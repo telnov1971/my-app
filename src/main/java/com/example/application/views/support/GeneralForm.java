@@ -115,6 +115,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected Accordion accordionHistory = new Accordion();
     protected HistoryLayout historyLayout;
 
+    protected final TextArea space;
+
     protected final ReasonService reasonService;
     protected final DemandService demandService;
     protected final DemandTypeService demandTypeService;
@@ -288,21 +290,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             status.setReadOnly(true);
         }
 
-        // настройка проверки значений полей
-        {
-            binderDemand.forField(inn)
-                    .bind(Demand::getInn, Demand::setInn);
-
-            pointBinder.forField(powerDemand)
-                    .bind(Point::getPowerDemand, Point::setPowerDemand);
-
-            pointBinder.forField(powerCurrent)
-                    .bind(Point::getPowerCurrent, Point::setPowerCurrent);
-
-            pointBinder.forField(powerMaximum)
-                    .bind(Point::getPowerMaximum, null);
-        }
-
         binderDemand.bindInstanceFields(this);
         pointBinder.bindInstanceFields(this);
         generalBinder.bindInstanceFields(this);
@@ -348,6 +335,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         this.getElement().getStyle().set("margin", "15px");
         setListeners();
         accordionHistory.close();
+        space = new TextArea();
+        space.setWidthFull();
+//        space.setHeight("2em");
+        space.getElement().getStyle().set("color","red");
+        space.setReadOnly(true);
     }
 
     protected void settingTemporalReasons(){}
@@ -401,7 +393,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             if((length < 10) || (length > 13)) {
                 alertHere = ViewHelper.attention(inn,
                         "Поле Реквизиты заявителя дожно содержать от 10 до 13 цифр"
-                        ,alertHere.getFirst());
+                        ,alertHere.getFirst(),space);
                 if(inn != null) inn.focus();
             } else {
                 ViewHelper.deselect(inn);
@@ -411,7 +403,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             if(passportSerries.getValue().length() != 4) {
                 alertHere = ViewHelper.attention(passportSerries
                         , "Поле Паспорт серия должно содержать 4 цифры"
-                        ,alertHere.getFirst());
+                        ,alertHere.getFirst(),space);
                 passportSerries.focus();
             } else {
                 ViewHelper.deselect(passportSerries);
@@ -421,7 +413,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             if(passportNumber.getValue().length() != 6) {
                 alertHere = ViewHelper.attention(passportNumber
                         ,"Поле Паспорт номер  должно содержать 6 цифр"
-                        ,alertHere.getFirst());
+                        ,alertHere.getFirst(),space);
                 passportNumber.focus();
             } else {
                 ViewHelper.deselect(passportNumber);
@@ -575,14 +567,22 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
     protected Boolean verifyField() {
         alertHere = new Pair<>(null, true);
+        space.setValue("");
+        space.setLabel("");
         if(demander.isEmpty()) {
-            alertHere = ViewHelper.attention(demander,"Не заполнено поле Заявитель",alertHere.getFirst());
+            alertHere = ViewHelper.attention(demander
+                    ,"Не заполнено поле Заявитель"
+                    ,alertHere.getFirst(),space);
         }
         if(contact.isEmpty() && contact.isVisible()) {
-            alertHere = ViewHelper.attention(contact,"Не заполнено поле Контактный телефон",alertHere.getFirst());
+            alertHere = ViewHelper.attention(contact
+                    ,"Не заполнено поле Контактный телефон"
+                    ,alertHere.getFirst(),space);
         }
         if(typeDemander.isVisible() && typeDemander.getValue() == null) {
-            alertHere = ViewHelper.attention(typeDemander,"Не заполнено поле Тип заявителя",alertHere.getFirst());
+            alertHere = ViewHelper.attention(typeDemander
+                    ,"Не заполнено поле Тип заявителя"
+                    ,alertHere.getFirst(),space);
         }
         if(!typeDemander.isVisible() ||
                 (typeDemander.getValue() != null &&
@@ -590,68 +590,91 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             if (passportSerries.isEmpty() &&
                     passportSerries.isVisible()
                     ) {
-                alertHere = ViewHelper.attention(passportSerries, "Не заполнено поле Паспорт серия",alertHere.getFirst());
+                alertHere = ViewHelper.attention(passportSerries
+                        , "Не заполнено поле Паспорт серия"
+                        ,alertHere.getFirst(),space);
             }
             if (!passportSerries.isEmpty() &&
                     passportSerries.isVisible()) {
                 if (passportSerries.getValue().length() != 4)
                     alertHere = ViewHelper.attention(passportSerries
-                            ,"Поле Паспорт серия должно содержать 4 цифры",alertHere.getFirst());
+                            ,"Поле Паспорт серия должно содержать 4 цифры"
+                            ,alertHere.getFirst(),space);
             }
             if (passportNumber.isEmpty() &&
                     passportNumber.isVisible()) {
-                alertHere = ViewHelper.attention(passportNumber, "Не заполнено поле Паспорт номер",alertHere.getFirst());
+                alertHere = ViewHelper.attention(passportNumber
+                        , "Не заполнено поле Паспорт номер"
+                        ,alertHere.getFirst(),space);
             }
             if (!passportNumber.isEmpty() &&
                     passportNumber.isVisible()) {
                 if (passportNumber.getValue().length() != 6)
                     alertHere = ViewHelper.attention(passportNumber
-                            ,"Поле Паспорт номер  должно содержать 6 цифр",alertHere.getFirst());
+                            ,"Поле Паспорт номер  должно содержать 6 цифр"
+                            ,alertHere.getFirst(),space);
             }
         }
         if(inn.isEmpty() && inn.isVisible()) {
-            alertHere = ViewHelper.attention(inn,"Не заполнено поле Реквизиты заявителя",alertHere.getFirst());
+            alertHere = ViewHelper.attention(inn
+                    ,"Не заполнено поле Реквизиты заявителя"
+                    ,alertHere.getFirst(),space);
         }
         if(!inn.isEmpty() && inn.isVisible()) {
             int length = inn.getValue().length();
             if((length < 10) || (length > 13))
                 alertHere = ViewHelper.attention(inn
-                        ,"Поле Реквизиты заявителя дожно содержать от 10 до 13 цифр",alertHere.getFirst());
+                        ,"Поле Реквизиты заявителя дожно содержать от 10 до 13 цифр"
+                        ,alertHere.getFirst(),space);
         }
         if(addressRegistration.isEmpty() && addressRegistration.isVisible()) {
             alertHere = ViewHelper.attention(addressRegistration
-                    ,"Не заполнено поле Адрес регистрации",alertHere.getFirst());
+                    ,"Не заполнено поле Адрес регистрации"
+                    ,alertHere.getFirst(),space);
         }
         if(addressActual.isEmpty() && addressActual.isVisible()) {
-            alertHere = ViewHelper.attention(addressActual,"Не заполнено поле Адрес фактический",alertHere.getFirst());
+            alertHere = ViewHelper.attention(addressActual
+                    ,"Не заполнено поле Адрес фактический"
+                    ,alertHere.getFirst(),space);
         }
         if(reason.getValue() == null) {
-            alertHere = ViewHelper.attention(reason,"Необходимо выбрать причину обращения",alertHere.getFirst());
+            alertHere = ViewHelper.attention(reason
+                    ,"Необходимо выбрать причину обращения"
+                    ,alertHere.getFirst(),space);
         }
         if(object.isEmpty()) {
-            alertHere = ViewHelper.attention(object,"Не заполнено поле Объект",alertHere.getFirst());
+            alertHere = ViewHelper.attention(object
+                    ,"Не заполнено поле Объект"
+                    ,alertHere.getFirst(),space);
         }
         if(address.isEmpty()) {
-            alertHere = ViewHelper.attention(address,"Не заполнено поле Адрес объекта",alertHere.getFirst());
+            alertHere = ViewHelper.attention(address
+                    ,"Не заполнено поле Адрес объекта"
+                    ,alertHere.getFirst(),space);
         }
         if(specification.isEmpty() && (demandType.getValue().getId().equals(DemandType.TO150))) {
-            alertHere = ViewHelper.attention(specification,"Не заполнено поле Характер нагрузки}",alertHere.getFirst());
+            alertHere = ViewHelper.attention(specification
+                    ,"Не заполнено поле Характер нагрузки}"
+                    ,alertHere.getFirst(),space);
         }
         if(reason.getValue() != null) {
             if ((powerCurrent.isEmpty() || powerCurrent.getValue() == 0.0) &&
                     powerMaximum.isVisible() && (reason.getValue().getId() == 2L)) {
                 alertHere = ViewHelper.attention(powerCurrent
                         ,"При увеличении мощности нужно указать ранее присоединённую..."
-                        ,alertHere.getFirst());
+                        ,alertHere.getFirst(),space);
             }
         }
         if ((powerDemand.isEmpty() || powerDemand.getValue() == 0.0) && powerMaximum.isVisible()) {
-            alertHere = ViewHelper.attention(powerDemand, "Не заполнено поле Мощность...",alertHere.getFirst());
+            alertHere = ViewHelper.attention(powerDemand
+                    , "Не заполнено поле Мощность..."
+                    ,alertHere.getFirst(),space);
         }
         if ((!powerMaximum.isEmpty() || powerMaximum.getValue() != 0.0)
                 && powerMaximum.getValue() > this.MaxPower) {
             alertHere = ViewHelper.attention(powerDemand
-                    ,"Максимальная мощность превышает допустимую...",alertHere.getFirst());
+                    ,"Максимальная мощность превышает допустимую..."
+                    ,alertHere.getFirst(),space);
         }
         if(alertHere.getFirst() != null) alertHere.getFirst().focus();
         return alertHere.getSecond();
