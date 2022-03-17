@@ -6,6 +6,7 @@ import com.example.application.data.service.NoteService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -54,13 +55,27 @@ public class NotesLayout extends VerticalLayout {
         Button addButton = new Button("Добавить примечание");
         Button removeButton = new Button("Удалить последнее");
         removeButton.setEnabled(false);
+        noteArea.setHelperText("Сначала надо ввести текст примечания");
+
+        noteArea.addKeyDownListener(e -> {
+//            if(!noteArea.getValue().isEmpty()) {
+                addButton.setEnabled(true);
+//            }
+        });
 
         addButton.addClickListener(e -> {
+            if(noteArea.getValue().isEmpty()) {
+                Notification.show("Сначала надо ввести текст примечания", 3000,
+                        Notification.Position.BOTTOM_START);
+                return;
+            }
             notes.add(new Note(demand, noteArea.getValue(), true));
             noteArea.setValue("");
             noteListDataProvider.refreshAll();
             removeButton.setEnabled(true);
+            addButton.setEnabled(false);
         });
+        addButton.setEnabled(false);
 
         removeButton.addClickListener(e -> {
             if(notes.toArray().length > count) {
