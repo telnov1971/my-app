@@ -91,8 +91,6 @@ public class DemandEditTo150 extends GeneralForm {
         pointBinder.readBean(this.point);
     }
     public boolean save() {
-        passportSerries.setValue("0000");
-        passportNumber.setValue("000000");
         if(!super.save() || (pointBinder.validate().getValidationErrors().size() > 0)) return false;
         pointBinder.writeBeanIfValid(point);
         point.setDemand(demand);

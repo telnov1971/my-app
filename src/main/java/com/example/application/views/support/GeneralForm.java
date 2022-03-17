@@ -390,35 +390,43 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         });
         inn.addValueChangeListener(e -> {
             int length = inn.getValue().length();
-            if((length < 10) || (length > 13)) {
+            if((length < 10) || (length > 20)) {
                 alertHere = ViewHelper.attention(inn,
-                        "Поле Реквизиты заявителя дожно содержать от 10 до 13 цифр"
+                        "Поле Реквизиты заявителя дожно содержать от 10 до 20 цифр"
                         ,alertHere.getFirst(),space);
                 if(inn != null) inn.focus();
             } else {
                 ViewHelper.deselect(inn);
             }
         });
-        passportSerries.addValueChangeListener(e->{
-            if(passportSerries.getValue().length() != 4) {
-                alertHere = ViewHelper.attention(passportSerries
-                        , "Поле Паспорт серия должно содержать 4 цифры"
-                        ,alertHere.getFirst(),space);
-                passportSerries.focus();
-            } else {
-                ViewHelper.deselect(passportSerries);
-            }
-        });
-        passportNumber.addValueChangeListener(e->{
-            if(passportNumber.getValue().length() != 6) {
-                alertHere = ViewHelper.attention(passportNumber
-                        ,"Поле Паспорт номер  должно содержать 6 цифр"
-                        ,alertHere.getFirst(),space);
-                passportNumber.focus();
-            } else {
-                ViewHelper.deselect(passportNumber);
-            }
-        });
+        if(passportSerries.isVisible()) {
+            passportSerries.addValueChangeListener(e -> {
+                if (passportSerries.getValue().length() != 4) {
+                    alertHere = ViewHelper.attention(passportSerries
+                            , "Поле Паспорт серия должно содержать 4 цифры"
+                            , alertHere.getFirst(), space);
+                    passportSerries.focus();
+                } else {
+                    ViewHelper.deselect(passportSerries);
+                }
+            });
+        } else {
+            passportSerries.setValue("0000");
+        }
+        if(passportNumber.isVisible()) {
+            passportNumber.addValueChangeListener(e -> {
+                if (passportNumber.getValue().length() != 6) {
+                    alertHere = ViewHelper.attention(passportNumber
+                            , "Поле Паспорт номер  должно содержать 6 цифр"
+                            , alertHere.getFirst(), space);
+                    passportNumber.focus();
+                } else {
+                    ViewHelper.deselect(passportNumber);
+                }
+            });
+        } else {
+            passportNumber.setValue("000000");
+        }
         addressRegistration.addValueChangeListener(e -> ViewHelper.deselect(addressRegistration));
         addressEquals.addValueChangeListener(event -> {
             if(addressEquals.getValue()){
@@ -622,7 +630,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
         if(!inn.isEmpty() && inn.isVisible()) {
             int length = inn.getValue().length();
-            if((length < 10) || (length > 13))
+            if((length < 10) || (length > 20))
                 alertHere = ViewHelper.attention(inn
                         ,"Поле Реквизиты заявителя дожно содержать от 10 до 13 цифр"
                         ,alertHere.getFirst(),space);

@@ -6,11 +6,12 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Table(name = "file_storage")
 @Entity
 public class FileStored extends AbstractEntity {
-    private LocalDate createdate;
+    private LocalDateTime createdate;
 
     @Column(name = "name")
     @Length(max = 2048)
@@ -36,7 +37,7 @@ public class FileStored extends AbstractEntity {
 
     public FileStored(String name, String link, Boolean client, Demand demand) {
         this.client = client;
-        createdate = LocalDate.now();
+        createdate = LocalDateTime.now();
         this.load1c = false;
         this.name = name;
         this.link = link;
@@ -83,11 +84,11 @@ public class FileStored extends AbstractEntity {
         this.client = client;
     }
 
-    public LocalDate getCreatedate() {
+    public LocalDateTime getCreatedate() {
         return createdate;
     }
 
-    public void setCreatedate(LocalDate createdate) {
+    public void setCreatedate(LocalDateTime createdate) {
         this.createdate = createdate;
     }
 }

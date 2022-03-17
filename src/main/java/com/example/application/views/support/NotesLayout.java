@@ -42,7 +42,7 @@ public class NotesLayout extends VerticalLayout {
         noteGrid.addComponentColumn(note -> new Label(note.getClient()?"Клиент":"Омскэлектро"))
                 .setHeader("Записал").setAutoWidth(true);
         noteGrid.addColumn(Note::getNote)
-                .setHeader("Примечание").setAutoWidth(true);
+                .setHeader("Комментарии").setAutoWidth(true);
 
         notes.add(new Note());
         noteGrid.setItems(notes);
@@ -73,7 +73,8 @@ public class NotesLayout extends VerticalLayout {
 
         noteArea.setWidthFull();
         buttonsLayout.add(addButton, removeButton);
-        Label notesLabel = new Label("Примечания: (можно удалить только ещё не сохранённое)");
+        Label notesLabel = new Label("Комментарии: (Любая информация не входящая в заданные поля"+
+                " или возникающая при дальнейшем взаимодействии. Можно удалить только ещё не сохранённое)");
         add(notesLabel,noteGrid,noteArea,buttonsLayout);
     }
 

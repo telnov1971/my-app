@@ -14,6 +14,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -47,6 +48,7 @@ public class Profile extends Div implements BeforeEnterObserver {
     private final TextField contact;
     private final Label notyfy;
     private final Label note;
+    private final Label subnote;
     private final Button saveButton = new Button("Зарегистрировать");
 
     public Profile(UserService userService,
@@ -100,8 +102,15 @@ public class Profile extends Div implements BeforeEnterObserver {
                 "перейти по ссылке в присланом письме.");
         note.getElement().getStyle().set("color", "red");
         note.getElement().getStyle().set("font-size", "1.5em");
-        note.setHeight("2em");
-        add(notyfy, note, userForm, buttonBar);
+        note.setHeight("1em");
+        subnote = new Label("В качестве логина и пароля рекомендуется " +
+                "использовать только латинские буквы, цифры и знаки: @ # _ & . ");
+        subnote.getElement().getStyle().set("color", "black");
+        subnote.getElement().getStyle().set("font-size", "0.8em");
+        subnote.setHeight("0.9em");
+        VerticalLayout notesLayout = new VerticalLayout();
+        notesLayout.add(note, subnote);
+        add(notyfy, notesLayout, userForm, buttonBar);
         this.getElement().getStyle().set("margin", "15px");
         saveButtonActive();
     }
@@ -119,9 +128,13 @@ public class Profile extends Div implements BeforeEnterObserver {
                 if(!editMode){
                     editUser.setPassword(this.passwordEncoder.encode(password.getValue()));
                     editUser.setRoles(Set.of(Role.USER));
-                    editUser.setActive(false);
-                    editUser.setActivationCode(UUID.randomUUID().toString());
-                    sendMessage(editUser);
+                    if(editUser.getEmail().contains("support@omskelectro.ru")) {
+                        editUser.setActive(true);
+                    } else {
+                        editUser.setActive(false);
+                        editUser.setActivationCode(UUID.randomUUID().toString());
+                        sendMessage(editUser);
+                    }
                 } else {
                     if(password.getValue().equals(""))
                         editUser.setPassword(existUser.getPassword());

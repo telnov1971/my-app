@@ -138,7 +138,7 @@ public class MainView extends AppLayout {
             if(getUI().isPresent()){
                 UI ui = getUI().get();
                 ui.getSession().getSession().invalidate();
-                ui.navigate("/login");
+                ui.navigate("/");
             }
         });
         button.getElement().setAttribute("title","Выход их личного кабинета");
@@ -152,8 +152,10 @@ public class MainView extends AppLayout {
         MenuItemInfo[] menuItems = new MenuItemInfo[]{ //
 //                new MenuItemInfo("Список заявок", "la la-globe", DemandList.class), //
 
-                new MenuItemInfo("Физические лица до 15 кВт (ком.-быт. нужды)", "la la-file", DemandEditTo15.class), //
-                new MenuItemInfo("Юридические лица и ИП до 150кВт (один источник электропитания)", "la la-file", DemandEditTo150.class), //
+                new MenuItemInfo("Физические лица до 15 кВт (ком.-быт. нужды)"
+                        , "la la-file", DemandEditTo15.class), //
+                new MenuItemInfo("Юридические лица и ИП до 150кВт (один источник электропитания)"
+                        , "la la-file", DemandEditTo150.class), //
                 new MenuItemInfo("Временное присоединение", "la la-file", DemandEditTemporal.class), //
                 new MenuItemInfo("Иные категории потребителей", "la la-file", DemandEditeGeneral.class) //
 
@@ -199,6 +201,13 @@ public class MainView extends AppLayout {
     private Footer createFooter() {
         Footer layout = new Footer();
         layout.addClassNames("flex", "items-center", "my-s", "px-m", "py-xs");
+
+        Label support = new Label("По вопросам заполнения Заявок звонить по тел.: 53-81-89. " +
+                "При возникновении ошибок и сбоев в работе звонить по тел. 53-81-65 " +
+                "или присылать сообщения на e-mail support@omskelectro.ru");
+        support.addClassNames("flex", "mx-s", "p-s", "relative", "text-secondary");
+        support.getElement().getStyle().set("font-size","0.8em");
+        layout.add(support);
 
         return layout;
     }
