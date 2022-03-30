@@ -570,6 +570,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             if(editExp > 0) {
                 if (!expirationsLayout.saveEdited()) return false;
             }
+            if(editPnt > 0) {
+                return pointsLayout.saveEdited();
+            }
             return true;
         } else {
             return false;
@@ -751,16 +754,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected void saveMode(int edEx, int edPt) {
         editPnt += edPt;
         editExp += edEx;
-        if(editPnt > 0 && editExp <= 0) {
-            save.setEnabled(false);
-            attentionLabel.setText("Вы не сохранили точки подключения. " +
-                    "Нажмите СОХРАНИТЬ в таблице точек подлючения");
-        }
-        if(editPnt > 0 && editExp > 0) {
-            save.setEnabled(false);
-            attentionLabel.setText("Вы не сохранили этапы работ и точки подлючения. " +
-                    "Нажмите СОХРАНИТЬ в таблице этапов и таблице точек подлючения");
-        }
         if(editPnt <= 0 && editExp <= 0) {
             save.setEnabled(true);
             attentionLabel.setText("");
