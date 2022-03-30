@@ -36,6 +36,7 @@ public class ExpirationsLayout extends VerticalLayout {
     private final Grid.Column<Expiration> editorColumn;
     private final Button addButton;
     private Button removeButton;
+    private GeneralForm formParent;
 
     private final ExpirationService expirationService;
     private final HistoryService historyService;
@@ -45,9 +46,10 @@ public class ExpirationsLayout extends VerticalLayout {
 
     public ExpirationsLayout(ExpirationService expirationService
             , SafetyService safetyService
-            , HistoryService historyService, GeneralForm formParent) {
+            , HistoryService historyService, GeneralForm paramFormParent) {
         this.expirationService = expirationService;
         this.historyService = historyService;
+        formParent = paramFormParent;
         formParent.expirationsLayout = this;
         expirationGrid.setHeightByRows(true);
         expirations = new ArrayList<>();
@@ -169,6 +171,7 @@ public class ExpirationsLayout extends VerticalLayout {
                 this.expirations.remove(expirations.size() - 1);
                 expirationsDataProvider.refreshAll();
                 addButton.setEnabled(true);
+                formParent.saveMode(-1,0);
             } else {
                 removeButton.setEnabled(false);
             }
@@ -180,21 +183,7 @@ public class ExpirationsLayout extends VerticalLayout {
         editorExpiration.addCloseListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editorExpiration.isOpen())));
         Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> {
-            if(fieldStep.isEmpty()){
-                ViewHelper.alert(fieldStep.getElement());
-                return;
-            }
-            if(fieldPlanProject.isEmpty()){
-                ViewHelper.alert(fieldPlanProject.getElement());
-                return;
-            }
-            if(fieldPlanUsage.isEmpty()){
-                ViewHelper.alert(fieldPlanUsage.getElement());
-                return;
-            }
-            formParent.saveMode(-1,0);
-            editorExpiration.save();
-            addButton.setEnabled(true);
+            saveEdited();
         });
 //        save.setText("СОХРАНИТЬ");
         save.addClassName("save");
@@ -220,6 +209,28 @@ public class ExpirationsLayout extends VerticalLayout {
         HorizontalLayout expirationsButtonLayout = new HorizontalLayout();
         expirationsButtonLayout.add(addButton,removeButton);
         add(helpers,expirationGrid, expirationsButtonLayout);
+    }
+
+    public Boolean saveEdited() {
+        if(fieldStep.isEmpty()){
+            ViewHelper.alert(fieldStep.getElement());
+            fieldStep.focus();
+            return false;
+        }
+        if(fieldPlanProject.isEmpty()){
+            ViewHelper.alert(fieldPlanProject.getElement());
+            fieldPlanProject.focus();
+            return false;
+        }
+        if(fieldPlanUsage.isEmpty()){
+            ViewHelper.alert(fieldPlanUsage.getElement());
+            fieldPlanUsage.focus();
+            return false;
+        }
+        formParent.saveMode(-1,0);
+        editorExpiration.save();
+        addButton.setEnabled(true);
+        return true;
     }
 
     public void pointAdd() {

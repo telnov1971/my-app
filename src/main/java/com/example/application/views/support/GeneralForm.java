@@ -567,6 +567,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             notesLayout.setDemand(demand);
             notesLayout.saveNotes();
 
+            if(editExp > 0) {
+                if (!expirationsLayout.saveEdited()) return false;
+            }
             return true;
         } else {
             return false;
@@ -752,11 +755,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             save.setEnabled(false);
             attentionLabel.setText("Вы не сохранили точки подключения. " +
                     "Нажмите СОХРАНИТЬ в таблице точек подлючения");
-        }
-        if(editExp > 0 && editPnt <=0 ) {
-            save.setEnabled(false);
-            attentionLabel.setText("Вы не сохранили этапы работ. " +
-                    "Нажмите СОХРАНИТЬ в таблице этапов");
         }
         if(editPnt > 0 && editExp > 0) {
             save.setEnabled(false);
