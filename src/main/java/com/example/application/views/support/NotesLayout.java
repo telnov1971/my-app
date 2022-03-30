@@ -2,6 +2,8 @@ package com.example.application.views.support;
 
 import com.example.application.data.entity.Demand;
 import com.example.application.data.entity.Note;
+import com.example.application.data.entity.Point;
+import com.example.application.data.service.HistoryService;
 import com.example.application.data.service.NoteService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -21,7 +23,7 @@ public class NotesLayout extends VerticalLayout {
     private final Grid<Note> noteGrid = new Grid<>(Note.class,false);
     private ListDataProvider<Note> noteListDataProvider;
     //private Binder<Note> binderNote = new Binder<>(Note.class);
-    private final TextArea noteArea = new TextArea("","(введите примечание)");
+    private final TextArea noteArea = new TextArea("","(введите комментарий)");
     private final HorizontalLayout buttonsLayout = new HorizontalLayout();
     //private Editor<Note> editorNote;
 
@@ -29,16 +31,17 @@ public class NotesLayout extends VerticalLayout {
     private int count = 0;
 
     private final NoteService NoteService;
-    //private final HistoryService historyService;
+    private final HistoryService historyService;
 
-    public NotesLayout(NoteService NoteService) {
+    public NotesLayout(NoteService NoteService, HistoryService historyService) {
         //this.historyService = historyService;
         this.NoteService = NoteService;
+        this.historyService = historyService;
 
         noteGrid.setHeightByRows(true);
         notes = new ArrayList<>();
         noteGrid.addComponentColumn(note -> new Label(note.getDateTime().
-                        format(DateTimeFormatter.ofPattern("uuuu-MM-dd | HH:mm:ss"))))
+                        format(DateTimeFormatter.ofPattern("dd-MM-yyyy | HH:mm:ss"))))
                 .setHeader("Дата и время").setAutoWidth(true);
         noteGrid.addComponentColumn(note -> new Label(note.getClient()?"Клиент":"Омскэлектро"))
                 .setHeader("Записал").setAutoWidth(true);
@@ -52,10 +55,10 @@ public class NotesLayout extends VerticalLayout {
 
         noteListDataProvider.refreshAll();
 
-        Button addButton = new Button("Добавить примечание");
-        Button removeButton = new Button("Удалить последнее");
+        Button addButton = new Button("Добавить комментарий");
+        Button removeButton = new Button("Удалить последний");
         removeButton.setEnabled(false);
-        noteArea.setHelperText("Сначала надо ввести текст примечания");
+        noteArea.setHelperText("Сначала надо ввести текст комментария");
 
         noteArea.addKeyDownListener(e -> {
 //            if(!noteArea.getValue().isEmpty()) {
@@ -110,6 +113,7 @@ public class NotesLayout extends VerticalLayout {
             note.setDemand(demand);
             note.setClient(true);
             if(note.getId() == null) {
+                historyService.saveHistory(demand, note, Note.class);
                 NoteService.update(note);
             }
         }

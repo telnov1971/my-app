@@ -160,6 +160,14 @@ public class HistoryService extends CrudService<History,Long> {
         return fileHistory;
     }
 
+    public String writeHistory(Note note) {
+        String noteHistory = "";
+        if(note!=null) {
+            noteHistory = "Добавлен комментарий: " + note.getNote() + "\n";
+        }
+        return noteHistory;
+    }
+
     private String createHistory(String strNew, String strOld){
         String history = "";
         if(strNew!=null){
@@ -226,6 +234,9 @@ public class HistoryService extends CrudService<History,Long> {
                     break;
                 case "Demand" :
                     his = writeHistory((Demand) obj);
+                    break;
+                case "Note" :
+                    his = writeHistory((Note) obj);
                     break;
                 default :
                     his = "";

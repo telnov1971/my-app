@@ -19,6 +19,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class FilesLayout extends VerticalLayout {
@@ -48,7 +49,8 @@ public class FilesLayout extends VerticalLayout {
         files = new ArrayList<>();
 
         Label fileTableName = new Label("Прикреплённые документы (можно только добавить, удалить нельзя)");
-        fileStoredGrid.addColumn(FileStored::getCreatedate)
+        fileStoredGrid.addComponentColumn(file -> new Label(file.getCreatedate().format(
+                                            DateTimeFormatter.ofPattern("dd-MM-yyyy | HH:mm"))))
                 .setHeader("Загружено")
                 .setAutoWidth(true);
         Grid.Column<FileStored> columnName =

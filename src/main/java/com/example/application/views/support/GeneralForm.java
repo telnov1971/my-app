@@ -178,7 +178,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         label.setHeight("1px");
 
         filesLayout = new FilesLayout(this.fileStoredService, historyService);
-        notesLayout = new NotesLayout(noteService);
+        notesLayout = new NotesLayout(noteService, historyService);
 
         historyLayout = new HistoryLayout(this.historyService);
         historyLayout.setWidthFull();
