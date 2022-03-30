@@ -28,6 +28,8 @@ public class NotesLayout extends VerticalLayout {
     //private Editor<Note> editorNote;
 
     private List<Note> notes;
+    Button addButton = new Button("Добавить комментарий");
+    Button removeButton = new Button("Удалить последний");
     private int count = 0;
 
     private final NoteService NoteService;
@@ -55,8 +57,6 @@ public class NotesLayout extends VerticalLayout {
 
         noteListDataProvider.refreshAll();
 
-        Button addButton = new Button("Добавить комментарий");
-        Button removeButton = new Button("Удалить последний");
         removeButton.setEnabled(false);
         noteArea.setHelperText("Сначала надо ввести текст комментария");
 
@@ -109,6 +109,13 @@ public class NotesLayout extends VerticalLayout {
     }
 
     public void saveNotes() {
+        if(!noteArea.getValue().isEmpty()) {
+            notes.add(new Note(demand, noteArea.getValue(), true));
+            noteArea.setValue("");
+            noteListDataProvider.refreshAll();
+            removeButton.setEnabled(true);
+            addButton.setEnabled(false);
+        }
         for(Note note: notes) {
             note.setDemand(demand);
             note.setClient(true);
