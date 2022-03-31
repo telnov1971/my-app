@@ -47,7 +47,7 @@ public class DemandEditTo150 extends GeneralForm {
         if(demandTypeService.findById(DemandType.TO150).isPresent())
             demandType.setValue(demandTypeService.findById(DemandType.TO150).get());
 
-        expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService, this);
+        expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService, this, client);
 
         typeDemander.setItems("Юридическое лицо", "Индивидуальный предприниматель");
         Component[] fields = {delegate, typeDemander, inn, innDate, powerDemand, powerCurrent,
@@ -94,7 +94,7 @@ public class DemandEditTo150 extends GeneralForm {
         if(!super.save() || (pointBinder.validate().getValidationErrors().size() > 0)) return false;
         pointBinder.writeBeanIfValid(point);
         point.setDemand(demand);
-        historyService.saveHistory(demand,point,Point.class);
+        historyService.saveHistory(client, demand,point,Point.class);
         pointService.update(this.point);
         expirationsLayout.setDemand(demand);
         expirationsLayout.saveExpirations();

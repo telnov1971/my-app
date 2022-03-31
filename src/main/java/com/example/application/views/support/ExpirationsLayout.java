@@ -2,6 +2,7 @@ package com.example.application.views.support;
 
 import com.example.application.data.entity.Demand;
 import com.example.application.data.entity.Expiration;
+import com.example.application.data.entity.Role;
 import com.example.application.data.entity.Safety;
 import com.example.application.data.service.ExpirationService;
 import com.example.application.data.service.HistoryService;
@@ -40,16 +41,20 @@ public class ExpirationsLayout extends VerticalLayout {
 
     private final ExpirationService expirationService;
     private final HistoryService historyService;
+    private final int client;
 
     private double powerMax;
     private int count = 0;
 
     public ExpirationsLayout(ExpirationService expirationService
             , SafetyService safetyService
-            , HistoryService historyService, GeneralForm paramFormParent) {
+            , HistoryService historyService
+            , GeneralForm paramFormParent
+            , int client) {
         this.expirationService = expirationService;
         this.historyService = historyService;
         formParent = paramFormParent;
+        this.client = client;
         formParent.expirationsLayout = this;
         expirationGrid.setHeightByRows(true);
         expirations = new ArrayList<>();
@@ -257,7 +262,7 @@ public class ExpirationsLayout extends VerticalLayout {
                 expiration.getPlanProject().isEmpty()||
                 expiration.getPlanUsage().isEmpty()) continue;
             expiration.setDemand(demand);
-            historyService.saveHistory(demand, expiration, Expiration.class);
+            historyService.saveHistory(client, demand, expiration, Expiration.class);
             expirationService.update(expiration);
         }
     }

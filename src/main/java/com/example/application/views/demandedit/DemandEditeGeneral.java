@@ -51,12 +51,17 @@ public class DemandEditeGeneral extends GeneralForm {
             demandType.setValue(demandTypeService.findById(DemandType.GENERAL).get());
 
         pointsLayout = new PointsLayout(pointService
-                ,voltageService
-                ,safetyService
-                ,historyService
-                ,this);
+                , voltageService
+                , safetyService
+                , historyService
+                , this
+                , client);
 
-        expirationsLayout = new ExpirationsLayout(expirationService,safetyService,historyService,this);
+        expirationsLayout = new ExpirationsLayout(expirationService
+                , safetyService
+                , historyService
+                , this
+                , client);
 
         Component[] fields = {typeDemander,
                 addressRegistration,addressActual,addressEquals,

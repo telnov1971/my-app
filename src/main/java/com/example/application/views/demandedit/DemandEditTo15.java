@@ -46,7 +46,7 @@ public class DemandEditTo15 extends GeneralForm {
         if(demandTypeService.findById(DemandType.TO15).isPresent())
             demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
         expirationsLayout = new ExpirationsLayout(expirationService
-                ,safetyService, historyService, this);
+                ,safetyService, historyService, this, client);
         if(safetyService.findById(3L).isPresent())
             safety.setValue(safetyService.findById(3L).get());
         safety.setReadOnly(true);
@@ -96,7 +96,7 @@ public class DemandEditTo15 extends GeneralForm {
         if(!super.save() || (pointBinder.validate().getValidationErrors().size() > 0)) return false;
         pointBinder.writeBeanIfValid(point);
         point.setDemand(demand);
-        historyService.saveHistory(demand,point,Point.class);
+        historyService.saveHistory(client, demand,point,Point.class);
         pointService.update(this.point);
         expirationsLayout.setDemand(demand);
         expirationsLayout.saveExpirations();

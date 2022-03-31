@@ -41,17 +41,20 @@ public class PointsLayout extends VerticalLayout {
     private final VoltageService voltageService;
     private final SafetyService safetyService;
     private final HistoryService historyService;
+    private final int client;
 
     public PointsLayout(PointService pointService
             , VoltageService voltageService
             , SafetyService safetyService
             , HistoryService historyService
-            , GeneralForm formParent) {
+            , GeneralForm formParent
+            , int client) {
         this.pointService = pointService;
         this.voltageService = voltageService;
         this.safetyService = safetyService;
         this.historyService = historyService;
         this.formParent = formParent;
+        this.client = client;
         pointGrid.setHeightByRows(true);
         points = new ArrayList<>();
         formParent.points = points;
@@ -298,7 +301,7 @@ public class PointsLayout extends VerticalLayout {
             if((point.getPowerDemand() == 0.0)
                     && (point.getPowerCurrent() == 0.0)) continue;
             point.setDemand(demand);
-            historyService.saveHistory(demand, point, Point.class);
+            historyService.saveHistory(client, demand, point, Point.class);
             pointService.update(point);
         }
     }

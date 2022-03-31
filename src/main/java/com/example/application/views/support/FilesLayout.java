@@ -3,6 +3,7 @@ package com.example.application.views.support;
 import com.example.application.config.AppEnv;
 import com.example.application.data.entity.Demand;
 import com.example.application.data.entity.FileStored;
+import com.example.application.data.entity.Role;
 import com.example.application.data.service.FileStoredService;
 import com.example.application.data.service.HistoryService;
 import com.vaadin.flow.component.button.Button;
@@ -38,12 +39,14 @@ public class FilesLayout extends VerticalLayout {
 
     private final FileStoredService fileStoredService;
     private final HistoryService historyService;
+    private int client;
 
     public FilesLayout(FileStoredService fileStoredService
-            , HistoryService historyService) {
+            , HistoryService historyService, int client) {
         this.historyService = historyService;
         this.uploadPath = AppEnv.getUploadPath();
         this.fileStoredService = fileStoredService;
+        this.client = client;
 
         fileStoredGrid.setHeightByRows(true);
         files = new ArrayList<>();
@@ -61,8 +64,20 @@ public class FilesLayout extends VerticalLayout {
                 fileStoredGrid.addColumn(FileStored::getLink)
                         .setHeader("Ссылка на файл")
                         .setAutoWidth(true);
-        fileStoredGrid.addComponentColumn(file ->
-                        new Label(file.getClient()?"Клиент":"Омскэлектро"))
+        fileStoredGrid.addComponentColumn(file -> {
+                    String str = "";
+                    switch (file.getClient()){
+                        case 0:
+                            str = "Омскэлектро";
+                        break;
+                        case 1:
+                            str ="Клиент";
+                        break;
+                        case 2:
+                            str = "ГП";
+                        break;
+                    }
+                    return new Label(str);})
                 .setHeader("Кем загружено")
                 .setAutoWidth(true);
         files.add(new FileStored());
@@ -164,9 +179,10 @@ public class FilesLayout extends VerticalLayout {
 
     public void saveFiles() {
         for(Map.Entry<String, String> entry: filesToSave.entrySet()) {
-            FileStored file = new FileStored(entry.getValue(),entry.getKey(), true, demand);
+            FileStored file = new FileStored(entry.getValue(),entry.getKey(), demand);
             file.setDemand(demand);
-            historyService.saveHistory(demand, file, FileStored.class);
+            file.setClient(client);
+            historyService.saveHistory(client, demand, file, FileStored.class);
             fileStoredService.update(file);
         }
     }
@@ -180,5 +196,9 @@ public class FilesLayout extends VerticalLayout {
 
     public void setReadOnly(){
         multiUpload.setVisible(false);
+    }
+
+    public void setClient(int client){
+        this.client = client;
     }
 }

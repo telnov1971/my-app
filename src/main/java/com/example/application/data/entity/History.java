@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 public class History extends AbstractEntity {
     private LocalDateTime createdate;
-    private Boolean client;
+    private Integer client;
     @Size(max = 2048)
     private String history;
     @ManyToOne(fetch = FetchType.EAGER)
@@ -24,14 +24,14 @@ public class History extends AbstractEntity {
     public History() {
         this.createdate = LocalDateTime.now();
         this.history = "";
-        this.client = true;
+        this.client = 1;
     }
 
     public History(Demand demand, String history) {
         this.createdate = LocalDateTime.now();
         this.demand = demand;
         this.history = history;
-        this.client = true;
+        this.client = 1;
     }
 
     public LocalDateTime getCreateDate() {
@@ -52,10 +52,10 @@ public class History extends AbstractEntity {
     public void setDemand(Demand demand) {
         this.demand = demand;
     }
-    public Boolean getClient() {
+    public Integer getClient() {
         return client;
     }
-    public void setClient(Boolean client) {
+    public void setClient(Integer client) {
         this.client = client;
     }
 }

@@ -17,7 +17,7 @@ public class Note extends AbstractEntity {
     private String note;
 
     @Column(name = "client")
-    private Boolean client;
+    private Integer client;
 
     @ManyToOne
     @JoinColumn(name = "demand_id")
@@ -26,14 +26,14 @@ public class Note extends AbstractEntity {
     public Note() {
     }
 
-    public Note(Demand demand, LocalDateTime dateTime, String note, Boolean client) {
+    public Note(Demand demand, LocalDateTime dateTime, String note, Integer client) {
         this.demand = demand;
         this.dateTime = dateTime;
         this.note = note;
         this.client = client;
     }
 
-    public Note(Demand demand, String note, Boolean client) {
+    public Note(Demand demand, String note, Integer client) {
         this.demand = demand;
         this.client = client;
         this.dateTime = LocalDateTime.now();
@@ -56,11 +56,11 @@ public class Note extends AbstractEntity {
         this.note = note;
     }
 
-    public Boolean getClient() {
+    public Integer getClient() {
         return client;
     }
 
-    public void setClient(Boolean client) {
+    public void setClient(Integer client) {
         this.client = client;
     }
 

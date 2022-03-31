@@ -2,7 +2,7 @@ package com.example.application.views.support;
 
 import com.example.application.data.entity.Demand;
 import com.example.application.data.entity.Note;
-import com.example.application.data.entity.Point;
+import com.example.application.data.entity.Role;
 import com.example.application.data.service.HistoryService;
 import com.example.application.data.service.NoteService;
 import com.vaadin.flow.component.button.Button;
@@ -34,18 +34,33 @@ public class NotesLayout extends VerticalLayout {
 
     private final NoteService NoteService;
     private final HistoryService historyService;
+    private int client;
 
-    public NotesLayout(NoteService NoteService, HistoryService historyService) {
+    public NotesLayout(NoteService NoteService, HistoryService historyService, int client) {
         //this.historyService = historyService;
         this.NoteService = NoteService;
         this.historyService = historyService;
+        this.client = client;
 
         noteGrid.setHeightByRows(true);
         notes = new ArrayList<>();
         noteGrid.addComponentColumn(note -> new Label(note.getDateTime().
                         format(DateTimeFormatter.ofPattern("dd-MM-yyyy | HH:mm:ss"))))
                 .setHeader("Дата и время").setAutoWidth(true);
-        noteGrid.addComponentColumn(note -> new Label(note.getClient()?"Клиент":"Омскэлектро"))
+        noteGrid.addComponentColumn(note -> {
+                    String str = "";
+                    switch (note.getClient()){
+                        case 0:
+                            str = "Омскэлектро";
+                            break;
+                        case 1:
+                            str ="Клиент";
+                            break;
+                        case 2:
+                            str = "ГП";
+                            break;
+                    }
+                    return new Label(str);})
                 .setHeader("Записал").setAutoWidth(true);
         noteGrid.addColumn(Note::getNote)
                 .setHeader("Комментарии").setAutoWidth(true);
@@ -72,7 +87,7 @@ public class NotesLayout extends VerticalLayout {
                         Notification.Position.BOTTOM_START);
                 return;
             }
-            notes.add(new Note(demand, noteArea.getValue(), true));
+            notes.add(new Note(demand, noteArea.getValue(), client));
             noteArea.setValue("");
             noteListDataProvider.refreshAll();
             removeButton.setEnabled(true);
@@ -108,9 +123,9 @@ public class NotesLayout extends VerticalLayout {
         this.demand = demand;
     }
 
-    public void saveNotes() {
+    public void saveNotes(int client) {
         if(!noteArea.getValue().isEmpty()) {
-            notes.add(new Note(demand, noteArea.getValue(), true));
+            notes.add(new Note(demand, noteArea.getValue(), client));
             noteArea.setValue("");
             noteListDataProvider.refreshAll();
             removeButton.setEnabled(true);
@@ -118,9 +133,9 @@ public class NotesLayout extends VerticalLayout {
         }
         for(Note note: notes) {
             note.setDemand(demand);
-            note.setClient(true);
+            note.setClient(client);
             if(note.getId() == null) {
-                historyService.saveHistory(demand, note, Note.class);
+                historyService.saveHistory(client, demand, note, Note.class);
                 NoteService.update(note);
             }
         }
@@ -129,5 +144,9 @@ public class NotesLayout extends VerticalLayout {
     public void setReadOnly(){
         noteArea.setVisible(false);
         buttonsLayout.setVisible(false);
+    }
+
+    public void setClient(int client){
+        this.client = client;
     }
 }

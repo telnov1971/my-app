@@ -1,9 +1,6 @@
 package com.example.application.views.demandedit;
 
-import com.example.application.data.entity.DType;
-import com.example.application.data.entity.Demand;
-import com.example.application.data.entity.DemandType;
-import com.example.application.data.entity.Point;
+import com.example.application.data.entity.*;
 import com.example.application.data.service.*;
 import com.example.application.views.main.MainView;
 import com.example.application.views.support.GeneralForm;
@@ -75,7 +72,7 @@ public class DemandEditTemporal extends GeneralForm {
         if(!super.save() || (pointBinder.validate().getValidationErrors().size() > 0)) return false;
         pointBinder.writeBeanIfValid(point);
         point.setDemand(demand);
-        historyService.saveHistory(demand,point,Point.class);
+        historyService.saveHistory(client, demand,point,Point.class);
         pointService.update(this.point);
         return true;
     }

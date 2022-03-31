@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected Pair<Focusable, Boolean> alertHere = new Pair<>(null, true);
 
+    protected int client;
     protected final String DEMAND_ID = "demandID";
     protected DecimalFormat decimalFormat;
     protected FormLayout formDemand = new FormLayout();
@@ -177,8 +178,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         Label label = new Label("                                                ");
         label.setHeight("1px");
 
-        filesLayout = new FilesLayout(this.fileStoredService, historyService);
-        notesLayout = new NotesLayout(noteService, historyService);
+        filesLayout = new FilesLayout(this.fileStoredService, historyService, client);
+        notesLayout = new NotesLayout(noteService, historyService, client);
 
         historyLayout = new HistoryLayout(this.historyService);
         historyLayout.setWidthFull();
@@ -559,13 +560,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 demand.setLoad1c(false);
                 demand.setExecuted(false);
             }
-            historyService.saveHistory(demand, demand, Demand.class);
+            historyService.saveHistory(client, demand, demand, Demand.class);
             demandService.update(demand);
 
             filesLayout.setDemand(demand);
             filesLayout.saveFiles();
             notesLayout.setDemand(demand);
-            notesLayout.saveNotes();
+            notesLayout.saveNotes(client);
 
             if(editExp > 0) {
                 if (!expirationsLayout.saveEdited()) return false;
@@ -762,22 +763,32 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        Role role = Role.ANONYMOUS;
         User currentUser;
+        Role role = Role.ANONYMOUS;
         Optional<Long> demandId = event.getRouteParameters().getLong(DEMAND_ID);
+        currentUser = userService.findByUsername(
+                SecurityContextHolder.getContext().getAuthentication().getName());
+        if(currentUser != null) {
+            role = currentUser.getRoles().contains(Role.USER) ?
+                    Role.USER :
+                    currentUser.getRoles().contains(Role.GARANT) ?
+                            Role.GARANT :
+                            currentUser.getRoles().contains(Role.ADMIN) ?
+                                    Role.ADMIN :
+                                    Role.ANONYMOUS;
+        }
+        client = 1;
+        switch (role){
+            case GARANT:
+                client = 2;
+                break;
+            case ADMIN:
+                client = 0;
+                break;
+        }
+        filesLayout.setClient(client);
+        notesLayout.setClient(client);
         if (demandId.isPresent()) {
-            currentUser = userService.findByUsername(
-                    SecurityContextHolder.getContext().getAuthentication().getName());
-            if(currentUser != null) {
-                role = currentUser.getRoles().contains(Role.USER) ?
-                        Role.USER :
-                        currentUser.getRoles().contains(Role.GARANT) ?
-                                Role.GARANT :
-                                currentUser.getRoles().contains(Role.ADMIN) ?
-                                        Role.ADMIN :
-                                        Role.ANONYMOUS;
-            }
-
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());
             if (demandFromBackend.isPresent()) {
                 if(role == Role.ADMIN) {
@@ -787,8 +798,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                         || (role == Role.GARANT &&
                                 demandFromBackend.get().getGarant().getId()>1L)) {
                     populateForm(demandFromBackend.get());
-                    if(role == Role.GARANT)
+                    if(role == Role.GARANT) {
                         setReadOnly(true);
+                        expirationsLayout.setReadOnly();
+                    }
                 } else {
                     Notification.show(String.format("Заявка с ID = %d не Ваша", demandId.get()), 3000,
                             Notification.Position.BOTTOM_START);

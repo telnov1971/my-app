@@ -218,8 +218,9 @@ public class HistoryService extends CrudService<History,Long> {
         return historyRepository.findAllByDemand(demand);
     }
 
-    public <C> void saveHistory(Demand demand, C obj, Class<C> clazz) {
+    public <C> void saveHistory(Integer client, Demand demand, C obj, Class<C> clazz) {
         History history = new History();
+        history.setClient(client);
         String his = "";
         try {
             switch (obj.getClass().getSimpleName()) {
