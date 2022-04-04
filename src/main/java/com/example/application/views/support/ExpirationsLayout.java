@@ -41,7 +41,7 @@ public class ExpirationsLayout extends VerticalLayout {
 
     private final ExpirationService expirationService;
     private final HistoryService historyService;
-    private final int client;
+    private int client;
 
     private double powerMax;
     private int count = 0;
@@ -293,5 +293,9 @@ public class ExpirationsLayout extends VerticalLayout {
             expirations.set(i, expiration);
         }
         expirationsDataProvider.refreshAll();
+    }
+
+    public void setClient(int client) {
+        this.client = client;
     }
 }

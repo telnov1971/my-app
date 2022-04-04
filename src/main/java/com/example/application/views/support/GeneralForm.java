@@ -788,6 +788,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
         filesLayout.setClient(client);
         notesLayout.setClient(client);
+        expirationsLayout.setClient(client);
         if (demandId.isPresent()) {
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());
             if (demandFromBackend.isPresent()) {
