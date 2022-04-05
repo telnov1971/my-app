@@ -789,6 +789,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         filesLayout.setClient(client);
         notesLayout.setClient(client);
         expirationsLayout.setClient(client);
+        typeDemander.setReadOnly(false);
         if (demandId.isPresent()) {
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());
             if (demandFromBackend.isPresent()) {
@@ -797,11 +798,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     populateForm(demandFromBackend.get());
                 } else if (demandFromBackend.get().getUser().equals(currentUser)
                         || (role == Role.GARANT &&
-                                demandFromBackend.get().getGarant().getId()>1L)) {
+                                demandFromBackend.get().getGarant().getId()>0L)) {
                     populateForm(demandFromBackend.get());
                     if(role == Role.GARANT) {
                         setReadOnly(true);
                         expirationsLayout.setReadOnly();
+                        typeDemander.setReadOnly(true);
                     }
                 } else {
                     Notification.show(String.format("Заявка с ID = %d не Ваша", demandId.get()), 3000,
