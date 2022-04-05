@@ -2,6 +2,7 @@ package com.example.application.data.service;
 
 import com.example.application.data.entity.Demand;
 
+import com.example.application.data.entity.DemandType;
 import com.example.application.data.entity.Garant;
 import com.example.application.data.entity.User;
 import org.springframework.data.domain.Page;
@@ -14,20 +15,25 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DemandRepository extends JpaRepository<Demand, Long> {
+    // поиск всех заявок по клиенту
     List<Demand> findByUser(User user);
     Page<Demand> findByUser(User user, Pageable pageable);
 
+    // поиск всех заявок для ГП и по типу заявки
+    Page<Demand> findAllByGarantAndDemandType(Garant garant, DemandType demandType, Pageable pageable);
     Page<Demand> findAllByGarant(Garant garant, Pageable pageable);
 
+    // поиск по тексту для ГП
     @Query("select d from Demand d " +
             "where (lower(d.object) like lower(concat('%', :searchTerm, '%')) " +
             "or lower(d.address) like lower(concat('%', :searchTerm, '%')) " +
             "or lower(d.demander) like lower(concat('%', :searchTerm, '%'))) " +
             "and d.garant.id=:garantId")
         // переданная строка используется как параметр в запросе
-    List<Demand> search(@Param("searchTerm") String searchTerm,
+    List<Demand> search4Garant(@Param("searchTerm") String searchTerm,
                         @Param("garantId") Long garantId);
 
+    // поиск по тексту
     @Query("select d from Demand d " +
             "where (lower(d.object) like lower(concat('%', :searchTerm, '%')) " +
             "or lower(d.address) like lower(concat('%', :searchTerm, '%')) " +
@@ -35,5 +41,33 @@ public interface DemandRepository extends JpaRepository<Demand, Long> {
         // переданная строка используется как параметр в запросе
     List<Demand> search(@Param("searchTerm") String searchTerm);
 
+    // поиск по тексту и типу для ГП
+    @Query("select d from Demand d " +
+            "where (lower(d.object) like lower(concat('%', :searchTerm, '%')) " +
+            "or lower(d.address) like lower(concat('%', :searchTerm, '%')) " +
+            "or lower(d.demander) like lower(concat('%', :searchTerm, '%'))) " +
+            "and d.garant.id=:garantId and d.demandType.id=:demandTypeId ")
+        // переданная строка используется как параметр в запросе
+    List<Demand> search4Garant(@Param("searchTerm") String searchTerm
+            ,@Param("garantId") Long garantId
+            ,@Param("demandTypeId") Long demandTypeId);
+
+    // поиск по тексту и типу
+    @Query("select d from Demand d " +
+            "where (lower(d.object) like lower(concat('%', :searchTerm, '%')) " +
+            "or lower(d.address) like lower(concat('%', :searchTerm, '%')) " +
+            "or lower(d.demander) like lower(concat('%', :searchTerm, '%'))) " +
+            " and d.demandType.id=:demandType")
+        // переданная строка используется как параметр в запросе
+    List<Demand> search(@Param("searchTerm") String searchTerm
+            ,@Param("demandType") Long demandType);
+
     Optional<Demand> findByIdAndGarant(Long id, Garant garant);
+
+    Optional<Demand> findByIdAndDemandType(Long id, DemandType demandType);
+
+    Optional<Demand> findByIdAndUser(Long id, User user);
+    Optional<Demand> findByIdAndUserAndDemandType(Long id, User user, DemandType demandType);
+
+    Optional<Demand> findByIdAndGarantAndDemandType(Long id, Garant garant, DemandType demandType);
 }

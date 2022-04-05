@@ -5,12 +5,14 @@ import com.example.application.data.entity.DemandType;
 import com.example.application.data.entity.Role;
 import com.example.application.data.entity.User;
 import com.example.application.data.service.DemandService;
+import com.example.application.data.service.DemandTypeService;
 import com.example.application.data.service.UserService;
 import com.example.application.views.demandedit.DemandEditTemporal;
 import com.example.application.views.demandedit.DemandEditTo15;
 import com.example.application.views.demandedit.DemandEditTo150;
 import com.example.application.views.demandedit.DemandEditeGeneral;
 import com.example.application.views.main.MainView;
+import com.example.application.views.support.ViewHelper;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -23,6 +25,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -44,20 +47,28 @@ import java.util.WeakHashMap;
 public class DemandList extends Div {
     private final TextField filterId = new TextField();
     private final TextField filterText = new TextField();
+    private Select<DemandType> demandTypeSelect;
     private final Grid.Column<Demand> demanderColumn;
     private final Button clearFilter = new Button(new Icon(VaadinIcon.ERASER));
     private final Grid<Demand> grid = new Grid<>(Demand.class, false);
 
     private final DemandService demandService;
     private final UserService userService;
+    private final DemandTypeService demandTypeService;
 
     //@Autowired
-    public DemandList(DemandService demandService, UserService userService) {
+    public DemandList(DemandService demandService
+            , UserService userService
+            , DemandTypeService demandTypeService) {
         HorizontalLayout filterLayout = new HorizontalLayout();
         filterLayout.getElement().getStyle().set("margin", "10px");
         this.demandService = demandService;
         this.userService = userService;
+        this.demandTypeService = demandTypeService;
         addClassNames("master-detail-view", "flex", "flex-col", "h-full");
+
+        demandTypeSelect = ViewHelper.createSelect(DemandType::getName, demandTypeService.findAll(),
+                "Тип заявки", DemandType.class);
 
         // Configure Grid
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
@@ -101,7 +112,7 @@ public class DemandList extends Div {
                         .format(DateTimeFormatter.ofPattern("uuuu-MM-dd _ HH:mm:ss"))))
                 .setHeader("Дата и время").setResizable(true).setAutoWidth(true);
 
-        gridSetting(null,null);
+        gridSetting(null,"");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
 
@@ -131,16 +142,16 @@ public class DemandList extends Div {
             filterText.setValue("");
             if(filterId.getValue()!=null){
                 try {
-                    gridSetting(Long.valueOf(filterId.getValue()),null);
+                    gridSetting(Long.valueOf(filterId.getValue()),"");
                 } catch (Exception e) {
                     Notification notification = new Notification(
                             "Задачи с таким номером не найдено", 5000,
                             Notification.Position.MIDDLE);
                     notification.open();
-                    gridSetting(null,null);
+                    gridSetting(null,"");
                 }
             } else {
-                gridSetting(null,null);
+                gridSetting(null,"");
             }
         });
         filterText.setLabel("Поиск по содержимому полей Заявитель, Объект и Адрес");
@@ -152,17 +163,28 @@ public class DemandList extends Div {
             if(filterText.getValue()!=null){
                 gridSetting(null,filterText.getValue());
             } else {
-                gridSetting(null,null);
+                gridSetting(null,"");
             }
+        });
+        demandTypeSelect.setValue(null);
+        demandTypeSelect.addValueChangeListener(e -> {
+            Long id;
+            String text;
+            if(filterId.getValue().isEmpty()) id = null;
+            else id = Long.valueOf(filterId.getValue());
+            if(filterText.getParent().isEmpty()) text = "";
+            else text = filterText.getValue();
+            gridSetting(id,text);
         });
         clearFilter.setText("Очистить фильтр");
         clearFilter.addClickListener(event -> {
             filterId.setValue("");
             filterText.setValue("");
-            gridSetting(null,null);
+            gridSetting(null,"");
+            demandTypeSelect.setValue(null);
         });
 
-        filterLayout.add(filterId,filterText,clearFilter);
+        filterLayout.add(filterId,filterText, demandTypeSelect,clearFilter);
         filterLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
 //        grid.getElement().setAttribute("title","кликните дважды для открытия заявки");
         TextField space = new TextField();
@@ -180,6 +202,7 @@ public class DemandList extends Div {
         );
         grid.setPageSize(20);
         grid.setSortableColumns("id","object","address");
+
         // Определим роль и кол-во заявок
         if(currentUser.getRoles().contains(Role.ADMIN)) {
             filterVisible(true);
@@ -192,35 +215,33 @@ public class DemandList extends Div {
             role = Role.USER;
         }
         // Поиск по номеру заявки
-        if(id != null && text == null) {
-            if(demandService.findById(id).isEmpty()) {
+        if(id != null && text.equals("")) {
+            if (demandService
+                    .findByIdAndUserAndDemandType(id
+                            ,currentUser
+                            ,demandTypeSelect.getValue()).isPresent())
+                grid.setItems(demandService
+                        .findByIdAndUserAndDemandType(id
+                                ,currentUser
+                                ,demandTypeSelect.getValue()).get());
+            else {
                 Notification notification = new Notification(
                         "Задача с таким номером не найдена", 5000,
                         Notification.Position.MIDDLE);
                 notification.open();
-                return;
-            }
-            switch(role){
-                case ADMIN:
-                    if(demandService.findById(id).isPresent())
-                        grid.setItems(demandService.findById(id).get());
-                    break;
-                case GARANT:
-                    if(demandService.findByIdAndGarant(id,currentUser.getGarant()).isPresent())
-                        grid.setItems(demandService.findByIdAndGarant(id,currentUser.getGarant()).get());
-                    break;
             }
             return;
         }
         // поиск по тексту в Заявителе, Объекте или Адресе
-        if (text != null && id == null) {
+        if (!text.equals("") && id == null) {
             switch(role){
                 case ADMIN:
-                    grid.setItems(demandService.findText(text));
+                    grid.setItems(demandService.findText(text,demandTypeSelect.getValue().getId()));
                     break;
                 case GARANT:
-                    grid.setItems(demandService.findText(text,
-                                    currentUser.getGarant().getId()));
+                    grid.setItems(demandService.findText(text
+                            ,currentUser.getGarant().getId()
+                            ,demandTypeSelect.getValue().getId()));
                     break;
             }
             return;
@@ -229,19 +250,21 @@ public class DemandList extends Div {
         switch(role){
             case ADMIN:
                 grid.setItems(query ->
-                        demandService.findAll(
-                                PageRequest.of(query.getPage(), query.getPageSize(),
+                        demandService.findAllByUser(currentUser
+                                ,demandTypeSelect.getValue()
+                                ,PageRequest.of(query.getPage(), query.getPageSize(),
                                         VaadinSpringDataHelpers.toSpringDataSort(query))).stream());
                 break;
             case GARANT:
                 grid.setItems(query ->
-                        demandService.findAllByGarant(currentUser.getGarant(),
-                                PageRequest.of(query.getPage(), query.getPageSize(),
+                        demandService.findAllByGarantAndDemandType(currentUser.getGarant()
+                                ,demandTypeSelect.getValue()
+                                ,PageRequest.of(query.getPage(), query.getPageSize(),
                                         VaadinSpringDataHelpers.toSpringDataSort(query))).stream());
                 break;
             case USER:
                 grid.setItems(query ->
-                        demandService.findAllByUser(currentUser,
+                        demandService.findAllByUser(currentUser, null,
                                 PageRequest.of(query.getPage(), query.getPageSize(),
                                         VaadinSpringDataHelpers.toSpringDataSort(query))).stream());
                 break;
@@ -251,6 +274,7 @@ public class DemandList extends Div {
     private void filterVisible(Boolean visible) {
         filterText.setVisible(visible);
         filterId.setVisible(visible);
+        demandTypeSelect.setVisible(visible);
         clearFilter.setVisible(visible);
         demanderColumn.setVisible(visible);
     }

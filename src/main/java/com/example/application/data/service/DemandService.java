@@ -1,10 +1,7 @@
 package com.example.application.data.service;
 
-import com.example.application.data.entity.Demand;
+import com.example.application.data.entity.*;
 
-import com.example.application.data.entity.Garant;
-import com.example.application.data.entity.Role;
-import com.example.application.data.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,15 +25,16 @@ public class DemandService extends CrudService<Demand, Long> {
         return repository;
     }
 
-    public List<Demand> findAllByUser(User user) {
-        if(user.getRoles().contains(Role.ADMIN)) {
-            return repository.findAll();
-        } else {
-            return repository.findByUser(user);
-        }
-    }
+//    public List<Demand> findAllByUser(User user) {
+//        if(user.getRoles().contains(Role.ADMIN)) {
+//            return repository.findAll();
+//        } else {
+//            return repository.findByUser(user);
+//        }
+//    }
 
-    public Page<Demand> findAllByUser(User user, Pageable pageable) {
+    // поиск всех заявок по пользователю
+    public Page<Demand> findAllByUser(User user, DemandType demandType, Pageable pageable) {
         if(user.getRoles().contains(Role.ADMIN)) {
             return repository.findAll(pageable);
         } else {
@@ -44,29 +42,59 @@ public class DemandService extends CrudService<Demand, Long> {
         }
     }
 
-    public Page<Demand> findAllByGarant(Garant garant, Pageable pageable) {
-        return repository.findAllByGarant(garant,pageable);
+    // поиск всех заявок и по типу для ГП
+    public Page<Demand> findAllByGarantAndDemandType(Garant garant, DemandType demandType, Pageable pageable) {
+        if(demandType == null)
+            return repository.findAllByGarant(garant, pageable);
+        else
+            return repository.findAllByGarantAndDemandType(garant, demandType, pageable);
     }
 
+    // поиск по номеру
     public Optional<Demand> findById(Long id) {
-        return repository.findById(id);
-    }
-    public Optional<Demand> findByIdAndGarant(Long id, Garant garant) {
-        return repository.findByIdAndGarant(id, garant);
+            return repository.findById(id);
     }
 
-    public List<Demand> findText(String text, Long garant) {
-        return repository.search(text, garant);
-    }
-    public List<Demand> findText(String text) {
-        return repository.search(text);
+    // поиск по номеру и типу для пользователя
+    public Optional<Demand> findByIdAndUserAndDemandType(Long id, User user, DemandType demandType) {
+        Optional<Demand> findedDemand = null;
+        if(demandType == null && user.getRoles().contains(Role.ADMIN))
+            findedDemand = repository.findById(id);
+        if(demandType != null && user.getRoles().contains(Role.ADMIN))
+            findedDemand = repository.findByIdAndDemandType(id, demandType);
+        if(demandType == null && user.getRoles().contains(Role.USER))
+            findedDemand = repository.findByIdAndUser(id, user);
+        if(demandType != null && user.getRoles().contains(Role.USER))
+            findedDemand = repository.findByIdAndUserAndDemandType(id, user, demandType);
+        if(demandType == null && user.getRoles().contains(Role.GARANT))
+            findedDemand = repository.findByIdAndGarant(id, user.getGarant());
+        if(demandType != null && user.getRoles().contains(Role.GARANT))
+            findedDemand = repository.findByIdAndGarantAndDemandType(id, user.getGarant(), demandType);
+        return findedDemand;
     }
 
-    public List<Demand> findAll() {
-        return repository.findAll();
+    // поиск по номеру и типу для ГП
+    public Optional<Demand> findByIdAndGarantAndDemandType(Long id, Garant garant, DemandType demandType) {
+        if(demandType == null)
+            return repository.findByIdAndGarant(id, garant);
+        else
+            return repository.findByIdAndGarantAndDemandType(id, garant, demandType);
     }
 
-    public Page<Demand> findAll(Pageable pageable) {
-        return repository.findAll(pageable);
+    // поиск по тексту и типу для ГП
+    public List<Demand> findText(String text, Long garant, Long demandType) {
+        if(demandType == null)
+            return repository.search4Garant(text, garant);
+        else
+            return repository.search4Garant(text, garant, demandType);
     }
+
+    // поиск по тексту и типу
+    public List<Demand> findText(String text, Long demandType) {
+        if(demandType == null)
+            return repository.search(text);
+        else
+            return repository.search(text, demandType);
+    }
+
 }
