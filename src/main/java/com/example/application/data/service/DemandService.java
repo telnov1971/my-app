@@ -33,21 +33,20 @@ public class DemandService extends CrudService<Demand, Long> {
 //        }
 //    }
 
-    // поиск всех заявок по пользователю
+    // поиск всех заявок
     public Page<Demand> findAllByUser(User user, DemandType demandType, Pageable pageable) {
-        if(user.getRoles().contains(Role.ADMIN)) {
-            return repository.findAll(pageable);
-        } else {
-            return repository.findByUser(user, pageable);
-        }
-    }
-
-    // поиск всех заявок и по типу для ГП
-    public Page<Demand> findAllByGarantAndDemandType(Garant garant, DemandType demandType, Pageable pageable) {
-        if(demandType == null)
-            return repository.findAllByGarant(garant, pageable);
-        else
-            return repository.findAllByGarantAndDemandType(garant, demandType, pageable);
+        Page<Demand> demandPage = null;
+        if(user.getRoles().contains(Role.ADMIN) && demandType == null)
+            demandPage = repository.findAll(pageable);
+        if(user.getRoles().contains(Role.ADMIN) && demandType != null)
+            demandPage = repository.findAllByDemandType(demandType, pageable);
+        if(user.getRoles().contains(Role.GARANT) && demandType == null)
+            demandPage = repository.findAllByGarant(user.getGarant(), pageable);
+        if(user.getRoles().contains(Role.GARANT) && demandType != null)
+            demandPage = repository.findAllByGarantAndDemandType(user.getGarant(), demandType, pageable);
+        if(user.getRoles().contains(Role.USER))
+            demandPage = repository.findAllByUser(user, pageable);
+        return demandPage;
     }
 
     // поиск по номеру
@@ -55,7 +54,7 @@ public class DemandService extends CrudService<Demand, Long> {
             return repository.findById(id);
     }
 
-    // поиск по номеру и типу для пользователя
+    // поиск по номеру и типу
     public Optional<Demand> findByIdAndUserAndDemandType(Long id, User user, DemandType demandType) {
         Optional<Demand> findedDemand = null;
         if(demandType == null && user.getRoles().contains(Role.ADMIN))
@@ -73,20 +72,22 @@ public class DemandService extends CrudService<Demand, Long> {
         return findedDemand;
     }
 
-    // поиск по номеру и типу для ГП
-    public Optional<Demand> findByIdAndGarantAndDemandType(Long id, Garant garant, DemandType demandType) {
-        if(demandType == null)
-            return repository.findByIdAndGarant(id, garant);
-        else
-            return repository.findByIdAndGarantAndDemandType(id, garant, demandType);
-    }
-
-    // поиск по тексту и типу для ГП
-    public List<Demand> findText(String text, Long garant, Long demandType) {
-        if(demandType == null)
-            return repository.search4Garant(text, garant);
-        else
-            return repository.search4Garant(text, garant, demandType);
+    // поиск по тексту и типу
+    public List<Demand> findText(String text, User user, DemandType demandType) {
+        List<Demand> demandList = null;
+        if(demandType == null && user.getRoles().contains(Role.ADMIN))
+            demandList = repository.search(text);
+        if(demandType != null && user.getRoles().contains(Role.ADMIN))
+            demandList = repository.search(text, demandType.getId());
+        if(demandType == null && user.getRoles().contains(Role.GARANT))
+            demandList = repository.search4Garant(text, user.getGarant().getId());
+        if(demandType != null && user.getRoles().contains(Role.GARANT))
+            demandList = repository.search4Garant(text, user.getGarant().getId(), demandType.getId());
+        if(demandType == null && user.getRoles().contains(Role.USER))
+            demandList = repository.search4User(text, user.getId());
+        if(demandType != null && user.getRoles().contains(Role.USER))
+            demandList = repository.search4User(text, user.getId(), demandType.getId());
+        return demandList;
     }
 
     // поиск по тексту и типу

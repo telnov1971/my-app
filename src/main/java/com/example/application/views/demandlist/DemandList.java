@@ -36,10 +36,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.WeakHashMap;
+import java.util.*;
 
 @Route(value = "demandlist", layout = MainView.class)
 @RouteAlias(value = "", layout = MainView.class)
@@ -226,7 +223,7 @@ public class DemandList extends Div {
                                 ,demandTypeSelect.getValue()).get());
             else {
                 Notification notification = new Notification(
-                        "Задача с таким номером не найдена", 5000,
+                        "Задача с таким номером и типом не найдена", 5000,
                         Notification.Position.MIDDLE);
                 notification.open();
             }
@@ -234,41 +231,26 @@ public class DemandList extends Div {
         }
         // поиск по тексту в Заявителе, Объекте или Адресе
         if (!text.equals("") && id == null) {
-            switch(role){
-                case ADMIN:
-                    grid.setItems(demandService.findText(text,demandTypeSelect.getValue().getId()));
-                    break;
-                case GARANT:
-                    grid.setItems(demandService.findText(text
-                            ,currentUser.getGarant().getId()
-                            ,demandTypeSelect.getValue().getId()));
-                    break;
+            List<Demand> demandList = demandService.findText(text
+                    ,currentUser
+                    ,demandTypeSelect.getValue());
+            if(demandList != null) {
+                grid.setItems(demandList);
+            }
+            else {
+                Notification notification = new Notification(
+                        "Такой текст в этом типе не найден", 5000,
+                        Notification.Position.MIDDLE);
+                notification.open();
             }
             return;
         }
         // вывод всех заявок доступных пользователю
-        switch(role){
-            case ADMIN:
-                grid.setItems(query ->
-                        demandService.findAllByUser(currentUser
-                                ,demandTypeSelect.getValue()
-                                ,PageRequest.of(query.getPage(), query.getPageSize(),
-                                        VaadinSpringDataHelpers.toSpringDataSort(query))).stream());
-                break;
-            case GARANT:
-                grid.setItems(query ->
-                        demandService.findAllByGarantAndDemandType(currentUser.getGarant()
-                                ,demandTypeSelect.getValue()
-                                ,PageRequest.of(query.getPage(), query.getPageSize(),
-                                        VaadinSpringDataHelpers.toSpringDataSort(query))).stream());
-                break;
-            case USER:
-                grid.setItems(query ->
-                        demandService.findAllByUser(currentUser, null,
-                                PageRequest.of(query.getPage(), query.getPageSize(),
-                                        VaadinSpringDataHelpers.toSpringDataSort(query))).stream());
-                break;
-        }
+        grid.setItems(query ->
+                demandService.findAllByUser(currentUser
+                        ,demandTypeSelect.getValue()
+                        ,PageRequest.of(query.getPage(), query.getPageSize(),
+                                VaadinSpringDataHelpers.toSpringDataSort(query))).stream());
     }
 
     private void filterVisible(Boolean visible) {

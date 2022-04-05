@@ -16,8 +16,8 @@ import java.util.Optional;
 
 public interface DemandRepository extends JpaRepository<Demand, Long> {
     // поиск всех заявок по клиенту
-    List<Demand> findByUser(User user);
-    Page<Demand> findByUser(User user, Pageable pageable);
+    Page<Demand> findAllByUser(User user, Pageable pageable);
+    Page<Demand> findAllByDemandType(DemandType demandType, Pageable pageable);
 
     // поиск всех заявок для ГП и по типу заявки
     Page<Demand> findAllByGarantAndDemandType(Garant garant, DemandType demandType, Pageable pageable);
@@ -70,4 +70,22 @@ public interface DemandRepository extends JpaRepository<Demand, Long> {
     Optional<Demand> findByIdAndUserAndDemandType(Long id, User user, DemandType demandType);
 
     Optional<Demand> findByIdAndGarantAndDemandType(Long id, Garant garant, DemandType demandType);
+
+    // поиск по тексту и типу для клиента
+    @Query("select d from Demand d " +
+            "where (lower(d.object) like lower(concat('%', :searchTerm, '%')) " +
+            "or lower(d.address) like lower(concat('%', :searchTerm, '%')) " +
+            "or lower(d.demander) like lower(concat('%', :searchTerm, '%'))) " +
+            "and d.user.id=:userId and d.demandType.id=:demandTypeId ")
+    List<Demand> search4User(@Param("searchTerm") String searchTerm
+            ,@Param("userId") Long userId
+            ,@Param("demandTypeId") Long demandTypeId);
+    // поиск по тексту для клиента
+    @Query("select d from Demand d " +
+            "where (lower(d.object) like lower(concat('%', :searchTerm, '%')) " +
+            "or lower(d.address) like lower(concat('%', :searchTerm, '%')) " +
+            "or lower(d.demander) like lower(concat('%', :searchTerm, '%'))) " +
+            "and d.user.id=:userId")
+    List<Demand> search4User(@Param("searchTerm") String searchTerm
+            ,@Param("userId") Long userId);
 }
