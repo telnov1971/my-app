@@ -177,14 +177,18 @@ public class FilesLayout extends VerticalLayout {
         this.demand = demand;
     }
 
-    public void saveFiles() {
+    public boolean saveFiles() {
+        boolean result = false;
         for(Map.Entry<String, String> entry: filesToSave.entrySet()) {
             FileStored file = new FileStored(entry.getValue(),entry.getKey(), demand);
             file.setDemand(demand);
             file.setClient(client);
-            historyService.saveHistory(client, demand, file, FileStored.class);
-            fileStoredService.update(file);
+            if(historyService.saveHistory(client, demand, file, FileStored.class)) {
+                fileStoredService.update(file);
+                result = true;
+            }
         }
+        return result;
     }
 
     public void deleteFiles() throws IOException {

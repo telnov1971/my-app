@@ -42,6 +42,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected Pair<Focusable, Boolean> alertHere = new Pair<>(null, true);
 
     protected int client;
+    protected boolean historyExists = false;
     protected final String DEMAND_ID = "demandID";
     protected DecimalFormat decimalFormat;
     protected FormLayout formDemand = new FormLayout();
@@ -550,7 +551,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 demand.setTypeDemander(typeDemander.getValue());
             }
         }
-        demand.setChange(true);
+//        demand.setChange(true);
         demand.setChangeDate(LocalDateTime.now());
         if(binderDemand.writeBeanIfValid(demand)) {
             if (demand.getUser() == null) {
@@ -560,13 +561,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 demand.setLoad1c(false);
                 demand.setExecuted(false);
             }
-            historyService.saveHistory(client, demand, demand, Demand.class);
+            historyExists = historyService.saveHistory(client, demand, demand, Demand.class);
             demandService.update(demand);
 
             filesLayout.setDemand(demand);
-            filesLayout.saveFiles();
+            historyExists |= filesLayout.saveFiles();
             notesLayout.setDemand(demand);
-            notesLayout.saveNotes(client);
+            historyExists |= notesLayout.saveNotes(client);
 
             if(editExp > 0) {
                 if (!expirationsLayout.saveEdited()) return false;
@@ -788,7 +789,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
         filesLayout.setClient(client);
         notesLayout.setClient(client);
-        expirationsLayout.setClient(client);
+        if(expirationsLayout != null)
+            expirationsLayout.setClient(client);
         typeDemander.setReadOnly(false);
         if (demandId.isPresent()) {
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());

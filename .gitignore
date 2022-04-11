@@ -21,3 +21,4 @@ webpack.generated.js
 package.json
 pnpm-lock.yaml
 /out/artifacts/po/po.war
+/src/main/java/com/example/application/code_line.sh

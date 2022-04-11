@@ -123,7 +123,8 @@ public class NotesLayout extends VerticalLayout {
         this.demand = demand;
     }
 
-    public void saveNotes(int client) {
+    public boolean saveNotes(int client) {
+        boolean result = false;
         if(!noteArea.getValue().isEmpty()) {
             notes.add(new Note(demand, noteArea.getValue(), client));
             noteArea.setValue("");
@@ -135,10 +136,11 @@ public class NotesLayout extends VerticalLayout {
             note.setDemand(demand);
             note.setClient(client);
             if(note.getId() == null) {
-                historyService.saveHistory(client, demand, note, Note.class);
+                result = historyService.saveHistory(client, demand, note, Note.class);
                 NoteService.update(note);
             }
         }
+        return result;
     }
 
     public void setReadOnly(){

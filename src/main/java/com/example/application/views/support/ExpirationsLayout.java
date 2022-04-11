@@ -256,15 +256,17 @@ public class ExpirationsLayout extends VerticalLayout {
         this.demand = demand;
     }
 
-    public void saveExpirations() {
+    public boolean saveExpirations() {
+        boolean result = false;
         for(Expiration expiration : expirations) {
             if(expiration.getStep().isEmpty()||
                 expiration.getPlanProject().isEmpty()||
                 expiration.getPlanUsage().isEmpty()) continue;
             expiration.setDemand(demand);
-            historyService.saveHistory(client, demand, expiration, Expiration.class);
+            result |= historyService.saveHistory(client, demand, expiration, Expiration.class);
             expirationService.update(expiration);
         }
+        return result;
     }
 
     public void setReadOnly() {

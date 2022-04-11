@@ -107,9 +107,11 @@ public class DemandEditeGeneral extends GeneralForm {
         general.setDemand(demand);
         generalService.update(this.general);
         pointsLayout.setDemand(demand);
-        pointsLayout.savePoints();
+        historyExists |= pointsLayout.savePoints();
         expirationsLayout.setDemand(demand);
-        expirationsLayout.saveExpirations();
+        historyExists |= expirationsLayout.saveExpirations();
+        demand.setChange(demand.isChange() || historyExists);
+        demandService.update(demand);
 
         return true;
     }

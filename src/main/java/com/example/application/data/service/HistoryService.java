@@ -218,7 +218,7 @@ public class HistoryService extends CrudService<History,Long> {
         return historyRepository.findAllByDemand(demand);
     }
 
-    public <C> void saveHistory(Integer client, Demand demand, C obj, Class<C> clazz) {
+    public <C> boolean saveHistory(Integer client, Demand demand, C obj, Class<C> clazz) {
         History history = new History();
         history.setClient(client);
         String his = "";
@@ -248,12 +248,13 @@ public class HistoryService extends CrudService<History,Long> {
             history.setDemand(demand);
             if(!history.getHistory().equals("")) {
                 save(history);
+                return true;
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
-
+        return false;
     }
 
 }

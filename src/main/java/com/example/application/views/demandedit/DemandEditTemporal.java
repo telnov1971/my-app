@@ -72,8 +72,10 @@ public class DemandEditTemporal extends GeneralForm {
         if(!super.save() || (pointBinder.validate().getValidationErrors().size() > 0)) return false;
         pointBinder.writeBeanIfValid(point);
         point.setDemand(demand);
-        historyService.saveHistory(client, demand,point,Point.class);
+        historyExists |= historyService.saveHistory(client, demand,point,Point.class);
         pointService.update(this.point);
+        demand.setChange(demand.isChange() || historyExists);
+        demandService.update(demand);
         return true;
     }
 

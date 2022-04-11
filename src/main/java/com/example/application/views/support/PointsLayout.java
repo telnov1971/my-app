@@ -296,14 +296,16 @@ public class PointsLayout extends VerticalLayout {
         this.demand = demand;
     }
 
-    public void savePoints() {
+    public boolean savePoints() {
+        boolean result = false;
         for(Point point : points) {
             if((point.getPowerDemand() == 0.0)
                     && (point.getPowerCurrent() == 0.0)) continue;
             point.setDemand(demand);
-            historyService.saveHistory(client, demand, point, Point.class);
+            result |= historyService.saveHistory(client, demand, point, Point.class);
             pointService.update(point);
         }
+        return result;
     }
 
     private void attention(NumberField field){
