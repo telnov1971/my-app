@@ -699,7 +699,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected void setReadOnly(Boolean readOnly) {
          AbstractField[] fields = {
                 demander,delegate,inn,innDate,contact,passportSerries,passportNumber,pasportIssued,
-                addressRegistration,addressActual,reason,object,address,specification,
+                addressRegistration,addressActual,addressEquals,reason,object,address,specification,
                 countPoints,powerDemand,powerCurrent,powerMaximum,voltage,safety,period,
                 contract,countTransformations,countGenerations,techminGeneration,reservation,
                 plan,garant,garantText

@@ -93,6 +93,9 @@ public class DemandEditeGeneral extends GeneralForm {
             pointsLayout.findAllByDemand(demand);
             expirationsLayout.findAllByDemand(demand);
             switch(demand.getStatus().getState()){
+                case EDIT:
+                    break;
+                case ADD:
                 case NOTE:
                 case FREEZE: {
                     expirationsLayout.setReadOnly();

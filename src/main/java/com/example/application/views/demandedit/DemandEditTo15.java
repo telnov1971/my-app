@@ -80,6 +80,9 @@ public class DemandEditTo15 extends GeneralForm {
             }
             expirationsLayout.findAllByDemand(demand);
             switch(demand.getStatus().getState()){
+                case EDIT:
+                    break;
+                case ADD:
                 case NOTE:
                 case FREEZE: {
                     expirationsLayout.setReadOnly();
