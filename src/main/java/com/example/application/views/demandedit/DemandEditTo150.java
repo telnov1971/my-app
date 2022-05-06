@@ -50,7 +50,9 @@ public class DemandEditTo150 extends GeneralForm {
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService, this, client);
 
         typeDemander.setItems("Юридическое лицо", "Индивидуальный предприниматель");
-        Component[] fields = {delegate, typeDemander, inn, innDate, powerDemand, powerCurrent,
+        Component[] fields = {delegate, typeDemander, inn, innDate,
+                addressRegistration,addressActual,addressEquals,
+                powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, specification, plan, accordionExpiration};
         for(Component field : fields){
             field.setVisible(true);

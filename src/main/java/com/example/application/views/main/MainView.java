@@ -202,9 +202,7 @@ public class MainView extends AppLayout {
         Footer layout = new Footer();
         layout.addClassNames("flex", "items-center", "my-s", "px-m", "py-xs");
 
-        Label support = new Label("По вопросам заполнения Заявок звонить по тел.: 53-81-89. " +
-                "При возникновении ошибок и сбоев в работе звонить по тел. 53-81-65 " +
-                "или присылать сообщения на e-mail support@omskelectro.ru");
+        Label support = new Label("По вопросам работы в Личном кабинете звонить по тел.: 53-81-89.");
         support.addClassNames("flex", "mx-s", "p-s", "relative", "text-secondary");
         support.getElement().getStyle().set("font-size","0.8em");
         layout.add(support);

@@ -111,7 +111,7 @@ public class ExpirationsLayout extends VerticalLayout {
                 expirationGrid.addColumn(Expiration::getPowerMax)
                         .setAutoWidth(true)
                         .setResizable(true)
-                        .setHeader("Макс.мощность");
+                        .setHeader("Макс.мощ. кВт");
         expirationGrid.addColumn(expiration -> expiration.getSafety().getName())
                 .setAutoWidth(true)
                 .setResizable(true)
@@ -277,6 +277,11 @@ public class ExpirationsLayout extends VerticalLayout {
 
     public void setPowerMax(double powerMax) {
         this.powerMax = powerMax;
+        if(!expirations.isEmpty()) {
+            for (Expiration expiration : expirations) {
+                expiration.setPowerMax(powerMax);
+            }
+        }
     }
 
     public int getExpirationsSize() {

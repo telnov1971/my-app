@@ -5,6 +5,7 @@ import com.example.application.data.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -19,6 +20,7 @@ public class UserRegistration {
         String username = user.getUsername();
         User userFromDb = userRepository.findByUsername(username);
         if (userFromDb == null) {
+            user.setCreateDate(LocalDateTime.now());
             user.setActive(false);
             user.setRoles(Collections.singleton(Role.USER));
             user.setActivationCode(UUID.randomUUID().toString());

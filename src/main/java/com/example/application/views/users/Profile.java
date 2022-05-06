@@ -27,6 +27,7 @@ import com.vaadin.flow.server.VaadinRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -126,6 +127,7 @@ public class Profile extends Div implements BeforeEnterObserver {
                 }
                 userBinder.writeBeanIfValid(editUser);
                 if(!editMode){
+                    editUser.setCreateDate(LocalDateTime.now());
                     editUser.setPassword(this.passwordEncoder.encode(password.getValue()));
                     editUser.setRoles(Set.of(Role.USER));
                     if(editUser.getEmail().contains("support@omskelectro.ru")) {

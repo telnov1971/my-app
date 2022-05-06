@@ -66,6 +66,8 @@ public class DemandEditTo15 extends GeneralForm {
         powerMaximum.addValueChangeListener(e ->
             expirationsLayout.setPowerMax(powerMaximum.getValue())
         );
+        voltage.setValue(voltageService.findById(1L).get());
+        voltage.setReadOnly(true);
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory,space);
     }
 
@@ -79,6 +81,7 @@ public class DemandEditTo15 extends GeneralForm {
                 point = pointService.findAllByDemand(demand).get(0);
             }
             expirationsLayout.findAllByDemand(demand);
+            voltage.setReadOnly(true);
             switch(demand.getStatus().getState()){
                 case EDIT:
                     break;

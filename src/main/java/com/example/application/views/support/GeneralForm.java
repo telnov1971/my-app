@@ -692,6 +692,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     ,"Максимальная мощность превышает допустимую..."
                     ,alertHere.getFirst(),space);
         }
+        if(garant.getValue() == null) {
+            alertHere = ViewHelper.attention(garant
+                    ,"Необходимо выбрать гарантирующего поставщика"
+                    ,alertHere.getFirst(),space);
+        }
         if(alertHere.getFirst() != null) alertHere.getFirst().focus();
         return alertHere.getSecond();
     }
@@ -739,7 +744,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     notesLayout.setReadOnly();
                 } break;
             }
-            if(addressActual.getValue().equals(addressRegistration.getValue())) {
+            if(addressActual.getValue().equals(addressRegistration.getValue())
+                && !addressRegistration.isEmpty()) {
                 addressActual.setEnabled(false);
                 addressEquals.setValue(true);
             }

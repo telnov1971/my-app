@@ -35,6 +35,7 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -197,6 +198,8 @@ public class DemandList extends Div {
         User currentUser =  this.userService.findByUsername(
                 SecurityContextHolder.getContext().getAuthentication().getName()
         );
+        currentUser.setVisitDate(LocalDateTime.now());
+        userService.update(currentUser);
         grid.setPageSize(20);
         grid.setSortableColumns("id","object","address");
 

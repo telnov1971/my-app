@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.xml.crypto.Data;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -14,6 +16,12 @@ import java.util.Set;
 @Table(name = "usr")
 @Entity
 public class User extends AbstractEntity implements UserDetails {
+
+    @Column(name = "create_date")
+    private LocalDateTime createDate;
+    @Column(name = "visit_date")
+    private LocalDateTime visitDate;
+
     @NotBlank(message = "Имя пользователя не может быть пустым")
     private String username;
 
@@ -50,6 +58,7 @@ public class User extends AbstractEntity implements UserDetails {
     public User() {
     }
     public User(String username, String password, boolean active, String fio, String contact, Set<Role> roles) {
+        this.createDate = LocalDateTime.now();
         this.username = username;
         this.password = password;
         this.active = active;
@@ -72,6 +81,14 @@ public class User extends AbstractEntity implements UserDetails {
     @Override
     public int hashCode() {
         return Objects.hash(this.getId());
+    }
+
+    public LocalDateTime getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(LocalDateTime createDate) {
+        this.createDate = createDate;
     }
 
     @Override
@@ -168,5 +185,13 @@ public class User extends AbstractEntity implements UserDetails {
 
     public void setContact(String contact) {
         this.contact = contact;
+    }
+
+    public LocalDateTime getVisitDate() {
+        return visitDate;
+    }
+
+    public void setVisitDate(LocalDateTime visitDate) {
+        this.visitDate = visitDate;
     }
 }
