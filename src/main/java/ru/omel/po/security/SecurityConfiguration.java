@@ -40,7 +40,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/**/profile/",
                         "/static/**",
                         "/icons/**",
-                        "/activate/**").permitAll()
+                        "/activate/**",
+                        "/reset/**").permitAll()
         // Разрешим все внутренние запросы потока связанных с Vaadin.
         .requestMatchers(SecurityUtils::isFrameworkInternalRequest).permitAll()
         // Разрешим все запросы пользователей, вошедших в систему.
