@@ -264,6 +264,7 @@ public class ExpirationsLayout extends VerticalLayout {
                 expiration.getPlanUsage().isEmpty()) continue;
             expiration.setDemand(demand);
             result |= historyService.saveHistory(client, demand, expiration, Expiration.class);
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             expirationService.update(expiration);
         }
         return result;

@@ -106,15 +106,19 @@ public class DemandEditeGeneral extends GeneralForm {
         generalBinder.readBean(general);
     }
     public boolean save() {
-        if(!super.save() || (binderDemand.validate().getValidationErrors().size() > 0)) return false;
+        if((binderDemand.validate().getValidationErrors().size() > 0) || !super.save()) return false;
         generalBinder.writeBeanIfValid(general);
         general.setDemand(demand);
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         generalService.update(this.general);
         pointsLayout.setDemand(demand);
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         historyExists |= pointsLayout.savePoints();
         expirationsLayout.setDemand(demand);
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         historyExists |= expirationsLayout.saveExpirations();
         demand.setChange(demand.isChange() || historyExists);
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         demandService.update(demand);
 
         return true;

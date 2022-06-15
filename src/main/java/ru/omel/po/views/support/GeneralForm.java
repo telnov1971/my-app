@@ -34,8 +34,10 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -211,6 +213,18 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             inn.setHelperText("(номер записи в Едином государственном реестре юридических лиц"+
                     " / номер записи в Едином государственном реестре индивидуальных предпринимателей)");
             innDate = new DatePicker("Дата регистрации в реестре");
+            innDate.addValueChangeListener(e -> {
+                LocalDate date = innDate.getValue();
+                if(date.getYear() > 50 && date.getYear() < 100)
+                    innDate.setValue(LocalDate.of(1900 + date.getYear()
+                            ,date.getMonthValue()
+                            ,date.getDayOfMonth()));
+                if(date.getYear() > 0 && date.getYear() < 51)
+                    innDate.setValue(LocalDate.of(2000 + date.getYear()
+                            ,date.getMonthValue()
+                            ,date.getDayOfMonth()));
+            });
+            innDate.setInvalid(true);
             contact = new TextField("Контактный телефон (обязательное поле)");
             passportSerries = new TextField("Паспорт серия (обязательное поле)", "Четыре цифры");
             passportNumber = new TextField("Паспорт номер (обязательное поле)", "Шесть цифр");
@@ -553,7 +567,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 demand.setTypeDemander(typeDemander.getValue());
             }
         }
-//        demand.setChange(true);
         demand.setChangeDate(LocalDateTime.now());
         if(binderDemand.writeBeanIfValid(demand)) {
             if (demand.getUser() == null) {
@@ -562,15 +575,20 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 demand.setCreateDate(LocalDateTime.now());
                 demand.setLoad1c(false);
                 demand.setExecuted(false);
+                demand.setChange(true);
             }
             historyExists = historyService.saveHistory(client, demand, demand, Demand.class);
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             demandService.update(demand);
 
             filesLayout.setDemand(demand);
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             historyExists |= filesLayout.saveFiles();
             notesLayout.setDemand(demand);
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             historyExists |= notesLayout.saveNotes(client);
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             if(editExp > 0) {
                 if (!expirationsLayout.saveEdited()) return false;
             }

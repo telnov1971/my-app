@@ -103,17 +103,19 @@ public class DemandEditTo15 extends GeneralForm {
     }
 
     public boolean save() {
-        inn.setValue("0000000000");
-        if(!super.save() || (pointBinder.validate().getValidationErrors().size() > 0)) return false;
+        //inn.setValue("0000000000");
+        if((pointBinder.validate().getValidationErrors().size() > 0) || !super.save()) return false;
         pointBinder.writeBeanIfValid(point);
         point.setDemand(demand);
         historyExists |= historyService.saveHistory(client,demand,point,Point.class);
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         pointService.update(this.point);
         expirationsLayout.setDemand(demand);
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         historyExists |= expirationsLayout.saveExpirations();
         demand.setChange(demand.isChange() || historyExists);
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         demandService.update(demand);
-
         return true;
     }
 
