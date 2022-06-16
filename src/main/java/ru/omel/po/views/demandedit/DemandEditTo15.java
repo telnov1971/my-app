@@ -1,5 +1,6 @@
 package ru.omel.po.views.demandedit;
 
+import org.springframework.transaction.annotation.Transactional;
 import ru.omel.po.data.entity.*;
 import ru.omel.po.data.service.*;
 import ru.omel.po.data.entity.Demand;
@@ -102,6 +103,7 @@ public class DemandEditTo15 extends GeneralForm {
         setOptional();
     }
 
+    @Transactional
     public boolean save() {
         //inn.setValue("0000000000");
         if((pointBinder.validate().getValidationErrors().size() > 0) || !super.save()) return false;

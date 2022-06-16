@@ -8,8 +8,8 @@ import javax.persistence.*;
 @Table(name = "EXPIRATION")
 @Entity
 public class Expiration extends AbstractEntity {
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "demand_id")
+    @ManyToOne //(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "demand_id")
     private Demand demand;
 
     private String step;

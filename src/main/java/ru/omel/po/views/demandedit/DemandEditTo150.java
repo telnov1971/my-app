@@ -1,5 +1,6 @@
 package ru.omel.po.views.demandedit;
 
+import org.springframework.transaction.annotation.Transactional;
 import ru.omel.po.data.entity.DType;
 import ru.omel.po.data.entity.Demand;
 import ru.omel.po.data.entity.DemandType;
@@ -96,6 +97,7 @@ public class DemandEditTo150 extends GeneralForm {
         specification.setLabel("Характер нагрузки (обязательное поле)");
         pointBinder.readBean(this.point);
     }
+    @Transactional
     public boolean save() {
         if((pointBinder.validate().getValidationErrors().size() > 0) || !super.save()) return false;
         pointBinder.writeBeanIfValid(point);

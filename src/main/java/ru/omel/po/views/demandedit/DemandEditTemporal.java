@@ -1,5 +1,6 @@
 package ru.omel.po.views.demandedit;
 
+import org.springframework.transaction.annotation.Transactional;
 import ru.omel.po.data.entity.*;
 import ru.omel.po.data.service.*;
 import ru.omel.po.data.entity.DType;
@@ -73,6 +74,7 @@ public class DemandEditTemporal extends GeneralForm {
         safety.setReadOnly(true);
     }
 
+    @Transactional
     public boolean save() {
         if((pointBinder.validate().getValidationErrors().size() > 0) || !super.save()) return false;
         pointBinder.writeBeanIfValid(point);

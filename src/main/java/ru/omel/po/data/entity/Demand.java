@@ -72,12 +72,12 @@ public class Demand extends AbstractEntity {
     private String specification;
 
     // точки подключения
-    @OneToMany(mappedBy = "demand", cascade = CascadeType.ALL)
-    private List<Point> points = new ArrayList<>();
-
-    // сроки этапов
-    @OneToMany(mappedBy = "demand", cascade = CascadeType.ALL)
-    private List<Expiration> expirations = new ArrayList<>();
+//    @OneToMany(mappedBy = "demand", cascade = CascadeType.ALL)
+//    private List<Point> points = new ArrayList<>();
+//
+//    // сроки этапов
+//    @OneToMany(mappedBy = "demand", cascade = CascadeType.ALL)
+//    private List<Expiration> expirations = new ArrayList<>();
 
     // гарантирующий поставщик
     @ManyToOne(fetch = FetchType.EAGER)
@@ -128,8 +128,8 @@ public class Demand extends AbstractEntity {
 
     public Demand() {
         this.createDate = LocalDateTime.now();
-        this.points = new ArrayList<>();
-        this.expirations = new ArrayList<>();
+//        this.points = new ArrayList<>();
+//        this.expirations = new ArrayList<>();
     }
 
     public LocalDateTime getCreateDate() {
@@ -210,18 +210,18 @@ public class Demand extends AbstractEntity {
     public void setReason(Reason reason) {
         this.reason = reason;
     }
-    public List<Point> getPoints() {
-        return points;
-    }
-    public void setPoints(List<Point> points) {
-        this.points = points;
-    }
-    public List<Expiration> getExpirations() {
-        return expirations;
-    }
-    public void setExpirations(List<Expiration> expirations) {
-        this.expirations = expirations;
-    }
+//    public List<Point> getPoints() {
+//        return points;
+//    }
+//    public void setPoints(List<Point> points) {
+//        this.points = points;
+//    }
+//    public List<Expiration> getExpirations() {
+//        return expirations;
+//    }
+//    public void setExpirations(List<Expiration> expirations) {
+//        this.expirations = expirations;
+//    }
     public Garant getGarant() {
         return garant;
     }

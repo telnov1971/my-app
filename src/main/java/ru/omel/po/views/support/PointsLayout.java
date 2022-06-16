@@ -92,6 +92,7 @@ public class PointsLayout extends VerticalLayout {
                 }
                 editorPoints.editItem(point);
                 fieldPowerDemand.focus();
+                formParent.saveMode(0,1);
             });
             edit.setEnabled(!editorPoints.isOpen());
             editButtons.add(edit);

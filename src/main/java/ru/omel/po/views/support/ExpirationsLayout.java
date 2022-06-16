@@ -84,6 +84,7 @@ public class ExpirationsLayout extends VerticalLayout {
                 editorExpiration.editItem(expiration);
                 fieldStep.focus();
                 addButton.setEnabled(false);
+                formParent.saveMode(1,0);
             });
             edit.setEnabled(!editorExpiration.isOpen());
 //            edit.setText("ОТКРЫТЬ");
@@ -232,8 +233,9 @@ public class ExpirationsLayout extends VerticalLayout {
             fieldPlanUsage.focus();
             return false;
         }
-        formParent.saveMode(-1,0);
         editorExpiration.save();
+        formParent.saveMode(-1,0);
+        expirationsDataProvider.refreshAll();
         addButton.setEnabled(true);
         return true;
     }

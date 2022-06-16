@@ -1,5 +1,6 @@
 package ru.omel.po.views.demandedit;
 
+import org.springframework.transaction.annotation.Transactional;
 import ru.omel.po.data.entity.DType;
 import ru.omel.po.data.entity.Demand;
 import ru.omel.po.data.entity.DemandType;
@@ -105,6 +106,7 @@ public class DemandEditeGeneral extends GeneralForm {
         }
         generalBinder.readBean(general);
     }
+    @Transactional
     public boolean save() {
         if((binderDemand.validate().getValidationErrors().size() > 0) || !super.save()) return false;
         generalBinder.writeBeanIfValid(general);

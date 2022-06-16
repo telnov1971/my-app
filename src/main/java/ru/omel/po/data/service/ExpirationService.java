@@ -29,4 +29,8 @@ public class ExpirationService extends CrudService<Expiration, Long> {
     public Optional<Expiration> findById(Long id) {
         return expirationRepository.findById(id);
     }
+
+    public Expiration save(Expiration expiration) {
+        return expirationRepository.save(expiration);
+    }
 }
