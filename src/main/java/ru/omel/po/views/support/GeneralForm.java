@@ -254,6 +254,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             powerMaximum = new NumberField("Мощность максимальная, кВт", "0,00 кВт");
             powerMaximum.setAutocorrect(true);
             powerMaximum.setValue(0.0);
+            powerMaximum.setReadOnly(true);
 
             countTransformations = new TextArea("Кол-во и мощ-ть присоединяемых трансформаторов");
             countGenerations = new TextArea("Кол-во и мощ-ть генераторов");
@@ -579,7 +580,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             }
             historyExists = historyService.saveHistory(client, demand, demand, Demand.class);
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            demandService.update(demand);
+            demand = demandService.update(demand);
 
             filesLayout.setDemand(demand);
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -590,9 +591,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             if(editExp > 0) {
+                expirationsLayout.setDemand(demand);
                 if (!expirationsLayout.saveEdited()) return false;
             }
             if(editPnt > 0) {
+                pointsLayout.setDemand(demand);
                 return pointsLayout.saveEdited();
             }
             return true;
@@ -725,7 +728,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
          AbstractField[] fields = {
                 demander,delegate,inn,innDate,contact,passportSerries,passportNumber,pasportIssued,
                 addressRegistration,addressActual,addressEquals,reason,object,address,specification,
-                countPoints,powerDemand,powerCurrent,powerMaximum,voltage,safety,period,
+                countPoints,powerDemand,powerCurrent,voltage,safety,period,
                 contract,countTransformations,countGenerations,techminGeneration,reservation,
                 plan,garant,garantText
         };

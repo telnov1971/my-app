@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FileStoredService extends CrudService<FileStored,Long> {
@@ -23,5 +24,9 @@ public class FileStoredService extends CrudService<FileStored,Long> {
 
     public List<FileStored> findAllByDemand(Demand demand) {
         return fileStoredRepository.findAllByDemand(demand);
+    }
+
+    public Optional<FileStored> findByLink(String key) {
+        return fileStoredRepository.findByLink(key);
     }
 }
