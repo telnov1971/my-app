@@ -135,8 +135,12 @@ public class NotesLayout extends VerticalLayout {
             note.setDemand(demand);
             note.setClient(client);
             if(note.getId() == null) {
+                try{
+                    NoteService.update(note);
+                } catch (Exception e) {
+                    return false;
+                }
                 result = historyService.saveHistory(client, demand, note, Note.class);
-                NoteService.update(note);
             }
         }
         return result;

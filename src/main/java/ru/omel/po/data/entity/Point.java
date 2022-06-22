@@ -61,14 +61,14 @@ public class Point extends AbstractEntity  implements Comparable {
     }
     public void setPowerDemand(Double powerDemanded) {
         this.powerDemand = powerDemanded;
-        this.powerMaximum = this.powerCurrent + this.powerDemand;
+//        this.powerMaximum = this.powerCurrent + this.powerDemand;
     }
     public Double getPowerCurrent() {
         return powerCurrent;
     }
     public void setPowerCurrent(Double powerCurrent) {
         this.powerCurrent = powerCurrent;
-        this.powerMaximum = this.powerCurrent + this.powerDemand;
+//        this.powerMaximum = this.powerCurrent + this.powerDemand;
     }
     public Voltage getVoltage() {
         return voltage;

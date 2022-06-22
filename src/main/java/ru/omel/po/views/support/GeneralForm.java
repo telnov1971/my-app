@@ -459,7 +459,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         addressActual.addValueChangeListener(e -> ViewHelper.deselect(addressActual));
         reason.addValueChangeListener(e -> {
             if(reason.getValue().getId() == 1) {
-                powerCurrent.setValue(0.0);
+//                powerCurrent.setValue(0.0);
                 powerCurrent.setReadOnly(true);
             } else {
                 powerCurrent.setReadOnly(false);
@@ -478,8 +478,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 garantText.setValue("");
                 garantText.setVisible(false);
                 garantText.setReadOnly(true);
+                ViewHelper.deselect(garant);
             }
         });
+        garantText.addValueChangeListener(e -> ViewHelper.deselect(garantText));
         powerDemand.addBlurListener(e->testPower(powerDemand));
         powerDemand.addValueChangeListener(e -> changePower(powerDemand));
         powerCurrent.addBlurListener(e->testPower(powerCurrent));
@@ -529,6 +531,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         currentP = powerCurrent.getValue() != null ? powerCurrent.getValue(): 0.0;
         demandP = powerDemand.getValue() != null ? powerDemand.getValue() : 0.0;
         powerMaximum.setValue(currentP + demandP);
+        // При максимальной мощности свыше 5 кВт напряжение на входе должно быть только 380 В
         if((currentP + demandP) > 5.0) {
             if(voltageService.findById(4L).isPresent())
                 voltageIn.setValue(voltageService.findById(4L).get());
@@ -545,12 +548,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
     }
     private void testPower(NumberField field) {
+        if(field.isReadOnly()) return;
         if(field.getValue() == null){
             Notification notification = new Notification(
                     "Ошибка ввода числа", 5000,
                     Notification.Position.MIDDLE);
             notification.open();
-            field.setValue(0.0);
+//            field.setValue(0.0);
             field.focus();
         }
     }
@@ -579,9 +583,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 demand.setExecuted(false);
                 demand.setChange(true);
             }
-            historyExists = historyService.saveHistory(client, demand, demand, Demand.class);
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             demand = demandService.update(demand);
+            historyExists = historyService.saveHistory(client, demand, demand, Demand.class);
 
             filesLayout.setDemand(demand);
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -697,7 +701,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     ,"Не заполнено поле Характер нагрузки}"
                     ,alertHere.getFirst(),space);
         }
-        if(reason.getValue() != null) {
+        if(reason.getValue() != null) { // если выбрана причина подключения
+            // если текущая мощность видима и не указана или равна 0 и причина - увеличение,
+            // то поле надо зополнить
             if ((powerCurrent.isEmpty() || powerCurrent.getValue() == 0.0) &&
                     powerMaximum.isVisible() && (reason.getValue().getId() == 2L)) {
                 alertHere = ViewHelper.attention(powerCurrent
@@ -705,11 +711,15 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                         ,alertHere.getFirst(),space);
             }
         }
+        // если запрас мощности виден и не заполнен или равен 0,
+        // то поле надо заполнить
         if ((powerDemand.isEmpty() || powerDemand.getValue() == 0.0) && powerMaximum.isVisible()) {
             alertHere = ViewHelper.attention(powerDemand
                     , "Не заполнено поле Мощность..."
                     ,alertHere.getFirst(),space);
         }
+        // если максимальная мощность не 0,
+        // то проверяем чтобы не превышала максимум для типа заявки
         if ((!powerMaximum.isEmpty() || powerMaximum.getValue() != 0.0)
                 && powerMaximum.getValue() > this.MaxPower) {
             alertHere = ViewHelper.attention(powerDemand
@@ -719,6 +729,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         if(garant.getValue() == null) {
             alertHere = ViewHelper.attention(garant
                     ,"Необходимо выбрать гарантирующего поставщика"
+                    ,alertHere.getFirst(),space);
+        }
+        if(garantText.isVisible() && garantText.isEmpty()) {
+            alertHere = ViewHelper.attention(garantText
+                    ,"Необходимо указать гарантирующего поставщика"
                     ,alertHere.getFirst(),space);
         }
         if(alertHere.getFirst() != null) alertHere.getFirst().focus();

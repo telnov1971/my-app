@@ -183,8 +183,12 @@ public class FilesLayout extends VerticalLayout {
                 FileStored file = new FileStored(entry.getValue(), entry.getKey(), demand);
                 file.setDemand(demand);
                 file.setClient(client);
-                if(historyService.saveHistory(client, demand, file, FileStored.class)) {
+                try{
                     fileStoredService.update(file);
+                } catch (Exception e) {
+                    return result;
+                }
+                if(historyService.saveHistory(client, demand, file, FileStored.class)) {
                     result = true;
                 }
             }
