@@ -24,6 +24,7 @@ import java.util.*;
 
 public class FilesLayout extends VerticalLayout {
     private final String uploadPath;
+    private final String dbName;
 
     private Demand demand;
     private final Grid<FileStored> fileStoredGrid = new Grid<>(FileStored.class,false);
@@ -44,6 +45,9 @@ public class FilesLayout extends VerticalLayout {
             , HistoryService historyService, int client) {
         this.historyService = historyService;
         this.uploadPath = AppEnv.getUploadPath();
+        String temp = AppEnv.getDbName();
+        String temp2 = temp.substring(temp.lastIndexOf("/")+1);
+        this.dbName = temp2.equals("po2") ? temp2 : "";
         this.fileStoredService = fileStoredService;
         this.client = client;
 
@@ -95,7 +99,9 @@ public class FilesLayout extends VerticalLayout {
             Anchor anchor = new Anchor();
 
             String filename = file.getLink();
-            File outFile = new File(uploadPath + filename);
+            String dirName = file.getDirectory() != null ?
+                    uploadPath + file.getDirectory() + "\\" : uploadPath;
+            File outFile = new File(dirName + filename);
             try {
                 if(outFile.exists()) {
                     InputStream inputStream = new FileInputStream(outFile);
@@ -110,8 +116,9 @@ public class FilesLayout extends VerticalLayout {
                                 return null;
                             }
                     );
+//                    inputStream.close();
                 }
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
@@ -149,6 +156,7 @@ public class FilesLayout extends VerticalLayout {
                 InputStream inputStream = buffer.getInputStream(event.getFileName());
                 fileOutputStream.write(inputStream.readAllBytes());
                 fileOutputStream.close();
+                inputStream.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -180,7 +188,8 @@ public class FilesLayout extends VerticalLayout {
         boolean result = false;
         for(Map.Entry<String, String> entry: filesToSave.entrySet()) {
             if((fileStoredService.findByLink(entry.getKey())).isEmpty()){
-                FileStored file = new FileStored(entry.getValue(), entry.getKey(), demand);
+                String dir = moveFile(entry.getKey());
+                FileStored file = new FileStored(entry.getValue(), dir, entry.getKey(), demand);
                 file.setDemand(demand);
                 file.setClient(client);
                 try{
@@ -196,6 +205,21 @@ public class FilesLayout extends VerticalLayout {
         return result;
     }
 
+    private String moveFile(String filename) {
+        String dirName = dbName + "\\" + demand.getId();
+        String resultFilename;
+        File dir = new File(uploadPath + dirName);
+        if(!dir.exists()) dir.mkdir();
+        if(dir.exists()){
+            resultFilename = uploadPath + dirName + "\\" + filename;
+            try {
+                Files.move(Paths.get(uploadPath + filename), Paths.get(resultFilename));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return dirName;
+    }
     public void deleteFiles() throws IOException {
         for(Map.Entry<String, String> entry: filesToSave.entrySet()) {
 
