@@ -106,14 +106,12 @@ public class DemandEditTo15 extends GeneralForm {
     @Transactional
     public boolean save() {
         //inn.setValue("0000000000");
-        if((pointBinder.validate().getValidationErrors().size() > 0) || !super.save()) return false;
-        pointBinder.writeBeanIfValid(point);
+        super.save();
         point.setDemand(demand);
-        historyExists |= historyService.saveHistory(client,demand,point,Point.class);
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        pointService.update(this.point);
         expirationsLayout.setDemand(demand);
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        historyExists |= historyService.saveHistory(client,demand,point,Point.class);
+        pointService.update(this.point);
         historyExists |= expirationsLayout.saveExpirations();
         demand.setChange(demand.isChange() || historyExists);
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -137,6 +135,8 @@ public class DemandEditTo15 extends GeneralForm {
                     Notification.Position.BOTTOM_START);
             return false;
         }
+        if(pointBinder.validate().getValidationErrors().size() > 0) return false;
+        pointBinder.writeBeanIfValid(point);
         return true;
     }
 

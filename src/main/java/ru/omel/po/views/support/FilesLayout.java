@@ -213,7 +213,8 @@ public class FilesLayout extends VerticalLayout {
         if(dir.exists()){
             resultFilename = uploadPath + dirName + "\\" + filename;
             try {
-                Files.move(Paths.get(uploadPath + filename), Paths.get(resultFilename));
+                Files.copy(Paths.get(uploadPath + filename), Paths.get(resultFilename));
+//                Files.move(Paths.get(uploadPath + filename), Paths.get(resultFilename));
             } catch (IOException e) {
                 e.printStackTrace();
             }

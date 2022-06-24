@@ -307,12 +307,12 @@ public class PointsLayout extends VerticalLayout {
             if((point.getPowerDemand() == 0.0)
                     && (point.getPowerCurrent() == 0.0)) continue;
             point.setDemand(demand);
+            result |= historyService.saveHistory(client, demand, point, Point.class);
             try {
                 pointService.update(point);
             } catch (Exception e) {
                 return false;
             }
-            result |= historyService.saveHistory(client, demand, point, Point.class);
         }
         return result;
     }

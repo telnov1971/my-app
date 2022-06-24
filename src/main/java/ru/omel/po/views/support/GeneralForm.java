@@ -392,7 +392,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
     protected void setListeners() {
         save.addClickListener(event -> {
-            if(save()) UI.getCurrent().navigate(DemandList.class);
+            if(!verifyField()) return;
+            if(!save()) return;
+            UI.getCurrent().navigate(DemandList.class);
         });
         reset.addClickListener(event -> {
             try {
@@ -560,53 +562,29 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     public boolean save() {
-        if(!verifyField()) return false;
-        if (binderDemand.validate().getValidationErrors().size() > 0) {
-            List<ValidationResult> validationResults = binderDemand.validate().getValidationErrors();
-            for (ValidationResult validationResult : validationResults) {
-                Notification.show(String.format("Ошибка %s", validationResult.getErrorMessage()));
-            }
-            return false;
-        }
         if(typeDemander.isVisible()){
             if(typeDemander.getValue() != null) {
                 demand.setTypeDemander(typeDemander.getValue());
             }
         }
         demand.setChangeDate(LocalDateTime.now());
-        if(binderDemand.writeBeanIfValid(demand)) {
-            if (demand.getUser() == null) {
-                demand.setUser(userService.findByUsername(
-                        SecurityContextHolder.getContext().getAuthentication().getName()));
-                demand.setCreateDate(LocalDateTime.now());
-                demand.setLoad1c(false);
-                demand.setExecuted(false);
-                demand.setChange(true);
-            }
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            demand = demandService.update(demand);
-            historyExists = historyService.saveHistory(client, demand, demand, Demand.class);
-
-            filesLayout.setDemand(demand);
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            historyExists |= filesLayout.saveFiles();
-            notesLayout.setDemand(demand);
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            historyExists |= notesLayout.saveNotes(client);
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            if(editExp > 0) {
-                expirationsLayout.setDemand(demand);
-                if (!expirationsLayout.saveEdited()) return false;
-            }
-            if(editPnt > 0) {
-                pointsLayout.setDemand(demand);
-                return pointsLayout.saveEdited();
-            }
-            return true;
-        } else {
-            return false;
+        if (demand.getUser() == null) {
+            demand.setUser(userService.findByUsername(
+                    SecurityContextHolder.getContext().getAuthentication().getName()));
+            demand.setCreateDate(LocalDateTime.now());
+            demand.setLoad1c(false);
+            demand.setExecuted(false);
         }
+        historyExists = historyService.saveHistory(client, demand, demand, Demand.class);
+        if(historyExists)
+            demand.setChange(true);
+        demand = demandService.update(demand);
+        filesLayout.setDemand(demand);
+        notesLayout.setDemand(demand);
+
+        historyExists |= filesLayout.saveFiles();
+        historyExists |= notesLayout.saveNotes(client);
+        return true;
     }
 
     protected Boolean verifyField() {
@@ -726,6 +704,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     ,"Максимальная мощность превышает допустимую..."
                     ,alertHere.getFirst(),space);
         }
+        if(voltageIn.isVisible() && !voltageIn.isReadOnly() &&
+                voltageIn.getValue()==null){
+            alertHere = ViewHelper.attention(voltageIn
+                    ,"Необходимо выбрать уровень напряжения на вводе"
+                    ,alertHere.getFirst(),space);
+        }
         if(garant.getValue() == null) {
             alertHere = ViewHelper.attention(garant
                     ,"Необходимо выбрать гарантирующего поставщика"
@@ -736,8 +720,30 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     ,"Необходимо указать гарантирующего поставщика"
                     ,alertHere.getFirst(),space);
         }
-        if(alertHere.getFirst() != null) alertHere.getFirst().focus();
-        return alertHere.getSecond();
+        // если есть ошибки в полях
+        if(alertHere.getFirst() != null) {
+            alertHere.getFirst().focus();
+            return false;
+        }
+        if(editPnt > 0) {
+            pointsLayout.setDemand(demand);
+            if(!pointsLayout.saveEdited()) return false;
+        }
+        if(editExp > 0) {
+            expirationsLayout.setDemand(demand);
+            if (!expirationsLayout.saveEdited()) return false;
+        }
+        // связываем значения полей страницы и объекта заявки
+        if (binderDemand.validate().getValidationErrors().size() > 0) {
+            List<ValidationResult> validationResults = binderDemand.validate().getValidationErrors();
+            for (ValidationResult validationResult : validationResults) {
+                Notification.show(String.format("Ошибка %s", validationResult.getErrorMessage()));
+            }
+            return false;
+        } else {
+            binderDemand.writeBeanIfValid(demand);
+            return true;
+        }
     }
 
     protected void setReadOnly(Boolean readOnly) {

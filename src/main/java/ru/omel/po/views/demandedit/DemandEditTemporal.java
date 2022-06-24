@@ -76,8 +76,7 @@ public class DemandEditTemporal extends GeneralForm {
 
     @Transactional
     public boolean save() {
-        if((pointBinder.validate().getValidationErrors().size() > 0) || !super.save()) return false;
-        pointBinder.writeBeanIfValid(point);
+        super.save();
         point.setDemand(demand);
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         historyExists |= historyService.saveHistory(client, demand,point,Point.class);
@@ -91,7 +90,10 @@ public class DemandEditTemporal extends GeneralForm {
 
     @Override
     protected Boolean verifyField() {
-        return super.verifyField();
+        if(!super.verifyField()) return false;
+        if(pointBinder.validate().getValidationErrors().size() > 0) return false;
+        pointBinder.writeBeanIfValid(point);
+        return true;
     }
 
     @Override
