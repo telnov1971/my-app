@@ -1,10 +1,5 @@
 package ru.omel.po.views.support;
 
-import ru.omel.po.data.entity.*;
-import ru.omel.po.data.service.HistoryService;
-import ru.omel.po.data.service.PointService;
-import ru.omel.po.data.service.SafetyService;
-import ru.omel.po.data.service.VoltageService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
@@ -22,6 +17,10 @@ import ru.omel.po.data.entity.Demand;
 import ru.omel.po.data.entity.Point;
 import ru.omel.po.data.entity.Safety;
 import ru.omel.po.data.entity.Voltage;
+import ru.omel.po.data.service.HistoryService;
+import ru.omel.po.data.service.PointService;
+import ru.omel.po.data.service.SafetyService;
+import ru.omel.po.data.service.VoltageService;
 
 import java.util.*;
 
@@ -34,6 +33,7 @@ public class PointsLayout extends VerticalLayout {
     private final GeneralForm formParent;
     private NumberField fieldPowerDemand  = new NumberField();
     private NumberField fieldPowerCurrent = new NumberField();
+    private NumberField fieldPowerMaximum  = new NumberField();
     private Select<Safety> selectSafety;
     private Select<Voltage> selectVoltage;
 
@@ -113,10 +113,11 @@ public class PointsLayout extends VerticalLayout {
                         .setHeader("Мощ. прис., кВт")
                         .setAutoWidth(true)
                         .setResizable(true);
-        pointGrid.addColumn(Point::getPowerMaximum)
-                .setAutoWidth(true)
-                .setHeader("Мощ. мак., кВт ")
-                .setResizable(true);
+        Grid.Column<Point> columnPowerMaximum =
+                pointGrid.addColumn(Point::getPowerMaximum)
+                        .setAutoWidth(true)
+                        .setHeader("Мощ. мак., кВт ")
+                        .setResizable(true);
         Grid.Column<Point> columnSafety =
                 pointGrid.addColumn(point -> point.getSafety().getName())
                         .setAutoWidth(true)
@@ -137,12 +138,21 @@ public class PointsLayout extends VerticalLayout {
         editorPoints.setBinder(binderPoints);
         editorPoints.setBuffered(true);
 
+        fieldPowerMaximum.setReadOnly(true);
+        columnPowerMaximum.setEditorComponent(fieldPowerMaximum);
+        binderPoints.forField(fieldPowerMaximum).bind("powerMaximum");
+
         fieldPowerDemand.setValue(1d);
         //fieldPowerDemand.setHasControls(true);
         fieldPowerDemand.setMin(0);
         fieldPowerDemand.addValueChangeListener(e -> {
-            if(!fieldPowerDemand.isEmpty())
+            if(!fieldPowerDemand.isEmpty()) {
                 ViewHelper.deselect(fieldPowerDemand);
+                Double pc = fieldPowerCurrent.isEmpty() ? 0.0 : fieldPowerCurrent.getValue();
+                pc += fieldPowerDemand.getValue();
+                fieldPowerMaximum.setValue(pc);
+                formParent.setPowerMaximum(pc);
+            }
         });
         binderPoints.forField(fieldPowerDemand).bind("powerDemand");
         columnPowerDemand.setEditorComponent(fieldPowerDemand);
@@ -152,8 +162,13 @@ public class PointsLayout extends VerticalLayout {
         binderPoints.forField(fieldPowerCurrent).bind("powerCurrent");
         columnPowerCurrent.setEditorComponent(fieldPowerCurrent);
         fieldPowerCurrent.addValueChangeListener(e -> {
-            if(!fieldPowerCurrent.isEmpty())
+            if(!fieldPowerCurrent.isEmpty()) {
                 ViewHelper.deselect(fieldPowerCurrent);
+                Double pd = fieldPowerDemand.isEmpty() ? 0.0 : fieldPowerDemand.getValue();
+                pd += fieldPowerCurrent.getValue();
+                fieldPowerMaximum.setValue(pd);
+                formParent.setPowerMaximum(pd);
+            }
         });
 
         binderPoints.forField(selectSafety).bind("safety");

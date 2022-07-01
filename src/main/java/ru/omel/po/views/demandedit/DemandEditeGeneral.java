@@ -78,7 +78,7 @@ public class DemandEditeGeneral extends GeneralForm {
         accordionExpiration.add("Этапы выполнения работ (открыть/закрыть по клику мышкой)"
                 ,this.expirationsLayout);
         powerMaximum.addValueChangeListener(e ->
-            expirationsLayout.setPowerMax(powerMaximum.getValue())
+                expirationsLayout.setPowerMax(powerMaximum.getValue())
         );
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory,space);
     }
@@ -111,16 +111,15 @@ public class DemandEditeGeneral extends GeneralForm {
         if((binderDemand.validate().getValidationErrors().size() > 0) || !super.save()) return false;
         generalBinder.writeBeanIfValid(general);
         general.setDemand(demand);
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         generalService.update(this.general);
+
         pointsLayout.setDemand(demand);
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         historyExists |= pointsLayout.savePoints();
+
         expirationsLayout.setDemand(demand);
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         historyExists |= expirationsLayout.saveExpirations();
+
         demand.setChange(demand.isChange() || historyExists);
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         demandService.update(demand);
 
         return true;

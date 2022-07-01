@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected Pair<Focusable, Boolean> alertHere = new Pair<>(null, true);
 
-    protected int client;
+    protected int client = 1;
     protected boolean historyExists = false;
     protected final String DEMAND_ID = "demandID";
     protected DecimalFormat decimalFormat;
@@ -829,7 +829,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                                     Role.ADMIN :
                                     Role.ANONYMOUS;
         }
-        client = 1;
+//        client = 1;
         switch (role){
             case GARANT:
                 client = 2;
@@ -869,6 +869,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 clearForm();
             }
         }
+    }
+    public void setPowerMaximum(Double powerMax) {
+        powerMaximum.setValue(powerMax);
     }
 }
 

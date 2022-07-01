@@ -46,8 +46,8 @@ public class FilesLayout extends VerticalLayout {
         this.historyService = historyService;
         this.uploadPath = AppEnv.getUploadPath();
         String temp = AppEnv.getDbName();
-        String temp2 = temp.substring(temp.lastIndexOf("/")+1);
-        this.dbName = temp2.equals("po2") ? temp2 : "";
+        this.dbName = temp.substring(temp.lastIndexOf("/")+1);
+//        this.dbName = !temp2.equals("") ? temp2 : "";
         this.fileStoredService = fileStoredService;
         this.client = client;
 
