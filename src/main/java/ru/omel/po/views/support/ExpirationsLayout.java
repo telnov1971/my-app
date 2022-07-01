@@ -3,6 +3,7 @@ package ru.omel.po.views.support;
 import ru.omel.po.data.entity.Demand;
 import ru.omel.po.data.entity.Expiration;
 import ru.omel.po.data.entity.Safety;
+import ru.omel.po.data.entity.Voltage;
 import ru.omel.po.data.service.ExpirationService;
 import ru.omel.po.data.service.HistoryService;
 import ru.omel.po.data.service.SafetyService;

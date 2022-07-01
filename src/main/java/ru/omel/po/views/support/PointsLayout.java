@@ -36,6 +36,7 @@ public class PointsLayout extends VerticalLayout {
     private NumberField fieldPowerMaximum  = new NumberField();
     private Select<Safety> selectSafety;
     private Select<Voltage> selectVoltage;
+//    private Select<Voltage> selectVoltageIn;
 
     private final Button addButton;
     private final Button removeButton;
@@ -69,6 +70,7 @@ public class PointsLayout extends VerticalLayout {
         Select<Safety> selectSafety = ViewHelper.createSelect(Safety::getName, safetyService.findAll(),
                 "", Safety.class);
         Select<Voltage> selectVoltage = new Select<>();
+//        Select<Voltage> selectVoltageIn = new Select<>();
         editorPoints = pointGrid.getEditor();
 
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
@@ -126,8 +128,13 @@ public class PointsLayout extends VerticalLayout {
         Grid.Column<Point> columnVoltage =
                 pointGrid.addColumn(point -> point.getVoltage().getName())
                         .setAutoWidth(true)
-                        .setHeader("Ур. напр. ")
+                        .setHeader("Класс напр. ")
                         .setResizable(true);
+//        Grid.Column<Point> columnVoltageIn =
+//                pointGrid.addColumn(point -> point.getVoltageIn()!=null ? point.getVoltage().getName() : "")
+//                        .setAutoWidth(true)
+//                        .setHeader("Ур.напр. на вводе ")
+//                        .setResizable(true);
         columnNumber.setSortable(true);
 //        points.add(new Point());
         pointGrid.setItems(points);
@@ -178,6 +185,11 @@ public class PointsLayout extends VerticalLayout {
         selectVoltage.setItemLabelGenerator(Voltage::getName);
         binderPoints.forField(selectVoltage).bind("voltage");
         columnVoltage.setEditorComponent(selectVoltage);
+
+//        selectVoltageIn.setItems(voltageService.findAllByOptional(true));
+//        selectVoltageIn.setItemLabelGenerator(Voltage::getName);
+//        binderPoints.forField(selectVoltage).bind("voltageIn");
+//        columnVoltageIn.setEditorComponent(selectVoltageIn);
 
         addButton = new Button("Добавить точку");
         removeButton = new Button("Удалить последнюю");

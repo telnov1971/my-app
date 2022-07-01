@@ -70,6 +70,7 @@ public class DemandEditTo150 extends GeneralForm {
                 plan.setReadOnly(false);
             }
         });
+        voltage.addValueChangeListener(e -> setOptional());
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory,space);
     }
 
@@ -149,5 +150,9 @@ public class DemandEditTo150 extends GeneralForm {
                 pasportIssued.setVisible(true);
                 break;
         }
+    }
+
+    private void setOptional(){
+        voltageIn.setVisible(voltage.getValue() != null && voltage.getValue().getId() == 1L);
     }
 }
