@@ -4,6 +4,7 @@ import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.dom.Element;
@@ -33,8 +34,13 @@ public class ViewHelper {
             , Focusable fieldGoto
             , TextArea space) {
 
-        Notification.show(message, 3000,
-                Notification.Position.BOTTOM_START);
+        Notification notification = new Notification();
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.setText(message);
+        notification.setPosition(Notification.Position.BOTTOM_START);
+        notification.setDuration(3000);
+        notification.open();
+
         space.setLabel("Ошибки заполенеия");
         space.setValue(space.getValue() + "\n" + message);
         Focusable toField = fieldGoto == null ? (Focusable) field : fieldGoto;

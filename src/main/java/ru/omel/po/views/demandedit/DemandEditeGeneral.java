@@ -1,5 +1,6 @@
 package ru.omel.po.views.demandedit;
 
+import com.vaadin.flow.component.notification.NotificationVariant;
 import org.springframework.transaction.annotation.Transactional;
 import ru.omel.po.data.entity.DType;
 import ru.omel.po.data.entity.Demand;
@@ -127,19 +128,24 @@ public class DemandEditeGeneral extends GeneralForm {
 
     @Override
     protected Boolean verifyField() {
+        Notification notification = new Notification();
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.setPosition(Notification.Position.BOTTOM_START);
+        notification.setDuration(3000);
+
         if(!super.verifyField()) return false;
         if(pointsLayout.getPointSize()==0){
             specification.focus();
             pointsLayout.setFocus();
-            Notification.show("Не заполнены точки подключения", 3000,
-                    Notification.Position.BOTTOM_START);
+            notification.setText("Не заполнены точки подключения");
+            notification.open();
             return false;
         }
         if(expirationsLayout.getExpirationsSize()==0){
             safety.focus();
             expirationsLayout.setFocus();
-            Notification.show("Не заполнены этапы работ", 3000,
-                    Notification.Position.BOTTOM_START);
+            notification.setText("Не заполнены этапы работ");
+            notification.open();
             return false;
         }
         return true;

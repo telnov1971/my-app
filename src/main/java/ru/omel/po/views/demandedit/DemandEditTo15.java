@@ -1,5 +1,6 @@
 package ru.omel.po.views.demandedit;
 
+import com.vaadin.flow.component.notification.NotificationVariant;
 import org.springframework.transaction.annotation.Transactional;
 import ru.omel.po.data.entity.*;
 import ru.omel.po.data.service.*;
@@ -121,18 +122,23 @@ public class DemandEditTo15 extends GeneralForm {
 
     @Override
     protected Boolean verifyField() {
+        Notification notification = new Notification();
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.setPosition(Notification.Position.BOTTOM_START);
+        notification.setDuration(3000);
+
         if(!super.verifyField()) return false;
         if(!powerMaximum.isEmpty() && powerMaximum.getValue() > 15.0) {
             powerCurrent.focus();
-            Notification.show("Максимальна мощность больше допустимой", 3000,
-                    Notification.Position.BOTTOM_START);
+            notification.setText("Максимальна мощность больше допустимой");
+            notification.open();
             return false;
         }
         if(expirationsLayout.getExpirationsSize()==0){
             powerCurrent.focus();
             expirationsLayout.setFocus();
-            Notification.show("Не заполнены этапы работ", 3000,
-                    Notification.Position.BOTTOM_START);
+            notification.setText("Не заполнены этапы работ");
+            notification.open();
             return false;
         }
         if(pointBinder.validate().getValidationErrors().size() > 0) return false;

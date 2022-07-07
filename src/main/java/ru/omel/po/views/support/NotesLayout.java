@@ -1,5 +1,6 @@
 package ru.omel.po.views.support;
 
+import com.vaadin.flow.component.notification.NotificationVariant;
 import ru.omel.po.data.entity.Demand;
 import ru.omel.po.data.entity.Note;
 import ru.omel.po.data.service.HistoryService;
@@ -82,8 +83,12 @@ public class NotesLayout extends VerticalLayout {
 
         addButton.addClickListener(e -> {
             if(noteArea.getValue().isEmpty()) {
-                Notification.show("Сначала надо ввести текст примечания", 3000,
-                        Notification.Position.BOTTOM_START);
+                Notification notification = new Notification();
+                notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                notification.setText("Сначала надо ввести текст примечания");
+                notification.setPosition(Notification.Position.BOTTOM_START);
+                notification.setDuration(3000);
+                notification.open();
                 return;
             }
             notes.add(new Note(demand, noteArea.getValue(), client));

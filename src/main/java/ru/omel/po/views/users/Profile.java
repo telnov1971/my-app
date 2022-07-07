@@ -1,5 +1,6 @@
 package ru.omel.po.views.users;
 
+import com.vaadin.flow.component.notification.NotificationVariant;
 import ru.omel.po.data.entity.Role;
 import ru.omel.po.data.entity.User;
 import ru.omel.po.data.service.MailSenderService;
@@ -202,8 +203,13 @@ public class Profile extends Div implements BeforeEnterObserver {
                         equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
                     populateForm(userFromBackend);
                 } else {
-                    Notification.show("Это не Вы :(", 3000,
-                            Notification.Position.BOTTOM_START);
+                    Notification notification = new Notification();
+                    notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    notification.setText("Это не Вы :(");
+                    notification.setPosition(Notification.Position.BOTTOM_START);
+                    notification.setDuration(3000);
+                    notification.open();
+
                     clearForm();
                 }
             } else {

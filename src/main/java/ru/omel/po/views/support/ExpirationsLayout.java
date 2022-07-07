@@ -1,5 +1,6 @@
 package ru.omel.po.views.support;
 
+import com.vaadin.flow.component.notification.NotificationVariant;
 import ru.omel.po.data.entity.Demand;
 import ru.omel.po.data.entity.Expiration;
 import ru.omel.po.data.entity.Safety;
@@ -156,8 +157,13 @@ public class ExpirationsLayout extends VerticalLayout {
                 if(formParent.points != null && formParent.points.size() > 0){
                     expiration.setSafety(formParent.points.get(0).getSafety());
                 } else {
-                    Notification.show("Нужно заполнить точки подключения", 3000,
-                            Notification.Position.BOTTOM_START);
+                    Notification notification = new Notification();
+                    notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    notification.setText("Нужно заполнить точки подключения");
+                    notification.setPosition(Notification.Position.BOTTOM_START);
+                    notification.setDuration(3000);
+                    notification.open();
+
                     if(formParent.pointsLayout != null)
                         formParent.pointsLayout.setFocus();
                     return;

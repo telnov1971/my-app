@@ -1,5 +1,6 @@
 package ru.omel.po.views.support;
 
+import com.vaadin.flow.component.notification.NotificationVariant;
 import org.springframework.transaction.annotation.Transactional;
 import ru.omel.po.data.entity.*;
 import ru.omel.po.data.service.*;
@@ -737,7 +738,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         if (binderDemand.validate().getValidationErrors().size() > 0) {
             List<ValidationResult> validationResults = binderDemand.validate().getValidationErrors();
             for (ValidationResult validationResult : validationResults) {
-                Notification.show(String.format("Ошибка %s", validationResult.getErrorMessage()));
+                Notification notification = new Notification();
+                notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                notification.setText(String.format("Ошибка %s", validationResult.getErrorMessage()));
+                notification.setPosition(Notification.Position.BOTTOM_START);
+                notification.setDuration(3000);
+                notification.open();
             }
             return false;
         } else {
@@ -844,6 +850,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             expirationsLayout.setClient(client);
         typeDemander.setReadOnly(false);
         if (demandId.isPresent()) {
+            Notification notification = new Notification();
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setPosition(Notification.Position.BOTTOM_START);
+            notification.setDuration(3000);
+
             Optional<Demand> demandFromBackend = demandService.get(demandId.get());
             if (demandFromBackend.isPresent()) {
                 if(role == Role.ADMIN) {
@@ -859,13 +870,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                         typeDemander.setReadOnly(true);
                     }
                 } else {
-                    Notification.show(String.format("Заявка с ID = %d не Ваша", demandId.get()), 3000,
-                            Notification.Position.BOTTOM_START);
+                    notification.setText(String.format("Заявка с ID = %d не Ваша", demandId.get()));
+                    notification.open();
                     clearForm();
                 }
             } else {
-                Notification.show(String.format("Заявка с ID = %d не найдена", demandId.get()), 3000,
-                        Notification.Position.BOTTOM_START);
+                notification.setText(String.format("Заявка с ID = %d не найдена", demandId.get()));
+                notification.open();
                 clearForm();
             }
         }
