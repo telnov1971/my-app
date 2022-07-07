@@ -1,5 +1,6 @@
 package ru.omel.po.views.support;
 
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import ru.omel.po.config.AppEnv;
@@ -137,7 +138,8 @@ public class FilesLayout extends VerticalLayout {
         columnLink.setVisible(false);
 
         createUploadLayout();
-        add(fileTableName,fileStoredGrid, multiUpload);
+        Paragraph hint = new Paragraph("Размер файла не должен превышать 50 МБ");
+        add(fileTableName,fileStoredGrid, hint, multiUpload);
     }
 
     private void createUploadLayout() {
@@ -183,8 +185,9 @@ public class FilesLayout extends VerticalLayout {
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         });
 
-        //upload.setAutoUpload(false);
-        multiUpload.setUploadButton(new Button("Загрузить файл"));
+//        multiUpload.setAutoUpload(false);
+//        multiUpload.setUploadButton(new Button("Загрузить файл"));
+
         add(multiUpload);
     }
 
