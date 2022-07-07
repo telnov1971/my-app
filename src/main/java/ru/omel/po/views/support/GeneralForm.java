@@ -81,7 +81,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected List<String> demanderList = new ArrayList<>();
     protected Select<String> typeDemander;
     protected TextField delegate;
-    protected TextField inn;
+//    protected TextField inn;
+    protected ComboBox<String> inn = new ComboBox<>();
+    protected List<String> innList = new ArrayList<>();
     protected DatePicker innDate;
 //    protected TextField contact;
     protected ComboBox<String> contact = new ComboBox<>();
@@ -220,8 +222,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             demander.setHelperText("полное наименование заявителя – юридического лица;" +
                     " фамилия, имя, отчество заявителя – индивидуального предпринимателя");
             delegate = new TextField("ФИО представителя","Представитель юр.лица");
-            inn = new TextField("Реквизиты заявителя (обязательное поле)");
+//            inn = new TextField("Реквизиты заявителя (обязательное поле)");
 //                    "ОГРН для юр.лиц, ИНН для ИП");
+            inn.setLabel("Реквизиты заявителя (обязательное поле)");
+            inn.setAllowCustomValue(true);
+            inn.setItems(innList);
             inn.setHelperText("(номер записи в Едином государственном реестре юридических лиц"+
                     " / номер записи в Едином государственном реестре индивидуальных предпринимателей)");
             innDate = new DatePicker("Дата регистрации в реестре");
@@ -448,6 +453,17 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             } else {
                 ViewHelper.deselect(inn);
             }
+        });
+        inn.addCustomValueSetListener(e -> {
+            String customValue = e.getDetail();
+            int length = customValue.length();
+            if((length < 10) || (length > 20)) {
+                return;
+            }
+            if(!innList.contains(customValue))
+                innList.add(customValue);
+            inn.setItems(innList);
+            inn.setValue(customValue);
         });
         if(passportSerries.isVisible()) {
             passportSerries.addValueChangeListener(e -> {
@@ -913,9 +929,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         demander.setItems(demanderList);
         contactList = createList(currentUser, ViewHelper.FieldName.CONTACT);
         contact.setItems(contactList);
+        innList = createList(currentUser, ViewHelper.FieldName.INN);
+        inn.setItems(innList);
         if(this.demand!=null){
             demander.setValue(demand.getDemander());
             contact.setValue(demand.getContact());
+            inn.setValue(demand.getInn());
         }
     }
     public void setPowerMaximum(Double powerMax) {
@@ -952,6 +971,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 case PASPORTNUMBER:
                     if(!list.contains(demand.getPassportNumber()))
                         list.add(demand.getPassportNumber());
+                    break;
+                case PASPORTISSUED:
+                    if(!list.contains(demand.getPasportIssued()))
+                        list.add(demand.getPasportIssued());
                     break;
                 case ADDRESSREGISTRATION:
                     if(!list.contains(demand.getAddressRegistration()))

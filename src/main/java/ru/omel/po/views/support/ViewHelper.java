@@ -18,7 +18,8 @@ import java.util.List;
 
 public class ViewHelper {
 
-    public enum FieldName {DEMANDER, DELEGATE, INN, CONTACT, PASPORTSERIES, PASPORTNUMBER, ADDRESSREGISTRATION}
+    public enum FieldName {DEMANDER, DELEGATE, INN, CONTACT
+        , PASPORTSERIES, PASPORTNUMBER, PASPORTISSUED, ADDRESSREGISTRATION}
     public static void alert(Element element){
         Style style = element.getStyle();
         style.set("margin","0.1em");
