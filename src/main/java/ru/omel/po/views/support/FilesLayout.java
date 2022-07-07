@@ -1,5 +1,7 @@
 package ru.omel.po.views.support;
 
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import ru.omel.po.config.AppEnv;
 import ru.omel.po.data.entity.Demand;
 import ru.omel.po.data.entity.FileStored;
@@ -139,6 +141,10 @@ public class FilesLayout extends VerticalLayout {
     }
 
     private void createUploadLayout() {
+        UploadFilesI18N I18N = new UploadFilesI18N();
+        multiUpload.setI18n(I18N);
+
+        multiUpload.setDropAllowed(true);
         multiUpload.addSucceededListener(event -> {
             this.originalFileName = event.getFileName();
             String fileExt = ".txt";
@@ -165,8 +171,16 @@ public class FilesLayout extends VerticalLayout {
         multiUpload.addFailedListener(event -> {
 
         });
+        multiUpload.setMaxFileSize(50*1024*1024);
         multiUpload.addFileRejectedListener(event -> {
+            String errorMessage = event.getErrorMessage();
 
+            Notification notification = Notification.show(
+                    errorMessage,
+                    5000,
+                    Notification.Position.MIDDLE
+            );
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         });
 
         //upload.setAutoUpload(false);
