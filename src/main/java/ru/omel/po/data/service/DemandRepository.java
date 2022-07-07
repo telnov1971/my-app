@@ -88,4 +88,6 @@ public interface DemandRepository extends JpaRepository<Demand, Long> {
             "and d.user.id=:userId")
     List<Demand> search4User(@Param("searchTerm") String searchTerm
             ,@Param("userId") Long userId);
+
+    List<Demand> findAllByUser(User user);
 }

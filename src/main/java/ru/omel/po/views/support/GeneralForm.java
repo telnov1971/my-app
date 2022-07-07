@@ -1,5 +1,6 @@
 package ru.omel.po.views.support;
 
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import org.springframework.transaction.annotation.Transactional;
 import ru.omel.po.data.entity.*;
@@ -38,6 +39,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -74,7 +76,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
     protected Accordion accordionDemander = new Accordion();
     protected FormLayout formDemander = new FormLayout();
-    protected TextArea demander;
+//    protected TextArea demander;
+    protected ComboBox<String> demander = new ComboBox<>();
+    protected List<String> demanderList = new ArrayList<>();
     protected Select<String> typeDemander;
     protected TextField delegate;
     protected TextField inn;
@@ -205,8 +209,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     "Тип заявки", DemandType.class);
             demandType.setReadOnly(true);
 
-            demander = new TextArea("Заявитель (обязательное поле)",
-                    "Наименование организации, ФИО заявителя");
+//            demander = new TextArea("Заявитель (обязательное поле)",
+//                    "Наименование организации, ФИО заявителя");
+            demander.setLabel("Заявитель (обязательное поле)");
+            demander.setAllowCustomValue(true);
+            demander.setItems(demanderList);
+
             demander.setHelperText("полное наименование заявителя – юридического лица;" +
                     " фамилия, имя, отчество заявителя – индивидуального предпринимателя");
             delegate = new TextField("ФИО представителя","Представитель юр.лица");
@@ -404,6 +412,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 e.printStackTrace();
             }
             UI.getCurrent().navigate(DemandList.class);
+        });
+        demander.addCustomValueSetListener(e -> {
+            String customValue = e.getDetail();
+            if(!demanderList.contains(customValue))
+                demanderList.add(customValue);
+            demander.setItems(demanderList);
+            demander.setValue(customValue);
         });
         demander.addValueChangeListener(e -> ViewHelper.deselect(demander));
         contact.addValueChangeListener(e -> ViewHelper.deselect(contact));
@@ -800,6 +815,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 addressActual.setEnabled(false);
                 addressEquals.setValue(true);
             }
+//            demander.setItems(createList(demand.getUser(), ViewHelper.FieldName.DEMANDER));
+//            demander.setValue(demand.getDemander());
         }
     }
 
@@ -880,9 +897,52 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 clearForm();
             }
         }
+        demanderList = createList(currentUser, ViewHelper.FieldName.DEMANDER);
+        demander.setItems(demanderList);
+        if(this.demand!=null){
+            demander.setValue(demand.getDemander());
+        }
     }
     public void setPowerMaximum(Double powerMax) {
         powerMaximum.setValue(powerMax);
+    }
+
+    private List<String> createList(User user, ViewHelper.FieldName fieldName){
+        List<String> list = new ArrayList<>();
+        List<Demand> demandList = this.demandService.findAllByUser(user);
+        for(Demand demand : demandList){
+            switch (fieldName){
+                case DEMANDER:
+                    if(!list.contains(demand.getDemander()))
+                        list.add(demand.getDemander());
+                    break;
+                case DELEGATE:
+                    if(!list.contains(demand.getDelegate()))
+                        list.add(demand.getDelegate());
+                    break;
+                case INN:
+                    if(!list.contains(demand.getInn()))
+                        list.add(demand.getInn());
+                    break;
+                case CONTACT:
+                    if(!list.contains(demand.getContact()))
+                        list.add(demand.getContact());
+                    break;
+                case PASPORTSERIES:
+                    if(!list.contains(demand.getPassportSerries()))
+                        list.add(demand.getPassportSerries());
+                    break;
+                case PASPORTNUMBER:
+                    if(!list.contains(demand.getPassportNumber()))
+                        list.add(demand.getPassportNumber());
+                    break;
+                case ADDRESSREGISTRATION:
+                    if(!list.contains(demand.getAddressRegistration()))
+                        list.add(demand.getAddressRegistration());
+                    break;
+            }
+        }
+        return list;
     }
 }
 

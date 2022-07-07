@@ -102,4 +102,7 @@ public class DemandService extends CrudService<Demand, Long> {
             return repository.search(text, demandType);
     }
 
+    public List<Demand> findAllByUser(User user) {
+        return repository.findAllByUser(user);
+    }
 }
