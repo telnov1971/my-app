@@ -83,7 +83,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected TextField delegate;
     protected TextField inn;
     protected DatePicker innDate;
-    protected TextField contact;
+//    protected TextField contact;
+    protected ComboBox<String> contact = new ComboBox<>();
+    protected List<String> contactList = new ArrayList<>();
     protected TextField passportSerries;
     protected TextField passportNumber;
     protected TextArea pasportIssued;
@@ -235,7 +237,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                             ,date.getDayOfMonth()));
             });
             innDate.setInvalid(true);
-            contact = new TextField("Контактный телефон (обязательное поле)");
+//            contact = new TextField("Контактный телефон (обязательное поле)");
+            contact.setLabel("Контактный телефон (обязательное поле)");
+            contact.setAllowCustomValue(true);
+            contact.setItems(contactList);
             passportSerries = new TextField("Паспорт серия (обязательное поле)", "Четыре цифры");
             passportNumber = new TextField("Паспорт номер (обязательное поле)", "Шесть цифр");
             pasportIssued = new TextArea("Паспорт выдан");
@@ -421,6 +426,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             demander.setValue(customValue);
         });
         demander.addValueChangeListener(e -> ViewHelper.deselect(demander));
+        contact.addCustomValueSetListener(e -> {
+            String customValue = e.getDetail();
+            if(!contactList.contains(customValue))
+                contactList.add(customValue);
+            contact.setItems(demanderList);
+            contact.setValue(customValue);
+        });
         contact.addValueChangeListener(e -> ViewHelper.deselect(contact));
         typeDemander.addValueChangeListener(e -> {
             ViewHelper.deselect(typeDemander);
@@ -899,8 +911,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
         demanderList = createList(currentUser, ViewHelper.FieldName.DEMANDER);
         demander.setItems(demanderList);
+        contactList = createList(currentUser, ViewHelper.FieldName.CONTACT);
+        contact.setItems(contactList);
         if(this.demand!=null){
             demander.setValue(demand.getDemander());
+            contact.setValue(demand.getContact());
         }
     }
     public void setPowerMaximum(Double powerMax) {
@@ -927,6 +942,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 case CONTACT:
                     if(!list.contains(demand.getContact()))
                         list.add(demand.getContact());
+                    if(!list.contains(user.getContact()))
+                        list.add(user.getContact());
                     break;
                 case PASPORTSERIES:
                     if(!list.contains(demand.getPassportSerries()))
