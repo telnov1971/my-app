@@ -1086,6 +1086,24 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     break;
             }
         }
+        switch(fieldName){
+            case DEMANDER:
+                if(user.getFio()!=null)
+                    if(!list.contains(user.getFio()))
+                        list.add(user.getFio());
+                break;
+            case CONTACT:
+                if(user.getContact()!=null)
+                    if(!list.contains(user.getContact()))
+                        list.add(user.getContact());
+                break;
+            case MEEMAIL:
+                if(user.getEmail()!=null)
+                    if(!list.contains(user.getEmail()))
+                        list.add(user.getEmail());
+                break;
+
+        }
         return list;
     }
 }
