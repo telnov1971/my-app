@@ -88,10 +88,17 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 //    protected TextField contact;
     protected ComboBox<String> contact = new ComboBox<>();
     protected List<String> contactList = new ArrayList<>();
-    protected TextField passportSerries;
-    protected TextField passportNumber;
+//    protected TextField passportSerries;
+    protected ComboBox<String> passportSerries = new ComboBox<>();
+    protected List<String> passportSerriesList = new ArrayList<>();
+//    protected TextField passportNumber;
+    protected ComboBox<String> passportNumber = new ComboBox<>();
+    protected List<String> passportNumberList = new ArrayList<>();
     protected TextArea pasportIssued;
-    protected TextField addressRegistration;
+//    protected TextField addressRegistration;
+    protected ComboBox<String> addressRegistration = new ComboBox<>();
+    protected List<String> addressRegistrationList = new ArrayList<>();
+
     protected TextField addressActual;
     protected Checkbox addressEquals;
 
@@ -225,10 +232,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 //            inn = new TextField("Реквизиты заявителя (обязательное поле)");
 //                    "ОГРН для юр.лиц, ИНН для ИП");
             inn.setLabel("Реквизиты заявителя (обязательное поле)");
+            inn.setPlaceholder("ОГРН для юр.лиц, ИНН для ИП");
             inn.setAllowCustomValue(true);
             inn.setItems(innList);
             inn.setHelperText("(номер записи в Едином государственном реестре юридических лиц"+
                     " / номер записи в Едином государственном реестре индивидуальных предпринимателей)");
+            inn.setPlaceholder("От 10 до 13 цифр");
             innDate = new DatePicker("Дата регистрации в реестре");
             innDate.addValueChangeListener(e -> {
                 LocalDate date = innDate.getValue();
@@ -246,11 +255,19 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             contact.setLabel("Контактный телефон (обязательное поле)");
             contact.setAllowCustomValue(true);
             contact.setItems(contactList);
-            passportSerries = new TextField("Паспорт серия (обязательное поле)", "Четыре цифры");
-            passportNumber = new TextField("Паспорт номер (обязательное поле)", "Шесть цифр");
+            passportSerries.setLabel("Паспорт серия (обязательное поле)");
+            passportSerries.setPlaceholder("Четыре цифры");
+            passportSerries.setAllowCustomValue(true);
+            passportSerries.setItems(passportSerriesList);
+            passportNumber.setLabel("Паспорт номер (обязательное поле)");
+            passportNumber.setPlaceholder("Шесть цифр");
+            passportNumber.setAllowCustomValue(true);
+            passportNumber.setItems(passportNumberList);
             pasportIssued = new TextArea("Паспорт выдан");
             pasportIssued.setHelperText("(кем, когда)");
-            addressRegistration = new TextField("Адрес регистрации (обязательное поле)");
+            addressRegistration.setLabel("Адрес регистрации (обязательное поле)");
+            addressRegistration.setAllowCustomValue(true);
+            addressRegistration.setItems(addressRegistrationList);
             addressRegistration.setHelperText("(место регистрации заявителя - индекс, адрес)");
             addressEquals = new Checkbox("Адрес регистрации совпадает с фактическим", false);
             addressActual = new TextField("Адрес фактический (обязательное поле)");
@@ -444,7 +461,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             settingTemporalDemander();
         });
         inn.addValueChangeListener(e -> {
-            int length = inn.getValue().length();
+            int length = 0;
+            if(inn.isVisible() && inn.getValue()!=null) {
+                length = inn.getValue().length();
+            } else {
+                return;
+            }
             if((length < 10) || (length > 20)) {
                 alertHere = ViewHelper.attention(inn,
                         "Поле Реквизиты заявителя дожно содержать от 10 до 20 цифр"
@@ -467,6 +489,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         });
         if(passportSerries.isVisible()) {
             passportSerries.addValueChangeListener(e -> {
+                if(passportSerries.getValue() == null) return;
                 if (passportSerries.getValue().length() != 4) {
                     alertHere = ViewHelper.attention(passportSerries
                             , "Поле Паспорт серия должно содержать 4 цифры"
@@ -476,12 +499,20 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     ViewHelper.deselect(passportSerries);
                 }
             });
-        } else {
-            passportSerries.setValue("0000");
+//        } else {
+//            passportSerries.setValue("0000");
         }
+        passportSerries.addCustomValueSetListener(e -> {
+            String customValue = e.getDetail();
+            if(!passportSerriesList.contains(customValue))
+                passportSerriesList.add(customValue);
+            passportSerries.setItems(passportSerriesList);
+            passportSerries.setValue(customValue);
+        });
         if(passportNumber.isVisible()) {
             passportNumber.addValueChangeListener(e -> {
-                if (passportNumber.getValue().length() != 6) {
+                if(passportNumber.getValue()==null) return;
+                if(passportNumber.getValue().length() != 6) {
                     alertHere = ViewHelper.attention(passportNumber
                             , "Поле Паспорт номер  должно содержать 6 цифр"
                             , alertHere.getFirst(), space);
@@ -490,10 +521,24 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     ViewHelper.deselect(passportNumber);
                 }
             });
-        } else {
-            passportNumber.setValue("000000");
+//        } else {
+//            passportNumber.setValue("000000");
         }
+        passportNumber.addCustomValueSetListener(e -> {
+            String customValue = e.getDetail();
+            if(!passportNumberList.contains(customValue))
+                passportNumberList.add(customValue);
+            passportNumber.setItems(passportNumberList);
+            passportNumber.setValue(customValue);
+        });
         addressRegistration.addValueChangeListener(e -> ViewHelper.deselect(addressRegistration));
+        addressRegistration.addCustomValueSetListener(e -> {
+            String customValue = e.getDetail();
+            if(!addressRegistrationList.contains(customValue))
+                addressRegistrationList.add(customValue);
+            addressRegistration.setItems(addressRegistrationList);
+            addressRegistration.setValue(customValue);
+        });
         addressEquals.addValueChangeListener(event -> {
             if(addressEquals.getValue()){
                 addressActual.setValue(addressRegistration.getValue());
@@ -925,16 +970,27 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 clearForm();
             }
         }
+
         demanderList = createList(currentUser, ViewHelper.FieldName.DEMANDER);
         demander.setItems(demanderList);
         contactList = createList(currentUser, ViewHelper.FieldName.CONTACT);
         contact.setItems(contactList);
         innList = createList(currentUser, ViewHelper.FieldName.INN);
         inn.setItems(innList);
+        passportSerriesList = createList(currentUser, ViewHelper.FieldName.PASPORTSERIES);
+        passportSerries.setItems(passportSerriesList);
+        passportNumberList = createList(currentUser, ViewHelper.FieldName.PASPORTNUMBER);
+        passportNumber.setItems(passportNumberList);
+        addressRegistrationList = createList(currentUser, ViewHelper.FieldName.ADDRESSREGISTRATION);
+        addressRegistration.setItems(addressRegistrationList);
+
         if(this.demand!=null){
             demander.setValue(demand.getDemander());
             contact.setValue(demand.getContact());
             inn.setValue(demand.getInn());
+            passportSerries.setValue(demand.getPassportSerries());
+            passportNumber.setValue(demand.getPassportNumber());
+            addressRegistration.setValue(demand.getAddressRegistration());
         }
     }
     public void setPowerMaximum(Double powerMax) {
