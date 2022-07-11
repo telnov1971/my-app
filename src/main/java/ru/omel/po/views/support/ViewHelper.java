@@ -18,7 +18,7 @@ import java.util.List;
 
 public class ViewHelper {
 
-    public enum FieldName {DEMANDER, DELEGATE, INN, CONTACT
+    public enum FieldName {DEMANDER, DELEGATE, INN, CONTACT, MEEMAIL
         , PASPORTSERIES, PASPORTNUMBER, PASPORTISSUED, ADDRESSREGISTRATION}
     public static void alert(Element element){
         Style style = element.getStyle();

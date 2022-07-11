@@ -88,13 +88,18 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 //    protected TextField contact;
     protected ComboBox<String> contact = new ComboBox<>();
     protected List<String> contactList = new ArrayList<>();
+    protected ComboBox<String> meEmail = new ComboBox<>();
+    protected List<String> meEmailList = new ArrayList<>();
 //    protected TextField passportSerries;
     protected ComboBox<String> passportSerries = new ComboBox<>();
     protected List<String> passportSerriesList = new ArrayList<>();
 //    protected TextField passportNumber;
     protected ComboBox<String> passportNumber = new ComboBox<>();
     protected List<String> passportNumberList = new ArrayList<>();
-    protected TextArea pasportIssued;
+//    protected TextArea pasportIssued;
+    protected ComboBox<String> pasportIssued = new ComboBox<>();
+    protected List<String> pasportIssuedList = new ArrayList<>();
+
 //    protected TextField addressRegistration;
     protected ComboBox<String> addressRegistration = new ComboBox<>();
     protected List<String> addressRegistrationList = new ArrayList<>();
@@ -255,6 +260,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             contact.setLabel("Контактный телефон (обязательное поле)");
             contact.setAllowCustomValue(true);
             contact.setItems(contactList);
+            meEmail.setLabel("Электронная почта (обязательное поле)");
+            meEmail.setAllowCustomValue(true);
+            meEmail.setItems(demanderList);
+//            meEmail.setHelperText("");
             passportSerries.setLabel("Паспорт серия (обязательное поле)");
             passportSerries.setPlaceholder("Четыре цифры");
             passportSerries.setAllowCustomValue(true);
@@ -263,7 +272,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             passportNumber.setPlaceholder("Шесть цифр");
             passportNumber.setAllowCustomValue(true);
             passportNumber.setItems(passportNumberList);
-            pasportIssued = new TextArea("Паспорт выдан");
+            pasportIssued.setLabel("Паспорт выдан");
+            pasportIssued.setAllowCustomValue(true);
+            pasportIssued.setItems(pasportIssuedList);
             pasportIssued.setHelperText("(кем, когда)");
             addressRegistration.setLabel("Адрес регистрации (обязательное поле)");
             addressRegistration.setAllowCustomValue(true);
@@ -361,7 +372,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         accordionDemander.add("Данные заявителя (открыть/закрыть по клику мышкой)", formDemander);
 
         formDemand.add(demandId,createdate, demandType, status, label);
-        formDemand.add(demander,delegate,contact);
+        formDemand.add(demander,delegate,contact,meEmail);
         formDemand.add(accordionDemander);
         formDemand.add(reason, object, address, specification,label);
         formDemand.add(countPoints, accordionPoints, powerCurrent, powerDemand
@@ -456,6 +467,14 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             contact.setValue(customValue);
         });
         contact.addValueChangeListener(e -> ViewHelper.deselect(contact));
+        meEmail.addCustomValueSetListener(e -> {
+            String customValue = e.getDetail();
+            if(!meEmailList.contains(customValue))
+                meEmailList.add(customValue);
+            meEmail.setItems(meEmailList);
+            meEmail.setValue(customValue);
+        });
+        meEmail.addValueChangeListener(e -> ViewHelper.deselect(contact));
         typeDemander.addValueChangeListener(e -> {
             ViewHelper.deselect(typeDemander);
             settingTemporalDemander();
@@ -580,7 +599,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     }
 
     private void setWidthFormDemand() {
-        Component[] oneColumn = {demandId,createdate,demandType,status,contact,countPoints,powerDemand
+        Component[] oneColumn = {demandId,createdate,demandType,status
+                ,contact,meEmail,countPoints,powerDemand
                 ,powerCurrent,powerMaximum,voltage,safety,garant,plan};
         for (Component component : oneColumn) {
             formDemand.setColspan(component,1);
@@ -688,6 +708,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         if(contact.isEmpty() && contact.isVisible()) {
             alertHere = ViewHelper.attention(contact
                     ,"Не заполнено поле Контактный телефон"
+                    ,alertHere.getFirst(),space);
+        }
+        if(meEmail.isEmpty()) {
+            alertHere = ViewHelper.attention(meEmail
+                    ,"Не заполнено поле Электронная почта"
                     ,alertHere.getFirst(),space);
         }
         if(typeDemander.isVisible() && typeDemander.getValue() == null) {
@@ -975,21 +1000,27 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         demander.setItems(demanderList);
         contactList = createList(currentUser, ViewHelper.FieldName.CONTACT);
         contact.setItems(contactList);
+        meEmailList = createList(currentUser, ViewHelper.FieldName.MEEMAIL);
+        meEmail.setItems(meEmailList);
         innList = createList(currentUser, ViewHelper.FieldName.INN);
         inn.setItems(innList);
         passportSerriesList = createList(currentUser, ViewHelper.FieldName.PASPORTSERIES);
         passportSerries.setItems(passportSerriesList);
         passportNumberList = createList(currentUser, ViewHelper.FieldName.PASPORTNUMBER);
         passportNumber.setItems(passportNumberList);
+        pasportIssuedList = createList(currentUser, ViewHelper.FieldName.PASPORTISSUED);
+        pasportIssued.setItems(passportNumberList);
         addressRegistrationList = createList(currentUser, ViewHelper.FieldName.ADDRESSREGISTRATION);
         addressRegistration.setItems(addressRegistrationList);
 
         if(this.demand!=null){
             demander.setValue(demand.getDemander());
             contact.setValue(demand.getContact());
+            meEmail.setValue(demand.getMeEmail());
             inn.setValue(demand.getInn());
             passportSerries.setValue(demand.getPassportSerries());
             passportNumber.setValue(demand.getPassportNumber());
+            pasportIssued.setValue(demand.getPasportIssued());
             addressRegistration.setValue(demand.getAddressRegistration());
         }
     }
@@ -1003,38 +1034,55 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         for(Demand demand : demandList){
             switch (fieldName){
                 case DEMANDER:
-                    if(!list.contains(demand.getDemander()))
-                        list.add(demand.getDemander());
+                    if(demand.getDemander()!=null)
+                        if(!list.contains(demand.getDemander()))
+                            list.add(demand.getDemander());
                     break;
                 case DELEGATE:
-                    if(!list.contains(demand.getDelegate()))
-                        list.add(demand.getDelegate());
+                    if(demand.getDelegate()!=null)
+                        if(!list.contains(demand.getDelegate()))
+                            list.add(demand.getDelegate());
                     break;
                 case INN:
-                    if(!list.contains(demand.getInn()))
-                        list.add(demand.getInn());
+                    if(demand.getInn()!=null)
+                        if(!list.contains(demand.getInn()))
+                            list.add(demand.getInn());
                     break;
                 case CONTACT:
-                    if(!list.contains(demand.getContact()))
-                        list.add(demand.getContact());
-                    if(!list.contains(user.getContact()))
-                        list.add(user.getContact());
+                    if(demand.getContact()!=null)
+                        if(!list.contains(demand.getContact()))
+                            list.add(demand.getContact());
+                    if(user.getContact()!=null)
+                        if(!list.contains(user.getContact()))
+                            list.add(user.getContact());
+                    break;
+                case MEEMAIL:
+                    if(demand.getMeEmail()!=null)
+                        if(!list.contains(demand.getMeEmail()))
+                            list.add(demand.getMeEmail());
+                    if(user.getEmail()!=null)
+                        if(!list.contains(user.getEmail()))
+                            list.add(user.getEmail());
                     break;
                 case PASPORTSERIES:
-                    if(!list.contains(demand.getPassportSerries()))
-                        list.add(demand.getPassportSerries());
+                    if(demand.getPassportSerries()!=null)
+                        if(!list.contains(demand.getPassportSerries()))
+                            list.add(demand.getPassportSerries());
                     break;
                 case PASPORTNUMBER:
-                    if(!list.contains(demand.getPassportNumber()))
-                        list.add(demand.getPassportNumber());
+                    if(demand.getPassportNumber()!=null)
+                        if(!list.contains(demand.getPassportNumber()))
+                            list.add(demand.getPassportNumber());
                     break;
                 case PASPORTISSUED:
-                    if(!list.contains(demand.getPasportIssued()))
-                        list.add(demand.getPasportIssued());
+                    if(demand.getPasportIssued()!=null)
+                        if(!list.contains(demand.getPasportIssued()))
+                            list.add(demand.getPasportIssued());
                     break;
                 case ADDRESSREGISTRATION:
-                    if(!list.contains(demand.getAddressRegistration()))
-                        list.add(demand.getAddressRegistration());
+                    if(demand.getAddressRegistration()!=null)
+                        if(!list.contains(demand.getAddressRegistration()))
+                            list.add(demand.getAddressRegistration());
                     break;
             }
         }

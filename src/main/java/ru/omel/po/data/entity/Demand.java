@@ -55,6 +55,9 @@ public class Demand extends AbstractEntity {
     private String addressActual;
     // номер телефона
     private String contact;
+    @Column(name = "me_email")
+    private String meEmail;
+    private boolean privilege;
 
     // причина обращения
     @ManyToOne(fetch = FetchType.EAGER)
@@ -317,5 +320,17 @@ public class Demand extends AbstractEntity {
     }
     public void setTypeDemander(String typeDemander) {
         this.typeDemander = typeDemander;
+    }
+    public String getMeEmail() {
+        return meEmail;
+    }
+    public void setMeEmail(String meEmail) {
+        this.meEmail = meEmail;
+    }
+    public Boolean getPrivilege() {
+        return privilege;
+    }
+    public void setPrivilege(Boolean privilege) {
+        this.privilege = privilege;
     }
 }
