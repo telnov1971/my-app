@@ -17,7 +17,7 @@ public class ReasonService extends CrudService<Reason,Long> {
 
     @Override
     protected JpaRepository<Reason, Long> getRepository() {
-        return null;
+        return reasonRepository;
     }
 
     public List<Reason> findAllByTemporal(Boolean temporal) {

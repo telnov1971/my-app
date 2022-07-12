@@ -57,7 +57,9 @@ public class Demand extends AbstractEntity {
     private String contact;
     @Column(name = "me_email")
     private String meEmail;
-    private boolean privilege;
+
+    @Column(name = "privilege")
+    private boolean privilege = false;
 
     // причина обращения
     @ManyToOne(fetch = FetchType.EAGER)

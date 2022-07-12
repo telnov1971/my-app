@@ -2,10 +2,8 @@ package ru.omel.po.views.support;
 
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import org.springframework.transaction.annotation.Transactional;
 import ru.omel.po.data.entity.*;
 import ru.omel.po.data.service.*;
-import ru.omel.po.data.entity.*;
 import ru.omel.po.views.demandlist.DemandList;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.accordion.Accordion;
@@ -31,7 +29,6 @@ import com.vaadin.flow.internal.Pair;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import org.springframework.security.core.context.SecurityContextHolder;
-import ru.omel.po.data.service.*;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -41,7 +38,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -107,6 +103,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected TextField addressActual;
     protected Checkbox addressEquals;
 
+    protected Label labelPrivilege;
+    protected Accordion accordionPrivilege = new Accordion();
+    protected PrivilegeLayout privilegeLayout;
     protected Select<Reason> reason;
     protected TextArea object;
     protected TextArea address;
@@ -160,6 +159,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected final UserService userService;
     protected final HistoryService historyService;
     protected final FileStoredService fileStoredService;
+    protected final PrivilegeService privilegeService;
 
     public GeneralForm(ReasonService reasonService,
                        DemandService demandService,
@@ -178,6 +178,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                        FileStoredService fileStoredService,
                        DType dType,
                        NoteService noteService,
+                       PrivilegeService privilegeService,
                        Component... components) {
         super(components);
         // сервисы
@@ -197,6 +198,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             this.userService = userService;
             this.fileStoredService = fileStoredService;
             this.historyService = historyService;
+            this.privilegeService = privilegeService;
         }
 
         this.decimalFormat = new DecimalFormat("###.##",
@@ -205,8 +207,15 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         Label label = new Label("                                                ");
         label.setHeight("1px");
 
-        filesLayout = new FilesLayout(this.fileStoredService, historyService, client);
-        notesLayout = new NotesLayout(noteService, historyService, client);
+        filesLayout = new FilesLayout(this.fileStoredService, this.historyService, client);
+        notesLayout = new NotesLayout(noteService, this.historyService, client);
+
+        privilegeLayout = new PrivilegeLayout(this.privilegeService, this.historyService);
+        accordionPrivilege.add("Выбор основания дающего право на льготы по оплате"
+                +" (открыть/закрыть по клику мышкой)",privilegeLayout);
+        labelPrivilege = new Label("Если Заявитель имеет право на получение льгот по оплате,"
+                +" необходимо выбрать основание, которое Заявитель должен подтвердить"
+                +" соответствующими документами");
 
         historyLayout = new HistoryLayout(this.historyService);
         historyLayout.setWidthFull();
@@ -237,12 +246,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 //            inn = new TextField("Реквизиты заявителя (обязательное поле)");
 //                    "ОГРН для юр.лиц, ИНН для ИП");
             inn.setLabel("Реквизиты заявителя (обязательное поле)");
-            inn.setPlaceholder("ОГРН для юр.лиц, ИНН для ИП");
+            inn.setPlaceholder("ОГРН для юр.лиц, ИНН для ИП, СНИЛс для физ.лиц");
             inn.setAllowCustomValue(true);
             inn.setItems(innList);
             inn.setHelperText("(номер записи в Едином государственном реестре юридических лиц"+
-                    " / номер записи в Едином государственном реестре индивидуальных предпринимателей)");
-            inn.setPlaceholder("От 10 до 13 цифр");
+                    " / номер записи в Едином государственном реестре индивидуальных предпринимателей)"+
+                    " / номер СНИЛС для физических лиц");
+            inn.setPlaceholder("От 10 до 14 символов");
             innDate = new DatePicker("Дата регистрации в реестре");
             innDate.addValueChangeListener(e -> {
                 LocalDate date = innDate.getValue();
@@ -280,7 +290,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             addressRegistration.setAllowCustomValue(true);
             addressRegistration.setItems(addressRegistrationList);
             addressRegistration.setHelperText("(место регистрации заявителя - индекс, адрес)");
-            addressEquals = new Checkbox("Адрес регистрации совпадает с фактическим", false);
+            addressEquals = new Checkbox("Адрес фактический совпадает с адресом регистрации", false);
             addressActual = new TextField("Адрес фактический (обязательное поле)");
             addressActual.setHelperText("(фактический адрес - индекс, адрес)");
             object = new TextArea("Объект (обязательное поле)");
@@ -374,6 +384,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemand.add(demandId,createdate, demandType, status, label);
         formDemand.add(demander,delegate,contact,meEmail);
         formDemand.add(accordionDemander);
+        formDemand.add(labelPrivilege,accordionPrivilege);
         formDemand.add(reason, object, address, specification,label);
         formDemand.add(countPoints, accordionPoints, powerCurrent, powerDemand
                 , powerMaximum, voltage, voltageIn, safety, label);
@@ -389,8 +400,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonBar.add(save,reset,attentionLabel);
 
-        Component[] fields = {delegate, typeDemander, inn, innDate,
+        Component[] fields = {delegate, typeDemander, //inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
+                labelPrivilege,accordionPrivilege,
                 addressRegistration,addressActual, addressEquals,
                 countPoints, accordionPoints, powerDemand, powerCurrent,
                 powerMaximum, voltage, voltageIn, safety, specification,
@@ -402,6 +414,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         this.getElement().getStyle().set("margin", "15px");
         setListeners();
         accordionHistory.close();
+        accordionPrivilege.close();
         space = new TextArea();
         space.setWidthFull();
 //        space.setHeight("2em");
@@ -414,25 +427,19 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected void settingTemporalDemander() {
         switch (typeDemander.getValue()) {
             case "Физическое лицо":
-                inn.setVisible(false);
-                innDate.setVisible(false);
+            case "Индивидуальный предприниматель":
+//                inn.setVisible(true);
+//                innDate.setVisible(true);
                 passportSerries.setVisible(true);
                 passportNumber.setVisible(true);
                 pasportIssued.setVisible(true);
                 break;
             case "Юридическое лицо":
-                inn.setVisible(true);
-                innDate.setVisible(true);
+//                inn.setVisible(true);
+//                innDate.setVisible(true);
                 passportSerries.setVisible(false);
                 passportNumber.setVisible(false);
                 pasportIssued.setVisible(false);
-                break;
-            case "Индивидуальный предприниматель":
-                inn.setVisible(true);
-                innDate.setVisible(true);
-                passportSerries.setVisible(true);
-                passportNumber.setVisible(true);
-                pasportIssued.setVisible(true);
                 break;
         }
     }
@@ -605,7 +612,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         for (Component component : oneColumn) {
             formDemand.setColspan(component,1);
         }
-        Component[] fourColumn = {demander,delegate,accordionDemander,reason,object,address,specification
+        Component[] fourColumn = {demander,delegate,accordionDemander,labelPrivilege,accordionPrivilege
+                ,reason,object,address,specification
                 ,accordionPoints,countTransformations,countGenerations,techminGeneration,reservation
                 ,period,contract,accordionExpiration,accordionHistory,garantText};
         for (Component component : fourColumn) {

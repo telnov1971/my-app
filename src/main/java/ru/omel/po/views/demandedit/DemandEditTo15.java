@@ -4,8 +4,6 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import org.springframework.transaction.annotation.Transactional;
 import ru.omel.po.data.entity.*;
 import ru.omel.po.data.service.*;
-import ru.omel.po.data.entity.Demand;
-import ru.omel.po.data.entity.Point;
 import ru.omel.po.views.main.MainView;
 import ru.omel.po.views.support.ExpirationsLayout;
 import ru.omel.po.views.support.GeneralForm;
@@ -14,9 +12,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import ru.omel.po.data.entity.DType;
-import ru.omel.po.data.entity.DemandType;
-import ru.omel.po.data.service.*;
 
 @Route(value = "demandto15/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandto15")
@@ -42,11 +37,12 @@ public class DemandEditTo15 extends GeneralForm {
                           FileStoredService fileStoredService,
                           HistoryService historyService,
                           NoteService noteService,
+                          PrivilegeService privilegeService,
                           Component... components) {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                  pointService,generalService,voltageService,
                  safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService, DType.TO15,noteService,components);
+                historyService, fileStoredService, DType.TO15,noteService, privilegeService, components);
         // сервисы
         this.MaxPower = 15.0;
         demander.setHelperText(demander.getHelperText() + " или физического лица");
@@ -60,8 +56,9 @@ public class DemandEditTo15 extends GeneralForm {
 
         voltage.addValueChangeListener(e -> setOptional());
 
-        Component[] fields = {passportSerries,passportNumber,pasportIssued,
+        Component[] fields = {passportSerries,passportNumber,pasportIssued,inn,
                 addressRegistration,addressActual,addressEquals,
+                labelPrivilege,accordionPrivilege,
                 powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, accordionExpiration};
         for(Component field : fields){
@@ -101,6 +98,7 @@ public class DemandEditTo15 extends GeneralForm {
         }
         safety.setReadOnly(true);
         pointBinder.readBean(this.point);
+        privilegeLayout.setDemand(demand);
         setOptional();
     }
 
@@ -108,8 +106,20 @@ public class DemandEditTo15 extends GeneralForm {
     public boolean save() {
         //inn.setValue("0000000000");
         super.save();
+        Boolean privilege = demand.getPrivilege();
         point.setDemand(demand);
         expirationsLayout.setDemand(demand);
+//        privilegeLayout.setDemand(demand);
+        if(privilege != privilegeLayout.getPrivilege()) {
+            String strHistory;
+            strHistory = privilegeLayout.getPrivilege() ? "Заявитель указал наличие льгот"
+                    : "Заявитель отказался от льгот";
+            demand.setPrivilege(privilegeLayout.getPrivilege());
+            privilegeLayout.savePrivilege(demand);
+            History history = new History(demand,strHistory);
+            historyService.save(history);
+            historyExists = true;
+        }
 
         historyExists |= historyService.saveHistory(client,demand,point,Point.class);
         pointService.update(this.point);

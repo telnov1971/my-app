@@ -16,7 +16,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import ru.omel.po.data.service.*;
 
 @Route(value = "demandreciver/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandreciver")
@@ -44,11 +43,12 @@ public class DemandEditeGeneral extends GeneralForm {
                               FileStoredService fileStoredService,
                               HistoryService historyService,
                               NoteService noteService,
+                              PrivilegeService privilegeService,
                               Component... components) {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService, DType.GENERAL,noteService,components);
+                historyService, fileStoredService, DType.GENERAL,noteService, privilegeService, components);
         this.MaxPower = 1000000000.0;
         if(demandTypeService.findById(DemandType.GENERAL).isPresent())
             demandType.setValue(demandTypeService.findById(DemandType.GENERAL).get());
