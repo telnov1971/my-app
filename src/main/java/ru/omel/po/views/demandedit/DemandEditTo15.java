@@ -12,6 +12,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import ru.omel.po.views.support.PrivilegeLayout;
 
 @Route(value = "demandto15/:demandID?", layout = MainView.class)
 @RouteAlias(value ="demandto15")
@@ -110,11 +111,21 @@ public class DemandEditTo15 extends GeneralForm {
         point.setDemand(demand);
         expirationsLayout.setDemand(demand);
 //        privilegeLayout.setDemand(demand);
-        if(privilege != privilegeLayout.getPrivilege()) {
-            String strHistory;
-            strHistory = privilegeLayout.getPrivilege() ? "Заявитель указал наличие льгот"
-                    : "Заявитель отказался от льгот";
-            demand.setPrivilege(privilegeLayout.getPrivilege());
+        if(privilegeLayout.getPrivilege(demand) != PrivilegeLayout.PrivilegeState.NOTCHANGE) {
+            String strHistory = "";
+            switch(privilegeLayout.getPrivilege(demand)){
+                case SET:
+                    strHistory = "Заявитель указал наличие льгот";
+                    demand.setPrivilege(true);
+                    break;
+                case NOTSET:
+                    strHistory = "Заявитель отказался от льгот";
+                    demand.setPrivilege(false);
+                    break;
+                case CHANGE:
+                    strHistory = "Заявитель изменил льготы";
+                    break;
+            }
             privilegeLayout.savePrivilege(demand);
             History history = new History(demand,strHistory);
             historyService.save(history);

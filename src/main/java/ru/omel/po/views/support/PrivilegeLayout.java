@@ -10,10 +10,14 @@ import ru.omel.po.data.entity.Privilege;
 import ru.omel.po.data.service.HistoryService;
 import ru.omel.po.data.service.PrivilegeService;
 
+import static ru.omel.po.views.support.PrivilegeLayout.PrivilegeState.*;
+
 public class PrivilegeLayout extends VerticalLayout {
+    public enum PrivilegeState {SET,NOTSET,CHANGE,NOTCHANGE}
     private final PrivilegeService privilegeService;
     private final HistoryService historyService;
     private Privilege privilege = new Privilege();
+    private Privilege privilegeOld = new Privilege();
 //    private Boolean needy = false;
 //    private Boolean veteran = false;
 //    private Boolean invalid = false;
@@ -92,58 +96,42 @@ public class PrivilegeLayout extends VerticalLayout {
         horizontal9.add(manyChildren,labelManyChildren);
         add(horizontal1,horizontal2,horizontal3,horizontal4,horizontal5
                 ,horizontal6,horizontal7,horizontal8,horizontal9);
-        setListeners();
+//        setListeners();
 //        checkbox.setLabel("I accept the terms and conditions");
         binderPrivilege.bindInstanceFields(this);
     }
 
-    private void setListeners() {
+//    private void setListeners() {
 //        needy.addValueChangeListener(e->{
-////            needy.setValue(!needy.getValue());
-//            binderPrivilege.writeBeanIfValid(privilege);
 //        });
 //        veteran.addValueChangeListener(e->{
-////            veteran.setValue(!veteran.getValue());
-//            binderPrivilege.writeBeanIfValid(privilege);
 //        });
 //        invalid.addValueChangeListener(e->{
-////            invalid.setValue(!invalid.getValue());
-//            binderPrivilege.writeBeanIfValid(privilege);
 //        });
 //        chernobyl.addValueChangeListener(e->{
-////            chernobyl.setValue(!chernobyl.getValue());
-//            binderPrivilege.writeBeanIfValid(privilege);
 //        });
 //        semipalatinsk.addValueChangeListener(e->{
-////            semipalatinsk.setValue(!semipalatinsk.getValue());
-//            binderPrivilege.writeBeanIfValid(privilege);
 //        });
 //        lawmaker.addValueChangeListener(e->{
-////            lawmaker.setValue(!lawmaker.getValue());
-//            binderPrivilege.writeBeanIfValid(privilege);
 //        });
 //        lighthouse.addValueChangeListener(e->{
-////            lighthouse.setValue(!lighthouse.getValue());
-//            binderPrivilege.writeBeanIfValid(privilege);
 //        });
 //        chernobylRisk.addValueChangeListener(e->{
-////            chernobylRisk.setValue(!chernobylRisk.getValue());
-//            binderPrivilege.writeBeanIfValid(privilege);
 //        });
 //        manyChildren.addValueChangeListener(e->{
-////            manyChildren.setValue(!manyChildren.getValue());
-//            binderPrivilege.writeBeanIfValid(privilege);
 //        });
-    }
+//    }
 
     public void setDemand(Demand demand) {
         this.privilege = privilegeService.findByDemand(demand);
+//        this.privilegeOld = this.privilege;
         if(privilege==null){
             privilege = new Privilege();
             privilege.setDemand(demand);
         }
 //        binderPrivilege.bindInstanceFields(this);
         binderPrivilege.readBean(privilege);
+
     }
 
     public void savePrivilege(Demand demand) {
@@ -152,7 +140,25 @@ public class PrivilegeLayout extends VerticalLayout {
         privilegeService.update(privilege);
     }
 
-    public Boolean getPrivilege() {
+    public PrivilegeState getPrivilege(Demand demand) {
+        binderPrivilege.writeBeanIfValid(privilege);
+        if(demand.getPrivilege() != getPrivilegeStatus()) {
+            if(getPrivilegeStatus())
+                return SET;
+            else
+                return NOTSET;
+        } else {
+            privilegeOld = privilegeService.findByDemand(demand);
+            if(privilegeOld != null) {
+                if (privilegeOld.equals(privilege))
+                    return NOTCHANGE;
+                else
+                    return CHANGE;
+            }
+        }
+        return NOTCHANGE;
+    }
+    private Boolean getPrivilegeStatus(){
         return needy.getValue() || veteran.getValue()
                 || chernobyl.getValue() || invalid.getValue()
                 || semipalatinsk.getValue() || lawmaker.getValue()

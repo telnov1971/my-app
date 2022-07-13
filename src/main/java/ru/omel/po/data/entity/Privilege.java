@@ -104,4 +104,26 @@ public class Privilege extends AbstractEntity {
     public void setManyChildren(Boolean manyChildren) {
         this.manyChildren = manyChildren;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Privilege)) {
+            return false; // null or other class
+        }
+        Privilege other = (Privilege) obj;
+
+        if (this.getId() != null) {
+            return needy.equals(other.getNeedy())
+                    && invalid.equals(other.getInvalid())
+                    && chernobyl.equals(other.getChernobyl())
+                    && semipalatinsk.equals(other.getSemipalatinsk())
+                    && lawmaker.equals(other.getLawmaker())
+                    && lighthouse.equals(other.getLighthouse())
+                    && chernobylRisk.equals(other.getChernobylRisk())
+                    && manyChildren.equals(other.getManyChildren())
+                    && veteran.equals(other.getVeteran())
+                    ;
+        }
+        return super.equals(other);
+    }
 }
