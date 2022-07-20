@@ -104,6 +104,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected Checkbox addressEquals;
 
     protected Label labelPrivilege;
+    protected Checkbox privilegeNot = new Checkbox();
     protected Accordion accordionPrivilege = new Accordion();
     protected PrivilegeLayout privilegeLayout;
     protected Select<Reason> reason;
@@ -215,7 +216,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 +" (открыть/закрыть по клику мышкой)",privilegeLayout);
         labelPrivilege = new Label("Если Заявитель имеет право на получение льгот по оплате,"
                 +" необходимо выбрать основание, которое Заявитель должен подтвердить"
-                +" соответствующими документами");
+                +" соответствующими документами или подтвердить что \"Я ");
+        labelPrivilege.getElement().getStyle().set("color", "red");
+        labelPrivilege.getElement().getStyle().set("font-size", "1.3em");
+        privilegeNot.setLabel("не являюсь лицом, которому может быть предоставлена льготная ставка\"");
+        privilegeNot.getElement().getStyle().set("color", "red");
 
         historyLayout = new HistoryLayout(this.historyService);
         historyLayout.setWidthFull();
@@ -384,7 +389,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemand.add(demandId,createdate, demandType, status, label);
         formDemand.add(demander,delegate,contact,meEmail);
         formDemand.add(accordionDemander);
-        formDemand.add(labelPrivilege,accordionPrivilege);
+        formDemand.add(labelPrivilege,privilegeNot,accordionPrivilege);
         formDemand.add(reason, object, address, specification,label);
         formDemand.add(countPoints, accordionPoints, powerCurrent, powerDemand
                 , powerMaximum, voltage, voltageIn, safety, label);
@@ -402,7 +407,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         Component[] fields = {delegate, typeDemander, //inn, innDate,
                 passportSerries,passportNumber,pasportIssued,
-                labelPrivilege,accordionPrivilege,
+                labelPrivilege,privilegeNot,accordionPrivilege,
                 addressRegistration,addressActual, addressEquals,
                 countPoints, accordionPoints, powerDemand, powerCurrent,
                 powerMaximum, voltage, voltageIn, safety, specification,
@@ -414,7 +419,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         this.getElement().getStyle().set("margin", "15px");
         setListeners();
         accordionHistory.close();
-        accordionPrivilege.close();
+//        accordionPrivilege.close();
         space = new TextArea();
         space.setWidthFull();
 //        space.setHeight("2em");
@@ -493,9 +498,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             } else {
                 return;
             }
-            if((length < 10) || (length > 20)) {
+            if((length < 10) || (length > 50)) {
                 alertHere = ViewHelper.attention(inn,
-                        "Поле Реквизиты заявителя дожно содержать от 10 до 20 цифр"
+                        "Поле Реквизиты заявителя дожно содержать от 10 до 50 символов"
                         ,alertHere.getFirst(),space);
                 if(inn != null) inn.focus();
             } else {
@@ -505,7 +510,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         inn.addCustomValueSetListener(e -> {
             String customValue = e.getDetail();
             int length = customValue.length();
-            if((length < 10) || (length > 20)) {
+            if((length < 10) || (length > 50)) {
                 return;
             }
             if(!innList.contains(customValue))
@@ -612,7 +617,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         for (Component component : oneColumn) {
             formDemand.setColspan(component,1);
         }
-        Component[] fourColumn = {demander,delegate,accordionDemander,labelPrivilege,accordionPrivilege
+        Component[] fourColumn = {demander,delegate,accordionDemander
+                ,labelPrivilege,privilegeNot,accordionPrivilege
                 ,reason,object,address,specification
                 ,accordionPoints,countTransformations,countGenerations,techminGeneration,reservation
                 ,period,contract,accordionExpiration,accordionHistory,garantText};

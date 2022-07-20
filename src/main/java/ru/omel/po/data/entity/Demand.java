@@ -61,6 +61,8 @@ public class Demand extends AbstractEntity {
     @Column(name = "privilege")
     private boolean privilege = false;
 
+    @Column(name = "privilege_not")
+    private boolean privilegeNot = false;
     // причина обращения
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reason_id")
@@ -329,10 +331,16 @@ public class Demand extends AbstractEntity {
     public void setMeEmail(String meEmail) {
         this.meEmail = meEmail;
     }
-    public Boolean getPrivilege() {
+    public boolean isPrivilege() {
         return privilege;
     }
-    public void setPrivilege(Boolean privilege) {
+    public void setPrivilege(boolean privilege) {
         this.privilege = privilege;
+    }
+    public boolean isPrivilegeNot() {
+        return privilegeNot;
+    }
+    public void setPrivilegeNot(boolean privilegeNot) {
+        this.privilegeNot = privilegeNot;
     }
 }

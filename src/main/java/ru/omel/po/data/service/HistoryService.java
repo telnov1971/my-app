@@ -80,6 +80,8 @@ public class HistoryService extends CrudService<History,Long> {
         history = history + (!temp.equals("") ? "Временный срок: " + temp + "\n" : "");
         temp = createHistory(demand.getContract(),oldDemand.getContract());
         history = history + (!temp.equals("") ? "Реквизиты договора: " + temp + "\n" : "");
+        temp = createHistory(demand.isPrivilegeNot(),oldDemand.isPrivilegeNot());
+        history = history + (!temp.equals("") ? "Отсутствуют льготы: " + temp + "\n" : "");
         return history;
     }
 
@@ -208,6 +210,23 @@ public class HistoryService extends CrudService<History,Long> {
                 }
             } else {
                 history = " изменилось на: " + dcNew.getName();
+            }
+        }
+        return history;
+    }
+
+    private String createHistory(Boolean bNew, Boolean bOld){
+        String history = "", strOld, strNew;
+        if(bNew!=null){
+            if(bOld!=null){
+                strOld = bOld ? "ДА" : "НЕТ" ;
+                strNew = bNew ? "ДА" : "НЕТ" ;
+                if(!bNew.equals(bOld)){
+                    history = strOld + " изменилось на: " + strNew;
+                }
+            } else {
+                strNew = bNew ? "ДА" : "НЕТ" ;
+                history = " изменилось на: " + strNew;
             }
         }
         return history;

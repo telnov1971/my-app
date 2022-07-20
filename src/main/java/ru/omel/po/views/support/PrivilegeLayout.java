@@ -142,7 +142,7 @@ public class PrivilegeLayout extends VerticalLayout {
 
     public PrivilegeState getPrivilege(Demand demand) {
         binderPrivilege.writeBeanIfValid(privilege);
-        if(demand.getPrivilege() != getPrivilegeStatus()) {
+        if(demand.isPrivilege() != getPrivilegeStatus()) {
             if(getPrivilegeStatus())
                 return SET;
             else
@@ -158,7 +158,7 @@ public class PrivilegeLayout extends VerticalLayout {
         }
         return NOTCHANGE;
     }
-    private Boolean getPrivilegeStatus(){
+    public boolean getPrivilegeStatus(){
         return needy.getValue() || veteran.getValue()
                 || chernobyl.getValue() || invalid.getValue()
                 || semipalatinsk.getValue() || lawmaker.getValue()

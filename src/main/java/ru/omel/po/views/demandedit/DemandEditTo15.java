@@ -59,7 +59,7 @@ public class DemandEditTo15 extends GeneralForm {
 
         Component[] fields = {passportSerries,passportNumber,pasportIssued,inn,
                 addressRegistration,addressActual,addressEquals,
-                labelPrivilege,accordionPrivilege,
+                labelPrivilege,privilegeNot,accordionPrivilege,
                 powerDemand, powerCurrent,
                 powerMaximum, voltage, safety, accordionExpiration};
         for(Component field : fields){
@@ -107,7 +107,7 @@ public class DemandEditTo15 extends GeneralForm {
     public boolean save() {
         //inn.setValue("0000000000");
         super.save();
-        Boolean privilege = demand.getPrivilege();
+        Boolean privilege = demand.isPrivilege();
         point.setDemand(demand);
         expirationsLayout.setDemand(demand);
 //        privilegeLayout.setDemand(demand);
@@ -115,15 +115,15 @@ public class DemandEditTo15 extends GeneralForm {
             String strHistory = "";
             switch(privilegeLayout.getPrivilege(demand)){
                 case SET:
-                    strHistory = "Заявитель указал наличие льгот";
+                    strHistory = "Заявитель заполнил анкету льгот";
                     demand.setPrivilege(true);
                     break;
                 case NOTSET:
-                    strHistory = "Заявитель отказался от льгот";
+                    strHistory = "Заявитель очистил анкету льгот";
                     demand.setPrivilege(false);
                     break;
                 case CHANGE:
-                    strHistory = "Заявитель изменил льготы";
+                    strHistory = "Заявитель изменил анкету льгот";
                     break;
             }
             privilegeLayout.savePrivilege(demand);
@@ -146,9 +146,17 @@ public class DemandEditTo15 extends GeneralForm {
         Notification notification = new Notification();
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         notification.setPosition(Notification.Position.BOTTOM_START);
-        notification.setDuration(3000);
+        notification.setDuration(5000);
 
         if(!super.verifyField()) return false;
+//        ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        if((privilegeNot.getValue() && privilegeLayout.getPrivilegeStatus())
+                || (!privilegeNot.getValue() && !privilegeLayout.getPrivilegeStatus())) {
+            privilegeNot.focus();
+            notification.setText("Обязательно подтвердить ИЛИ НАЛИЧИЕ, ИЛИ ОТСУТСТВИЕ льгот!");
+            notification.open();
+            return false;
+        }
         if(!powerMaximum.isEmpty() && powerMaximum.getValue() > 15.0) {
             powerCurrent.focus();
             notification.setText("Максимальна мощность больше допустимой");
