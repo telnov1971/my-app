@@ -4,6 +4,8 @@
 .settings
 .project
 .classpath
+_cacache
+_update-notifier-last-checked
 
 *.iml
 .DS_Store
