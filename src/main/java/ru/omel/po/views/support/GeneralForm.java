@@ -888,6 +888,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     ,"Максимальная мощность превышает допустимую..."
                     ,alertHere.getFirst(),space);
         }
+        if(voltage.isVisible() && !voltage.isReadOnly() &&
+                voltage.getValue()==null){
+            alertHere = ViewHelper.attention(voltage
+                    ,"Необходимо выбрать класс напряжения"
+                    ,alertHere.getFirst(),space);
+        }
         if(voltageIn.isVisible() && !voltageIn.isReadOnly() &&
                 voltageIn.getValue()==null){
             alertHere = ViewHelper.attention(voltageIn

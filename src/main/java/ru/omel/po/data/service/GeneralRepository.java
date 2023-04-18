@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface GeneralRepository extends JpaRepository<General, Long> {
     List<General> findAllByDemand(Demand demand);
+
+    General findByDemand(Demand demand);
 }

@@ -110,6 +110,7 @@ public class DemandEditeGeneral extends GeneralForm {
         if((binderDemand.validate().getValidationErrors().size() > 0) || !super.save()) return false;
         generalBinder.writeBeanIfValid(general);
         general.setDemand(demand);
+        historyExists |= historyService.saveHistory(client, demand, general, General.class);
         generalService.update(this.general);
 
         pointsLayout.setDemand(demand);

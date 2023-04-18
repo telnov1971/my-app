@@ -15,17 +15,19 @@ public class HistoryService extends CrudService<History,Long> {
     private final DemandService demandService;
     private final PointService pointService;
     private final ExpirationService expirationService;
+    private final GeneralService generalService;
     private String history;
-    private Demand oldDemand = new Demand();
 
     public HistoryService(HistoryRepository historyRepository,
                           DemandService demandService,
                           PointService pointService,
-                          ExpirationService expirationService) {
+                          ExpirationService expirationService,
+                          GeneralService generalService) {
         this.historyRepository = historyRepository;
         this.demandService = demandService;
         this.pointService = pointService;
         this.expirationService = expirationService;
+        this.generalService = generalService;
         this.history = "";
     }
 
@@ -37,50 +39,52 @@ public class HistoryService extends CrudService<History,Long> {
     public String writeHistory(Demand demand) {
         String temp;
         this.history = "";
+        Demand oldDemand;
+        General oldGeneral;
         if(demand.getId()!=null && demandService.findById(demand.getId()).isPresent()) {
              oldDemand = demandService.findById(demand.getId()).get();
         } else {
             return "Заявка создана";
         }
-        temp = createHistory(demand.getDemander(),oldDemand.getDemander());
+        temp = createHistory(demand.getDemander(), oldDemand.getDemander());
         history = history + (!temp.equals("") ? "Заявитель: " + temp + "\n": "");
-        temp = createHistory(demand.getTypeDemander(),oldDemand.getTypeDemander());
+        temp = createHistory(demand.getTypeDemander(), oldDemand.getTypeDemander());
         history = history + (!temp.equals("") ? "Тип заявителя: " + temp + "\n": "");
-        temp = createHistory(demand.getPassportSerries(),oldDemand.getPassportSerries());
+        temp = createHistory(demand.getPassportSerries(), oldDemand.getPassportSerries());
         history = history + (!temp.equals("") ? "Паспорт серия: " + temp + "\n" : "");
-        temp = createHistory(demand.getPassportNumber(),oldDemand.getPassportNumber());
+        temp = createHistory(demand.getPassportNumber(), oldDemand.getPassportNumber());
         history = history + (!temp.equals("") ? "Паспорт номер: " + temp + "\n" : "");
-        temp = createHistory(demand.getPassportIssued(),oldDemand.getPassportIssued());
+        temp = createHistory(demand.getPassportIssued(), oldDemand.getPassportIssued());
         history = history + (!temp.equals("") ? "Паспорт выдан: " + temp + "\n" : "");
-        temp = createHistory(demand.getInn(),oldDemand.getInn());
+        temp = createHistory(demand.getInn(), oldDemand.getInn());
         history = history + (!temp.equals("") ? "ИНН / СНИЛС: " + temp + "\n" : "");
-        temp = createHistory(demand.getOgrn(),oldDemand.getOgrn());
+        temp = createHistory(demand.getOgrn(), oldDemand.getOgrn());
         history = history + (!temp.equals("") ? "ОГРН: " + temp + "\n" : "");
-        temp = createHistory(demand.getAddressRegistration(),oldDemand.getAddressRegistration());
+        temp = createHistory(demand.getAddressRegistration(), oldDemand.getAddressRegistration());
         history = history + (!temp.equals("") ? "Адрес регистрации: " + temp + "\n" : "");
-        temp = createHistory(demand.getAddressActual(),oldDemand.getAddressActual());
+        temp = createHistory(demand.getAddressActual(), oldDemand.getAddressActual());
         history = history + (!temp.equals("") ? "Адрес фактический: " + temp + "\n" : "");
-        temp = createHistory(demand.getContact(),oldDemand.getContact());
+        temp = createHistory(demand.getContact(), oldDemand.getContact());
         history = history + (!temp.equals("") ? "Номер телефона: " + temp + "\n" : "");
-        temp = createHistory(demand.getMeEmail(),oldDemand.getMeEmail());
+        temp = createHistory(demand.getMeEmail(), oldDemand.getMeEmail());
         history = history + (!temp.equals("") ? "E-mail: " + temp + "\n" : "");
-        temp = createHistory(demand.getReason(),oldDemand.getReason());
+        temp = createHistory(demand.getReason(), oldDemand.getReason());
         history = history + (!temp.equals("") ? "Причина обращения: " + temp + "\n" : "");
-        temp = createHistory(demand.getObject(),oldDemand.getObject());
+        temp = createHistory(demand.getObject(), oldDemand.getObject());
         history = history + (!temp.equals("") ? "Объект подключения: " + temp + "\n" : "");
-        temp = createHistory(demand.getAddress(),oldDemand.getAddress());
+        temp = createHistory(demand.getAddress(), oldDemand.getAddress());
         history = history + (!temp.equals("") ? "Адрес объекта: " + temp + "\n" : "");
-        temp = createHistory(demand.getSpecification(),oldDemand.getSpecification());
+        temp = createHistory(demand.getSpecification(), oldDemand.getSpecification());
         history = history + (!temp.equals("") ? "Характер нагрузки: " + temp + "\n" : "");
-        temp = createHistory(demand.getGarant(),oldDemand.getGarant());
+        temp = createHistory(demand.getGarant(), oldDemand.getGarant());
         history = history + (!temp.equals("") ? "Гарантирующий поставщик: " + temp + "\n" : "");
-        temp = createHistory(demand.getPlan(),oldDemand.getPlan());
+        temp = createHistory(demand.getPlan(), oldDemand.getPlan());
         history = history + (!temp.equals("") ? "Рассрочка платежа: " + temp + "\n" : "");
-        temp = createHistory(demand.getPeriod(),oldDemand.getPeriod());
+        temp = createHistory(demand.getPeriod(), oldDemand.getPeriod());
         history = history + (!temp.equals("") ? "Временный срок: " + temp + "\n" : "");
-        temp = createHistory(demand.getContract(),oldDemand.getContract());
+        temp = createHistory(demand.getContract(), oldDemand.getContract());
         history = history + (!temp.equals("") ? "Реквизиты договора: " + temp + "\n" : "");
-        temp = createHistory(demand.isPrivilegeNot(),oldDemand.isPrivilegeNot());
+        temp = createHistory(demand.isPrivilegeNot(), oldDemand.isPrivilegeNot());
         history = history + (!temp.equals("") ? "Отсутствуют льготы: " + temp + "\n" : "");
         return history;
     }
@@ -173,6 +177,34 @@ public class HistoryService extends CrudService<History,Long> {
         return noteHistory;
     }
 
+    public String writeHistory(General general) {
+        String temp;
+        this.history = "";
+        General oldGeneral;
+        if(general.getId()!=null && generalService.findById(general.getId()).isPresent()) {
+            oldGeneral = generalService.findById(general.getId()).get();
+        } else {
+            return "Заявка создана";
+        }
+        temp = createHistory(general.getCountTransformations()
+                , oldGeneral.getCountTransformations());
+        history = history + (!temp.equals("") ?
+                "Кол-во и мощ-ть присоединяемых трансформаторов: " + temp + "\n": "");
+        temp = createHistory(general.getCountGenerations()
+                , oldGeneral.getCountGenerations());
+        history = history + (!temp.equals("") ?
+                "Кол-во и мощ-ть генераторов: " + temp + "\n": "");
+        temp = createHistory(general.getTechminGeneration()
+                , oldGeneral.getTechminGeneration());
+        history = history + (!temp.equals("") ?
+                "Технологический минимум для генераторов: " + temp + "\n": "");
+        temp = createHistory(general.getReservation()
+                , oldGeneral.getReservation());
+        history = history + (!temp.equals("") ?
+                "Технологическая и аварийная бронь: " + temp + "\n": "");
+        return history;
+    }
+
     private String createHistory(String strNew, String strOld){
         String history = "";
         if(strNew!=null){
@@ -251,6 +283,7 @@ public class HistoryService extends CrudService<History,Long> {
                 case "Point" -> writeHistory((Point) obj);
                 case "Demand" -> writeHistory((Demand) obj);
                 case "Note" -> writeHistory((Note) obj);
+                case "General" -> writeHistory((General) obj);
                 default -> "";
             };
             history.setHistory(his.substring(0,his.length()-1));

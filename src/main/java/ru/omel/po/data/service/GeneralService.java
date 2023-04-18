@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class GeneralService extends CrudService<General,Long> {
@@ -23,5 +25,13 @@ public class GeneralService extends CrudService<General,Long> {
 
     public List<General> findAllByDemand(Demand demand) {
         return generalRepository.findAllByDemand(demand);
+    }
+
+    public General findByDemand(Demand demand) {
+        return generalRepository.findByDemand(demand);
+    }
+
+    public Optional<General> findById(Long id) {
+        return generalRepository.findById(id);
     }
 }
