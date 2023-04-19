@@ -54,7 +54,7 @@ public class DemandEditTemporal extends GeneralForm {
         for(Component field : fields){
             field.setVisible(true);
         }
-
+        voltage.addValueChangeListener(e -> setOptional());
         //accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory,space);
     }
@@ -116,5 +116,8 @@ public class DemandEditTemporal extends GeneralForm {
             powerMaximum.setHelperText("Для передвижных объектов максимальная мощность не более 150 кВт");
             period.setHelperText("Для передвижных объектов срок подключения не должен превышать 12 месяцев");
         }
+    }
+    private void setOptional(){
+        voltageIn.setVisible(voltage.getValue() != null && voltage.getValue().getId() == 1L);
     }
 }
