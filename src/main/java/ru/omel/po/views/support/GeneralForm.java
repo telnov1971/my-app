@@ -628,7 +628,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         addressActual.addValueChangeListener(e -> ViewHelper.deselect(addressActual));
         reason.addValueChangeListener(e -> {
             //                powerCurrent.setValue(0.0);
-            powerCurrent.setReadOnly(reason.getValue().getId() == 1);
+            powerCurrent.setReadOnly(reason.getValue().getId() == 1L);
+            powerDemand.setReadOnly(reason.getValue().getId() == 3L
+                    || reason.getValue().getId() == 4L);
             settingTemporalReasons();
             ViewHelper.deselect(reason);
         });
@@ -867,7 +869,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             // если текущая мощность видима и не указана или равна 0 и причина - увеличение,
             // то поле надо зополнить
             if ((powerCurrent.isEmpty() || powerCurrent.getValue() == 0.0) &&
-                    powerMaximum.isVisible() && (reason.getValue().getId() == 2L)) {
+                    powerCurrent.isVisible() && (reason.getValue().getId() == 2L)) {
                 alertHere = ViewHelper.attention(powerCurrent
                         ,"При увеличении мощности нужно указать ранее присоединённую..."
                         ,alertHere.getFirst(),space);
@@ -875,7 +877,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
         // если запрас мощности виден и не заполнен или равен 0,
         // то поле надо заполнить
-        if ((powerDemand.isEmpty() || powerDemand.getValue() == 0.0) && powerMaximum.isVisible()) {
+        if ((powerDemand.isEmpty() || powerDemand.getValue() == 0.0)
+                && powerDemand.isVisible() && !powerDemand.isReadOnly()) {
             alertHere = ViewHelper.attention(powerDemand
                     , "Не заполнено поле Мощность..."
                     ,alertHere.getFirst(),space);
@@ -1030,16 +1033,18 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         currentUser = userService.findByUsername(
                 SecurityContextHolder.getContext().getAuthentication().getName());
         if(currentUser != null) {
-            role = currentUser.getRoles().contains(Role.USER) ?
-                    Role.USER :
-                    currentUser.getRoles().contains(Role.GARANT) ?
-                            Role.GARANT :
-                            currentUser.getRoles().contains(Role.ADMIN) ?
-                                    Role.ADMIN :
-                                    Role.ANONYMOUS;
+            if(currentUser.getRoles().contains(Role.USER))
+                role = Role.USER;
+            if(currentUser.getRoles().contains(Role.GARANT))
+                role = Role.GARANT;
+            if(currentUser.getRoles().contains(Role.SALES))
+                role = Role.SALES;
+            if(currentUser.getRoles().contains(Role.ADMIN))
+                role = Role.ADMIN;
         }
-//        client = 1;
         switch (role) {
+            case USER -> client = 1;
+            case SALES -> client = 2;
             case GARANT -> client = 2;
             case ADMIN -> client = 0;
         }
@@ -1061,10 +1066,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     filesLayout.setDeleteVisible(true);
                     populateForm(demandFromBackend.get());
                 } else if (demandFromBackend.get().getUser().equals(currentUser)
-                        || (role == Role.GARANT &&
+                        || ((role == Role.GARANT || role == Role.SALES)  &&
                                 demandFromBackend.get().getGarant().getId()>0L)) {
                     populateForm(demandFromBackend.get());
-                    if(role == Role.GARANT) {
+                    if((role == Role.GARANT || role == Role.SALES)) {
                         setReadOnly(true);
                         expirationsLayout.setReadOnly();
                         typeDemander.setReadOnly(true);

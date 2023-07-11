@@ -14,6 +14,7 @@ import ru.omel.po.data.entity.User;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class DemandService extends CrudService<Demand, Long> {
@@ -40,15 +41,16 @@ public class DemandService extends CrudService<Demand, Long> {
     // поиск всех заявок
     public Page<Demand> findAllByUser(User user, DemandType demandType, Pageable pageable) {
         Page<Demand> demandPage = null;
-        if(user.getRoles().contains(Role.ADMIN) && demandType == null)
+        Set<Role> role = user.getRoles();
+        if((role.contains(Role.ADMIN) || role.contains(Role.SALES)) && demandType == null)
             demandPage = repository.findAll(pageable);
-        if(user.getRoles().contains(Role.ADMIN) && demandType != null)
+        if((role.contains(Role.ADMIN) || role.contains(Role.SALES)) && demandType != null)
             demandPage = repository.findAllByDemandType(demandType, pageable);
-        if(user.getRoles().contains(Role.GARANT) && demandType == null)
+        if(role.contains(Role.GARANT) && demandType == null)
             demandPage = repository.findAllByGarant(user.getGarant(), pageable);
-        if(user.getRoles().contains(Role.GARANT) && demandType != null)
+        if(role.contains(Role.GARANT) && demandType != null)
             demandPage = repository.findAllByGarantAndDemandType(user.getGarant(), demandType, pageable);
-        if(user.getRoles().contains(Role.USER))
+        if(role.contains(Role.USER))
             demandPage = repository.findAllByUser(user, pageable);
         return demandPage;
     }

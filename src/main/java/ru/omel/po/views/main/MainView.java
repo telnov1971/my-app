@@ -154,7 +154,7 @@ public class MainView extends AppLayout {
 
                 new MenuItemInfo("Физические лица до 15 кВт (ком.-быт. нужды)"
                         , "la la-file", DemandEditTo15.class), //
-                new MenuItemInfo("Юридические лица и ИП до 150кВт (один источник электропитания)"
+                new MenuItemInfo("Юридические и физические лица, ИП до 150кВт (один источник электропитания)"
                         , "la la-file", DemandEditTo150.class), //
                 new MenuItemInfo("Временное присоединение", "la la-file", DemandEditTemporal.class), //
                 new MenuItemInfo("Иные категории потребителей", "la la-file", DemandEditeGeneral.class) //

@@ -86,7 +86,8 @@ public class PointsLayout extends VerticalLayout {
                 } else {
                     fieldPowerCurrent.setReadOnly(false);
                 }
-                if(formParent.reason.getValue().getId() == 3L) {
+                if(formParent.reason.getValue().getId() == 3L
+                        || formParent.reason.getValue().getId() == 4L) {
                     fieldPowerDemand.setValue(0.0);
                     fieldPowerDemand.setReadOnly(true);
                     point.setPowerDemand(0.0);
@@ -219,7 +220,8 @@ public class PointsLayout extends VerticalLayout {
             } else {
                 fieldPowerCurrent.setReadOnly(false);
             }
-            if(formParent.reason.getValue().getId() == 3L) {
+            if(formParent.reason.getValue().getId() == 3L
+                    || formParent.reason.getValue().getId() == 4L) {
                 fieldPowerDemand.setValue(0.0);
                 fieldPowerDemand.setReadOnly(true);
             } else {
