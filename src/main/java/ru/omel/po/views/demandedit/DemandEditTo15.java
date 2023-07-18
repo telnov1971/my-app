@@ -19,8 +19,6 @@ import ru.omel.po.views.support.PrivilegeLayout;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Физические лица до 15 кВт (ком.-быт. нужды)")
 public class DemandEditTo15 extends GeneralForm {
-    private final ExpirationsLayout expirationsLayout;
-
     public DemandEditTo15(ReasonService reasonService,
                           DemandService demandService,
                           DemandTypeService demandTypeService,
@@ -45,14 +43,12 @@ public class DemandEditTo15 extends GeneralForm {
                  safetyService,planService,priceService,sendService,userService,
                 historyService, fileStoredService, DType.TO15,noteService, privilegeService, components);
         // сервисы
-        this.MaxPower = 15.0;
+        this.maxPower = 15.0;
         demander.setHelperText(demander.getHelperText() + " или физического лица");
-        if(demandTypeService.findById(DemandType.TO15).isPresent())
-            demandType.setValue(demandTypeService.findById(DemandType.TO15).get());
+        demandTypeService.findById(DemandType.TO15).ifPresent(r -> demandType.setValue(r));
         expirationsLayout = new ExpirationsLayout(expirationService
                 ,safetyService, historyService, this, client);
-        if(safetyService.findById(3L).isPresent())
-            safety.setValue(safetyService.findById(3L).get());
+        safetyService.findById(3L).ifPresent(r -> safety.setValue(r));
         safety.setReadOnly(true);
 
         voltage.addValueChangeListener(e -> setOptional());
@@ -71,7 +67,7 @@ public class DemandEditTo15 extends GeneralForm {
         powerMaximum.addValueChangeListener(e ->
             expirationsLayout.setPowerMax(powerMaximum.getValue())
         );
-        voltage.setValue(voltageService.findById(1L).get());
+        voltageService.findById(1L).ifPresent(r -> voltage.setValue(r));
         voltage.setReadOnly(true);
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory,space);
     }
@@ -87,14 +83,8 @@ public class DemandEditTo15 extends GeneralForm {
             }
             expirationsLayout.findAllByDemand(demand);
             voltage.setReadOnly(true);
-            switch(demand.getStatus().getState()){
-                case EDIT:
-                    break;
-                case ADD:
-                case NOTE:
-                case FREEZE: {
-                    expirationsLayout.setReadOnly();
-                } break;
+            if(demand.getStatus().getState()!= Status.EState.EDIT){
+                expirationsLayout.setReadOnly();
             }
         }
         safety.setReadOnly(true);
@@ -103,16 +93,14 @@ public class DemandEditTo15 extends GeneralForm {
         setOptional();
     }
 
+    @Override
     @Transactional
     public boolean save() {
-        //inn.setValue("0000000000");
         super.save();
-        Boolean privilege = demand.isPrivilege();
         point.setDemand(demand);
         expirationsLayout.setDemand(demand);
-//        privilegeLayout.setDemand(demand);
         if(privilegeLayout.getPrivilege(demand) != PrivilegeLayout.PrivilegeState.NOTCHANGE) {
-            String strHistory = "";
+            String strHistory;
             switch(privilegeLayout.getPrivilege(demand)){
                 case SET -> {
                     strHistory = "Заявитель заполнил анкету льгот";
@@ -122,9 +110,10 @@ public class DemandEditTo15 extends GeneralForm {
                     strHistory = "Заявитель очистил анкету льгот";
                     demand.setPrivilege(false);
                 }
-                case CHANGE -> {
+                case CHANGE ->
                     strHistory = "Заявитель изменил анкету льгот";
-                }
+                default ->
+                    strHistory = "";
             }
             privilegeLayout.savePrivilege(demand);
             History history = new History(demand,strHistory);
@@ -149,7 +138,7 @@ public class DemandEditTo15 extends GeneralForm {
         notification.setPosition(Notification.Position.BOTTOM_START);
         notification.setDuration(5000);
 
-        if(!super.verifyField()) return false;
+        if(!Boolean.TRUE.equals(super.verifyField())) return false;
 //        ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         if((privilegeNot.getValue() && privilegeLayout.getPrivilegeStatus())
                 || (!privilegeNot.getValue() && !privilegeLayout.getPrivilegeStatus())) {
@@ -173,7 +162,7 @@ public class DemandEditTo15 extends GeneralForm {
             notification.open();
             return false;
         }
-        if(pointBinder.validate().getValidationErrors().size() > 0) return false;
+        if(!pointBinder.validate().getValidationErrors().isEmpty()) return false;
         pointBinder.writeBeanIfValid(point);
         return true;
     }

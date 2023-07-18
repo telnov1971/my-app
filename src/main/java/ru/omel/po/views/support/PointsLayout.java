@@ -25,19 +25,16 @@ import ru.omel.po.data.service.VoltageService;
 import java.util.*;
 
 public class PointsLayout extends VerticalLayout {
+    private Boolean readOnly = false;
     private Demand demand;
     private List<Point> points;
     private final Grid<Point> pointGrid = new Grid<>(Point.class, false);
     private ListDataProvider<Point> pointDataProvider;
     private final Editor<Point> editorPoints;
     private final GeneralForm formParent;
-    private NumberField fieldPowerDemand  = new NumberField();
-    private NumberField fieldPowerCurrent = new NumberField();
-    private NumberField fieldPowerMaximum  = new NumberField();
-    private Select<Safety> selectSafety;
-    private Select<Voltage> selectVoltage;
-//    private Select<Voltage> selectVoltageIn;
-
+    private final NumberField fieldPowerDemand  = new NumberField();
+    private final NumberField fieldPowerCurrent = new NumberField();
+    private final NumberField fieldPowerMaximum  = new NumberField();
     private final Button addButton;
     private final Button removeButton;
     int count = 0;
@@ -46,6 +43,7 @@ public class PointsLayout extends VerticalLayout {
     private final VoltageService voltageService;
     private final SafetyService safetyService;
     private final HistoryService historyService;
+    private final Grid.Column<Point> editorColumn;
     private final int client;
 
     public PointsLayout(PointService pointService
@@ -60,7 +58,7 @@ public class PointsLayout extends VerticalLayout {
         this.historyService = historyService;
         this.formParent = formParent;
         this.client = client;
-        pointGrid.setHeightByRows(true);
+        pointGrid.setAllRowsVisible(true);
         points = new ArrayList<>();
         formParent.points = points;
         formParent.pointsLayout = this;
@@ -70,11 +68,10 @@ public class PointsLayout extends VerticalLayout {
         Select<Safety> selectSafety = ViewHelper.createSelect(Safety::getName, safetyService.findAll(),
                 "", Safety.class);
         Select<Voltage> selectVoltage = new Select<>();
-//        Select<Voltage> selectVoltageIn = new Select<>();
         editorPoints = pointGrid.getEditor();
 
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
-        Grid.Column<Point> editorColumn = pointGrid.addComponentColumn(point -> {
+        editorColumn = pointGrid.addComponentColumn(point -> {
             Button edit = new Button(new Icon(VaadinIcon.EDIT));
             edit.addClassName("edit");
             edit.getElement().setAttribute("title","открыть");
@@ -105,7 +102,7 @@ public class PointsLayout extends VerticalLayout {
                 fieldPowerDemand.focus();
                 formParent.saveMode(0,1);
             });
-            edit.setEnabled(!editorPoints.isOpen());
+            edit.setEnabled(!editorPoints.isOpen() || !readOnly);
             editButtons.add(edit);
             return edit;
         }).setAutoWidth(true).setResizable(true);
@@ -139,16 +136,9 @@ public class PointsLayout extends VerticalLayout {
                         .setAutoWidth(true)
                         .setHeader("Класс напр. ")
                         .setResizable(true);
-//        Grid.Column<Point> columnVoltageIn =
-//                pointGrid.addColumn(point -> point.getVoltageIn()!=null ? point.getVoltage().getName() : "")
-//                        .setAutoWidth(true)
-//                        .setHeader("Ур.напр. на вводе ")
-//                        .setResizable(true);
         columnNumber.setSortable(true);
-//        points.add(new Point());
         pointGrid.setItems(points);
         pointDataProvider = (ListDataProvider<Point>) pointGrid.getDataProvider();
-//        points.remove(points.size() - 1);
 
         Binder<Point> binderPoints = new Binder<>(Point.class);
         editorPoints.setBinder(binderPoints);
@@ -159,7 +149,6 @@ public class PointsLayout extends VerticalLayout {
         binderPoints.forField(fieldPowerMaximum).bind("powerMaximum");
 
         fieldPowerDemand.setValue(1d);
-        //fieldPowerDemand.setHasControls(true);
         fieldPowerDemand.setMin(0);
         fieldPowerDemand.addValueChangeListener(e -> {
             if(!fieldPowerDemand.isEmpty()) {
@@ -195,11 +184,6 @@ public class PointsLayout extends VerticalLayout {
         binderPoints.forField(selectVoltage).bind("voltage");
         columnVoltage.setEditorComponent(selectVoltage);
 
-//        selectVoltageIn.setItems(voltageService.findAllByOptional(true));
-//        selectVoltageIn.setItemLabelGenerator(Voltage::getName);
-//        binderPoints.forField(selectVoltage).bind("voltageIn");
-//        columnVoltageIn.setEditorComponent(selectVoltageIn);
-
         addButton = new Button("Добавить точку");
         removeButton = new Button("Удалить последнюю");
         removeButton.setEnabled(false);
@@ -231,7 +215,7 @@ public class PointsLayout extends VerticalLayout {
             for (Point p : points) {
                 maxNumber = p.getNumber() > maxNumber ? p.getNumber() : maxNumber;
             }
-            if(points.size() >= 1) {
+            if(!points.isEmpty()) {
                 pointDataProvider.getItems().add(new Point(++maxNumber, 0.0,
                         0.0,
                         points.get(0).getVoltage(),
@@ -272,10 +256,7 @@ public class PointsLayout extends VerticalLayout {
                 .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
         editorPoints.addCloseListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editorPoints.isOpen())));
-        Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> {
-            saveEdited();
-        });
-//        save.setText("СОХРАНИТЬ");
+        Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> saveEdited());
         save.addClassName("save");
         save.getElement().setAttribute("title","сохранить");
         Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> {
@@ -287,7 +268,6 @@ public class PointsLayout extends VerticalLayout {
             addButton.setEnabled(true);
             formParent.saveMode(0,-1);
         });
-//        cancel.setText("ОТМЕНИТЬ");
         cancel.addClassName("cancel");
         cancel.getElement().setAttribute("title","отменить");
         Div divSave = new Div(save);
@@ -313,7 +293,7 @@ public class PointsLayout extends VerticalLayout {
             return false;
         }
         if(fieldPowerDemand.getValue() == 0.0 &&
-                !(formParent.reason.getValue().getId() == 3L)) {
+                (formParent.reason.getValue().getId() != 3L)) {
             attention(fieldPowerDemand);
             return false;
         }
@@ -380,5 +360,11 @@ public class PointsLayout extends VerticalLayout {
         pointGrid.getElement().getStyle().set("border-color","red");
         pointGrid.focus();
         addButton.focus();
+    }
+
+    public void setReadOnly() {
+        editorColumn.setVisible(false);
+        addButton.setVisible(false);
+        removeButton.setVisible(false);
     }
 }

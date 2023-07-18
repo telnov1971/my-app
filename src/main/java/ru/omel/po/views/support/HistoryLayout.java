@@ -29,18 +29,13 @@ public class HistoryLayout extends VerticalLayout {
             Label labelCreateDate = new Label(history.getCreateDate()
                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd | HH:mm")));
             labelCreateDate.setWidth("10em");
-            Label labelClient = new Label("");;
-            switch(history.getClient()){
-                case 0:
-                    labelClient.setText("Омскэлектро");
-                    break;
-                case 1:
-                    labelClient.setText("Клиент");
-                    break;
-                case 2:
-                    labelClient.setText("ГП");
-                    break;
-            };
+            Label labelClient = new Label("");
+            switch (history.getClient()) {
+                case 0 -> labelClient.setText("Омскэлектро");
+                case 1 -> labelClient.setText("Клиент");
+                case 2 -> labelClient.setText("ГП");
+                default -> labelClient.setText("");
+            }
             labelClient.setMinWidth("6em");
             TextArea textHistory = new TextArea();
             textHistory.setValue(history.getHistory());

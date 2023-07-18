@@ -10,10 +10,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.internal.Pair;
-//import org.checkerframework.checker.units.qual.C;
-import ru.omel.po.data.entity.User;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class ViewHelper {

@@ -55,11 +55,10 @@ public class FilesLayout extends VerticalLayout {
         this.uploadPath = AppEnv.getUploadPath();
         String temp = AppEnv.getDbName();
         this.dbName = temp.substring(temp.lastIndexOf("/")+1);
-//        this.dbName = !temp2.equals("") ? temp2 : "";
         this.fileStoredService = fileStoredService;
         this.client = client;
 
-        fileStoredGrid.setHeightByRows(true);
+        fileStoredGrid.setAllRowsVisible(true);
         files = new ArrayList<>();
 
         Label fileTableName = new Label("Прикреплённые документы (можно только добавить, удалить нельзя)");
@@ -78,7 +77,6 @@ public class FilesLayout extends VerticalLayout {
         Collection<Button> deleteButtons = Collections.newSetFromMap(new WeakHashMap<>());
         columnDelete = fileStoredGrid.addComponentColumn(file -> {
             Button delete = new Button(new Icon(VaadinIcon.TRASH));
-//            edit.setText("ОТКРЫТЬ");
             delete.addClassName("delete");
             delete.getElement().setAttribute("title","удалить");
             delete.addClickListener(event -> {
@@ -88,8 +86,9 @@ public class FilesLayout extends VerticalLayout {
                 File outFile = new File(dirName + filename);
                 try {
                     if (outFile.exists()) {
-//                        outFile.hashCode();
-                        if(!outFile.delete()){
+                        try {
+                            Files.delete(outFile.toPath());
+                        } catch (IOException ioException){
                             Notification alert = new Notification("Не смог удалить файл на диске");
                             alert.setDuration(5000);
                             alert.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -125,11 +124,8 @@ public class FilesLayout extends VerticalLayout {
         files.remove(files.size() - 1);
 
         fileStoredListDataProvider.refreshAll();
-        //pointGrid.getDataProvider().refreshAll();
-
 
         Collection<Anchor> anchors = Collections.newSetFromMap(new WeakHashMap<>());
-        //Grid.Column<FileStored> anchorColumn =
         fileStoredGrid.addComponentColumn(file -> {
             StreamResource resource = null;
             Anchor anchor = new Anchor();
@@ -138,26 +134,23 @@ public class FilesLayout extends VerticalLayout {
             String dirName = file.getDirectory() != null ?
                     uploadPath + file.getDirectory() + "\\" : uploadPath;
             File outFile = new File(dirName + filename);
-            try {
                 if(outFile.exists()) {
-                    InputStream inputStream = new FileInputStream(outFile);
-                    resource = new StreamResource(
-                            file.getName(),
-                            () -> {
-                                try {
-                                    return new ByteArrayInputStream(inputStream.readAllBytes());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                    try (InputStream inputStream = new FileInputStream(outFile)) {
+                        resource = new StreamResource(
+                                file.getName(),
+                                () -> {
+                                    try {
+                                        return new ByteArrayInputStream(inputStream.readAllBytes());
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    return null;
                                 }
-                                return null;
-                            }
-                    );
-//                    inputStream.close();
+                        );
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             if(resource!=null) {
                 anchor = new Anchor(resource, file.getName());
                 anchor.addClassName("anchor");
@@ -176,8 +169,8 @@ public class FilesLayout extends VerticalLayout {
     }
 
     private void createUploadLayout() {
-        UploadFilesI18N I18N = new UploadFilesI18N();
-        multiUpload.setI18n(I18N);
+        UploadFilesI18N i18N = new UploadFilesI18N();
+        multiUpload.setI18n(i18N);
 
         multiUpload.setDropAllowed(true);
         multiUpload.addSucceededListener(event -> {
@@ -217,9 +210,6 @@ public class FilesLayout extends VerticalLayout {
             );
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         });
-
-//        multiUpload.setAutoUpload(false);
-//        multiUpload.setUploadButton(new Button("Загрузить файл"));
 
         add(multiUpload);
     }
@@ -264,7 +254,6 @@ public class FilesLayout extends VerticalLayout {
             resultFilename = uploadPath + dirName + "\\" + filename;
             try {
                 Files.move(Paths.get(uploadPath + filename), Paths.get(resultFilename));
-//                Files.move(Paths.get(uploadPath + filename), Paths.get(resultFilename));
             } catch (IOException e) {
                 e.printStackTrace();
             }

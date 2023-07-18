@@ -51,15 +51,13 @@ public class Forgot extends Div {
         verticalLayout.setAlignSelf(FlexComponent.Alignment.CENTER);
         button.addClickListener(event -> {
             boolean successful = false;
-            if(email.getValue() != null) {
-                if (!email.getValue().isEmpty()) {
+            if(email.getValue() != null && (!email.getValue().isEmpty())) {
                     successful = passwordGenerated(email.getValue(), Type.EMAIL);
-                }
+
             }
-            if(login.getValue() != null) {
-                if (!login.getValue().isEmpty()) {
+            if(login.getValue() != null && (!login.getValue().isEmpty())) {
                     successful = passwordGenerated(login.getValue(), Type.LOGIN);
-                }
+
             }
             if(!successful){
                 label.setText("Вам нужно указать e-mail или логин для Вашей идентификации");
@@ -70,16 +68,13 @@ public class Forgot extends Div {
         add(verticalLayout);
     }
     private boolean passwordGenerated(String text, Forgot.Type type) {
-        String error = "";
-        switch (type) {
-            case EMAIL -> {
-                editUser = userService.findByEmail(text);
-                error = "Такого E-mail не зарегистрировано";
-            }
-            case LOGIN -> {
-                editUser = userService.findByUsername(login.getValue());
-                error = "Такого логина не зарегистрировано";
-            }
+        String error;
+        if(type == Type.EMAIL) {
+            editUser = userService.findByEmail(text);
+            error = "Такого E-mail не зарегистрировано";
+        } else {
+            editUser = userService.findByUsername(login.getValue());
+            error = "Такого логина не зарегистрировано";
         }
         if(editUser != null) {
             String passwordExplicit = (passwordEncoder.encode(editUser.getEmail())).substring(0,7);
@@ -95,12 +90,12 @@ public class Forgot extends Div {
     }
     private void sendMessage(@NotNull User user, String passwordExplicit){
         if (!user.getEmail().isEmpty()) {
-            String message = String.format(
-                    "Здравствуйте, %s! \n" +
-                            "Для входа в Ваш личный кабинет на сайте АО Омскэлектро Ваш:.\n" +
-                            "Логин (имя пользователя): %s\n" +
-                            "Пароль: %s.\n" +
-                            "Рекомендуем сменить пароль после входа",
+            String message = String.format("""
+                    Здравствуйте, %s!
+                    Для входа в Ваш личный кабинет на сайте АО Омскэлектро Ваш:.
+                    Логин (имя пользователя): %s
+                    Пароль: %s.
+                    Рекомендуем сменить пароль после входа""",
                     user.getFio(),
                     user.getUsername(),
                     passwordExplicit

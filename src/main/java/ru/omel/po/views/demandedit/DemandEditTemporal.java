@@ -41,10 +41,10 @@ public class DemandEditTemporal extends GeneralForm {
         super(reasonService, demandService,demandTypeService,statusService,garantService,
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
-                historyService, fileStoredService, DType.TEMPORAL,noteService, privilegeService, components);
-        this.MaxPower = 1000000.0;
-        if(demandTypeService.findById(DemandType.TEMPORAL).isPresent())
-            demandType.setValue(demandTypeService.findById(DemandType.TEMPORAL).get());
+                historyService, fileStoredService, DType.TEMPORAL,noteService,
+                privilegeService, components);
+        this.maxPower = 1000000.0;
+        demandTypeService.findById(DemandType.TEMPORAL).ifPresent(r -> demandType.setValue(r));
 
         // inn, innDate, passportSerries,passportNumber, pasportIssued
         Component[] fields = {typeDemander,
@@ -55,7 +55,6 @@ public class DemandEditTemporal extends GeneralForm {
             field.setVisible(true);
         }
         voltage.addValueChangeListener(e -> setOptional());
-        //accordionExpiration.add("Этапы выполнения работ",this.expirationsLayout);
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory,space);
     }
 
@@ -74,6 +73,7 @@ public class DemandEditTemporal extends GeneralForm {
     }
 
     @Transactional
+    @Override
     public boolean save() {
         super.save();
         point.setDemand(demand);
@@ -89,8 +89,8 @@ public class DemandEditTemporal extends GeneralForm {
 
     @Override
     protected Boolean verifyField() {
-        if(!super.verifyField()) return false;
-        if(pointBinder.validate().getValidationErrors().size() > 0) return false;
+        if(!Boolean.TRUE.equals(super.verifyField())) return false;
+        if(!pointBinder.validate().getValidationErrors().isEmpty()) return false;
         pointBinder.writeBeanIfValid(point);
         return true;
     }
@@ -105,14 +105,14 @@ public class DemandEditTemporal extends GeneralForm {
         if(reason.getValue().getId() == 5){
             contract.setVisible(true);
             period.setVisible(false);
-            this.MaxPower = 1000000.0;
+            this.maxPower = 1000000.0;
             powerMaximum.setHelperText("");
             period.setHelperText("");
         }
         if(reason.getValue().getId() == 6){
             contract.setVisible(false);
             period.setVisible(true);
-            this.MaxPower = 150.0;
+            this.maxPower = 150.0;
             powerMaximum.setHelperText("Для передвижных объектов максимальная мощность не более 150 кВт");
             period.setHelperText("Для передвижных объектов срок подключения не должен превышать 12 месяцев");
         }

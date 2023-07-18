@@ -1,7 +1,5 @@
 package ru.omel.po.data.service;
 
-import ru.omel.po.data.entity.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +17,7 @@ import java.util.Set;
 @Service
 public class DemandService extends CrudService<Demand, Long> {
 
-    private DemandRepository repository;
+    private final DemandRepository repository;
 
     public DemandService(@Autowired DemandRepository repository) {
         this.repository = repository;
@@ -29,14 +27,6 @@ public class DemandService extends CrudService<Demand, Long> {
     protected DemandRepository getRepository() {
         return repository;
     }
-
-//    public List<Demand> findAllByUser(User user) {
-//        if(user.getRoles().contains(Role.ADMIN)) {
-//            return repository.findAll();
-//        } else {
-//            return repository.findByUser(user);
-//        }
-//    }
 
     // поиск всех заявок
     public Page<Demand> findAllByUser(User user, DemandType demandType, Pageable pageable) {
@@ -62,7 +52,7 @@ public class DemandService extends CrudService<Demand, Long> {
 
     // поиск по номеру и типу
     public Optional<Demand> findByIdAndUserAndDemandType(Long id, User user, DemandType demandType) {
-        Optional<Demand> findedDemand = null;
+        Optional<Demand> findedDemand = Optional.empty();
         if(demandType == null && user.getRoles().contains(Role.ADMIN))
             findedDemand = repository.findById(id);
         if(demandType != null && user.getRoles().contains(Role.ADMIN))

@@ -11,14 +11,8 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
-import ru.omel.po.data.entity.Demand;
-import ru.omel.po.data.entity.Role;
 import ru.omel.po.data.entity.User;
 import ru.omel.po.data.service.UserService;
 import ru.omel.po.views.main.MainView;
@@ -33,55 +27,44 @@ import java.util.*;
 public class ListUsers  extends Div  {
     private final Grid<User> grid = new Grid<>(User.class, false);
     private final TextField filterText = new TextField();
-    private final Button clearFilter = new Button(new Icon(VaadinIcon.ERASER));
 
     private final UserService userService;
-    private List<User> users = new ArrayList<>();
-    private ListDataProvider<User> userDataProvider;
 
     public ListUsers(UserService userService) {
         HorizontalLayout filterLayout = new HorizontalLayout();
         filterLayout.getElement().getStyle().set("margin", "10px");
         this.userService = userService;
-        grid.setHeightByRows(true);
+        grid.setAllRowsVisible(true);
         grid.setHeightFull();
         grid.setPageSize(20);
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
-        Grid.Column<User> columnActive =
-                grid.addColumn(User::getActive)
-                        .setHeader("Актив.");
-//                        .setResizable(true)
-//                        .setSortable(true)
-//                        .setAutoWidth(true);
-        Grid.Column<User> columnUsername =
-                grid.addColumn(User::getUsername)
-                        .setHeader("Логин")
-                        .setResizable(true)
-                        .setSortable(true)
-                        .setAutoWidth(true);
-        Grid.Column<User> columnFio =
-                grid.addColumn(User::getFio)
-                        .setHeader("ФИО")
-                        .setResizable(true)
-                        .setSortable(true)
-                        .setAutoWidth(true);
-        Grid.Column<User> columnEmail =
-                grid.addColumn(User::getEmail)
-                        .setHeader("E-mail")
-                        .setResizable(true)
-                        .setSortable(true)
-                        .setAutoWidth(true);
-        Grid.Column<User> editorColumn = grid.addComponentColumn(user -> {
+        grid.addColumn(User::getActive)
+                .setHeader("Актив.");
+        grid.addColumn(User::getUsername)
+                .setHeader("Логин")
+                .setResizable(true)
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(User::getFio)
+                .setHeader("ФИО")
+                .setResizable(true)
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(User::getEmail)
+                .setHeader("E-mail")
+                .setResizable(true)
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addComponentColumn(user -> {
             Button edit = new Button(new Icon(VaadinIcon.EDIT));
             edit.addClassName("edit");
             edit.getElement().setAttribute("title","открыть");
-            edit.addClickListener(e -> {
-                UI.getCurrent().navigate(Profile.class, new RouteParameters("userID",
-                        String.valueOf(user.getId())));
-            });
+            edit.addClickListener(e ->
+                    UI.getCurrent().navigate(Profile.class,
+                            new RouteParameters("userID",
+                                    String.valueOf(user.getId()))));
             editButtons.add(edit);
             return edit;
-
         }).setAutoWidth(true).setResizable(true);
         grid.setPageSize(20);
         gridSetting("");
@@ -97,6 +80,7 @@ public class ListUsers  extends Div  {
                 gridSetting("");
             }
         });
+        Button clearFilter = new Button(new Icon(VaadinIcon.ERASER));
         clearFilter.setText("Очистить фильтр");
         clearFilter.addClickListener(event -> {
             filterText.setValue("");
@@ -113,7 +97,6 @@ public class ListUsers  extends Div  {
         add(filterLayout, grid, space);
     }
     private void gridSetting(String text) {
-        Role role = Role.ANONYMOUS;
         // Определим текущего пользователя
         User currentUser =  this.userService.findByUsername(
                 SecurityContextHolder.getContext().getAuthentication().getName()
@@ -134,7 +117,6 @@ public class ListUsers  extends Div  {
                         Notification.Position.MIDDLE);
                 notification.open();
             }
-            return;
         }
     }
 

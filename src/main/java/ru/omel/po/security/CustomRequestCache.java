@@ -22,9 +22,9 @@ public class CustomRequestCache extends HttpSessionRequestCache {
         SavedRequest savedRequest =
                 getRequest(VaadinServletRequest.getCurrent().getHttpServletRequest(),
                         VaadinServletResponse.getCurrent().getHttpServletResponse());
-        if(savedRequest instanceof DefaultSavedRequest) {
+        if(savedRequest instanceof DefaultSavedRequest defaultSavedRequest) {
             // получить сохраненный URL-адрес перенаправления
-            final String requestURI = ((DefaultSavedRequest) savedRequest).getRequestURI();
+            final String requestURI = defaultSavedRequest.getRequestURI();
             // проверить правильность URI и запретить перенаправление на вход в систему
             if(requestURI != null && !requestURI.isEmpty() && !requestURI.contains(LoginView.ROUTE)) {
                 // вернуть адрес без начальной '/'

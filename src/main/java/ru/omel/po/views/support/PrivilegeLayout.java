@@ -15,19 +15,8 @@ import static ru.omel.po.views.support.PrivilegeLayout.PrivilegeState.*;
 public class PrivilegeLayout extends VerticalLayout {
     public enum PrivilegeState {SET,NOTSET,CHANGE,NOTCHANGE}
     private final PrivilegeService privilegeService;
-    private final HistoryService historyService;
     private final GeneralForm formParent;
     private Privilege privilege = new Privilege();
-    private Privilege privilegeOld = new Privilege();
-//    private Boolean needy = false;
-//    private Boolean veteran = false;
-//    private Boolean invalid = false;
-//    private Boolean chernobyl = false;
-//    private Boolean semipalatinsk = false;
-//    private Boolean lawmaker = false;
-//    private Boolean lighthouse = false;
-//    private Boolean chernobylRisk = false;
-//    private Boolean manyChildren = false;
 
     private final Checkbox needy = new Checkbox();
     private final Checkbox veteran = new Checkbox();
@@ -45,7 +34,6 @@ public class PrivilegeLayout extends VerticalLayout {
             , HistoryService historyService
             , GeneralForm formParent) {
         this.privilegeService = privilegeService;
-        this.historyService = historyService;
         this.formParent = formParent;
 
         HorizontalLayout horizontal1 = new HorizontalLayout();
@@ -101,50 +89,46 @@ public class PrivilegeLayout extends VerticalLayout {
         add(horizontal1,horizontal2,horizontal3,horizontal4,horizontal5
                 ,horizontal6,horizontal7,horizontal8,horizontal9);
         setListeners();
-//        checkbox.setLabel("I accept the terms and conditions");
         binderPrivilege.bindInstanceFields(this);
     }
 
     private void setListeners() {
         needy.addValueChangeListener(e->{
-            if(needy.getValue()) formParent.setPrivilegeNot();
+            if(Boolean.TRUE.equals(needy.getValue())) formParent.setPrivilegeNot();
         });
         veteran.addValueChangeListener(e->{
-            if(veteran.getValue()) formParent.setPrivilegeNot();
+            if(Boolean.TRUE.equals(veteran.getValue())) formParent.setPrivilegeNot();
         });
         invalid.addValueChangeListener(e->{
-            if(invalid.getValue()) formParent.setPrivilegeNot();
+            if(Boolean.TRUE.equals(invalid.getValue())) formParent.setPrivilegeNot();
         });
         chernobyl.addValueChangeListener(e->{
-            if(chernobyl.getValue()) formParent.setPrivilegeNot();
+            if(Boolean.TRUE.equals(chernobyl.getValue())) formParent.setPrivilegeNot();
         });
         semipalatinsk.addValueChangeListener(e->{
-            if(semipalatinsk.getValue()) formParent.setPrivilegeNot();
+            if(Boolean.TRUE.equals(semipalatinsk.getValue())) formParent.setPrivilegeNot();
         });
         lawmaker.addValueChangeListener(e->{
-            if(lawmaker.getValue()) formParent.setPrivilegeNot();
+            if(Boolean.TRUE.equals(lawmaker.getValue())) formParent.setPrivilegeNot();
         });
         lighthouse.addValueChangeListener(e->{
-            if(lighthouse.getValue()) formParent.setPrivilegeNot();
+            if(Boolean.TRUE.equals(lighthouse.getValue())) formParent.setPrivilegeNot();
         });
         chernobylRisk.addValueChangeListener(e->{
-            if(chernobylRisk.getValue()) formParent.setPrivilegeNot();
+            if(Boolean.TRUE.equals(chernobylRisk.getValue())) formParent.setPrivilegeNot();
         });
         manyChildren.addValueChangeListener(e->{
-            if(manyChildren.getValue()) formParent.setPrivilegeNot();
+            if(Boolean.TRUE.equals(manyChildren.getValue())) formParent.setPrivilegeNot();
         });
     }
 
     public void setDemand(Demand demand) {
         this.privilege = privilegeService.findByDemand(demand);
-//        this.privilegeOld = this.privilege;
         if(privilege==null){
             privilege = new Privilege();
             privilege.setDemand(demand);
         }
-//        binderPrivilege.bindInstanceFields(this);
         binderPrivilege.readBean(privilege);
-
     }
 
     public void savePrivilege(Demand demand) {
@@ -154,6 +138,7 @@ public class PrivilegeLayout extends VerticalLayout {
     }
 
     public PrivilegeState getPrivilege(Demand demand) {
+        Privilege privilegeOld;
         binderPrivilege.writeBeanIfValid(privilege);
         if(demand.isPrivilege() != getPrivilegeStatus()) {
             if(getPrivilegeStatus())

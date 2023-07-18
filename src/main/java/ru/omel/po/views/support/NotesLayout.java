@@ -22,44 +22,34 @@ public class NotesLayout extends VerticalLayout {
     private Demand demand;
     private final Grid<Note> noteGrid = new Grid<>(Note.class,false);
     private ListDataProvider<Note> noteListDataProvider;
-    //private Binder<Note> binderNote = new Binder<>(Note.class);
     private final TextArea noteArea = new TextArea("","(введите комментарий)");
     private final HorizontalLayout buttonsLayout = new HorizontalLayout();
-    //private Editor<Note> editorNote;
 
     private List<Note> notes;
     Button addButton = new Button("Добавить комментарий");
     Button removeButton = new Button("Удалить последний");
     private int count = 0;
 
-    private final ru.omel.po.data.service.NoteService NoteService;
+    private final ru.omel.po.data.service.NoteService noteService;
     private final HistoryService historyService;
     private int client;
 
-    public NotesLayout(NoteService NoteService, HistoryService historyService, int client) {
-        //this.historyService = historyService;
-        this.NoteService = NoteService;
+    public NotesLayout(NoteService noteservice, HistoryService historyService, int client) {
+        this.noteService = noteservice;
         this.historyService = historyService;
-        this.client = client;
 
-        noteGrid.setHeightByRows(true);
+        noteGrid.setAllRowsVisible(true);
         notes = new ArrayList<>();
         noteGrid.addComponentColumn(note -> new Label(note.getDateTime().
                         format(DateTimeFormatter.ofPattern("dd-MM-yyyy | HH:mm:ss"))))
                 .setHeader("Дата и время").setAutoWidth(true);
         noteGrid.addComponentColumn(note -> {
-                    String str = "";
-                    switch (note.getClient()){
-                        case 0:
-                            str = "Омскэлектро";
-                            break;
-                        case 1:
-                            str ="Клиент";
-                            break;
-                        case 2:
-                            str = "ГП";
-                            break;
-                    }
+                    String str = switch (note.getClient()) {
+                        case 0 -> "Омскэлектро";
+                        case 1 -> "Клиент";
+                        case 2 -> "ГП";
+                        default -> "";
+                    };
                     return new Label(str);})
                 .setHeader("Записал").setAutoWidth(true);
         noteGrid.addColumn(Note::getNote)
@@ -75,11 +65,7 @@ public class NotesLayout extends VerticalLayout {
         removeButton.setEnabled(false);
         noteArea.setHelperText("Сначала надо ввести текст комментария");
 
-        noteArea.addKeyDownListener(e -> {
-//            if(!noteArea.getValue().isEmpty()) {
-                addButton.setEnabled(true);
-//            }
-        });
+        noteArea.addKeyDownListener(e -> addButton.setEnabled(true));
 
         addButton.addClickListener(e -> {
             if(noteArea.getValue().isEmpty()) {
@@ -117,7 +103,7 @@ public class NotesLayout extends VerticalLayout {
 
     public void findAllByDemand(Demand demand) {
         this.demand = demand;
-        notes = NoteService.findAllByDemand(demand);
+        notes = noteService.findAllByDemand(demand);
         count = notes.toArray().length;
         noteGrid.setItems(notes);
         noteListDataProvider = (ListDataProvider<Note>) noteGrid.getDataProvider();
@@ -141,7 +127,7 @@ public class NotesLayout extends VerticalLayout {
             note.setClient(client);
             if(note.getId() == null) {
                 try{
-                    NoteService.update(note);
+                    noteService.update(note);
                 } catch (Exception e) {
                     return false;
                 }

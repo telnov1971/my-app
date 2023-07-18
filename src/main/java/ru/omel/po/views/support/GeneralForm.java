@@ -39,7 +39,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 public abstract class GeneralForm extends Div implements BeforeEnterObserver {
@@ -47,7 +46,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
     protected int client = 1;
     protected boolean historyExists = false;
-    protected final String DEMAND_ID = "demandID";
+    protected static final String DEMAND_ID = "demandID";
     protected DecimalFormat decimalFormat;
     protected FormLayout formDemand = new FormLayout();
     protected BeanValidationBinder<Demand> binderDemand = new BeanValidationBinder<>(Demand.class);
@@ -63,7 +62,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     private int editExp = 0;
 
     // максимальная мощность по типу заявки
-    protected Double MaxPower;
+    protected Double maxPower;
 
     protected TextField demandId = new TextField("Номер заявки");
     protected DateTimePicker createdate;
@@ -72,7 +71,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
     protected Accordion accordionDemander = new Accordion();
     protected FormLayout formDemander = new FormLayout();
-//    protected TextArea demander;
     protected ComboBox<String> demander = new ComboBox<>();
     protected List<String> demanderList = new ArrayList<>();
     protected Select<String> typeDemander;
@@ -87,7 +85,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected List<String> contactList = new ArrayList<>();
     protected ComboBox<String> meEmail = new ComboBox<>();
     protected List<String> meEmailList = new ArrayList<>();
-//    protected TextField passportSerries;
     protected ComboBox<String> passportSerries = new ComboBox<>();
     protected List<String> passportSerriesList = new ArrayList<>();
     protected ComboBox<String> passportNumber = new ComboBox<>();
@@ -160,7 +157,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected final FileStoredService fileStoredService;
     protected final PrivilegeService privilegeService;
 
-    public GeneralForm(ReasonService reasonService,
+    protected GeneralForm(ReasonService reasonService,
                        DemandService demandService,
                        DemandTypeService demandTypeService,
                        StatusService statusService,
@@ -181,24 +178,22 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                        Component... components) {
         super(components);
         // сервисы
-        {
-            this.reasonService = reasonService;
-            this.generalService = generalService;
-            this.demandService = demandService;
-            this.demandTypeService = demandTypeService;
-            this.statusService = statusService;
-            this.garantService = garantService;
-            this.pointService = pointService;
-            this.voltageService = voltageService;
-            this.safetyService = safetyService;
-            this.planService = planService;
-            this.priceService = priceService;
-            this.sendService = sendService;
-            this.userService = userService;
-            this.fileStoredService = fileStoredService;
-            this.historyService = historyService;
-            this.privilegeService = privilegeService;
-        }
+        this.reasonService = reasonService;
+        this.generalService = generalService;
+        this.demandService = demandService;
+        this.demandTypeService = demandTypeService;
+        this.statusService = statusService;
+        this.garantService = garantService;
+        this.pointService = pointService;
+        this.voltageService = voltageService;
+        this.safetyService = safetyService;
+        this.planService = planService;
+        this.priceService = priceService;
+        this.sendService = sendService;
+        this.userService = userService;
+        this.fileStoredService = fileStoredService;
+        this.historyService = historyService;
+        this.privilegeService = privilegeService;
 
         this.decimalFormat = new DecimalFormat("###.##",
                 new DecimalFormatSymbols());
@@ -220,7 +215,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         privilegeNot.setLabel("не являюсь лицом, которому может быть предоставлена льготная ставка\"");
         privilegeNot.getElement().getStyle().set("color", "red");
         privilegeNot.addValueChangeListener(e -> {
-            if(privilegeNot.getValue()) privilegeLayout.setValueFalse();
+            if(Boolean.TRUE.equals(privilegeNot.getValue()))
+                privilegeLayout.setValueFalse();
         });
 
         historyLayout = new HistoryLayout(this.historyService);
@@ -229,148 +225,139 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         accordionHistory.setWidthFull();
 
         // описание полей
-        {
-            demandId.setReadOnly(true);
+        demandId.setReadOnly(true);
 
-            createdate = new DateTimePicker("Дата и время создания");
-            createdate.setValue(LocalDateTime.now());
-            createdate.setReadOnly(true);
+        createdate = new DateTimePicker("Дата и время создания");
+        createdate.setValue(LocalDateTime.now());
+        createdate.setReadOnly(true);
 
-            demandType = ViewHelper.createSelect(DemandType::getName, demandTypeService.findAll(),
-                    "Тип заявки", DemandType.class);
-            demandType.setReadOnly(true);
+        demandType = ViewHelper.createSelect(DemandType::getName, demandTypeService.findAll(),
+                "Тип заявки", DemandType.class);
+        demandType.setReadOnly(true);
 
-            demander.setLabel("Заявитель (обязательное поле)");
-            demander.setAllowCustomValue(true);
-            demander.setItems(demanderList);
+        demander.setLabel("Заявитель (обязательное поле)");
+        demander.setAllowCustomValue(true);
+        demander.setItems(demanderList);
 
-            demander.setHelperText("полное наименование заявителя – юридического лица;" +
-                    " фамилия, имя, отчество заявителя – индивидуального предпринимателя");
-            delegate = new TextField("ФИО представителя","Представитель юр.лица");
-            inn.setLabel("ИНН или СНИЛС (обязательное поле)");
-            inn.setPlaceholder("ИНН для юр.лиц и ИП, СНИЛс для физ.лиц");
-            inn.setAllowCustomValue(true);
-            inn.setItems(innList);
-            inn.setHelperText(
-                    "идентификационный номер налогоплательщика для юр.лиц и ИП"+
-                    " / номер СНИЛС для физических лиц");
-            innDate = new DatePicker("Дата регистрации в реестре");
-            innDate.addValueChangeListener(e -> {
-                LocalDate date = innDate.getValue();
-                if(date.getYear() > 50 && date.getYear() < 100)
-                    innDate.setValue(LocalDate.of(1900 + date.getYear()
-                            ,date.getMonthValue()
-                            ,date.getDayOfMonth()));
-                if(date.getYear() > 0 && date.getYear() < 51)
-                    innDate.setValue(LocalDate.of(2000 + date.getYear()
-                            ,date.getMonthValue()
-                            ,date.getDayOfMonth()));
-            });
-            innDate.setInvalid(true);
-            ogrn.setLabel("ОГРН (обязательное поле)");
-            ogrn.setPlaceholder("ОГРН для юр.лиц и ИП");
-            ogrn.setAllowCustomValue(true);
-            ogrn.setItems(ogrnList);
-            ogrn.setHelperText("(номер записи в Едином государственном реестре юридических лиц");
-            contact.setLabel("Контактный телефон (обязательное поле)");
-            contact.setAllowCustomValue(true);
-            contact.setItems(contactList);
-            meEmail.setLabel("Электронная почта (обязательное поле)");
-            meEmail.setAllowCustomValue(true);
-            meEmail.setItems(demanderList);
-//            meEmail.setHelperText("");
-            passportSerries.setLabel("Паспорт серия (обязательное поле)");
-            passportSerries.setPlaceholder("Четыре цифры");
-            passportSerries.setAllowCustomValue(true);
-            passportSerries.setItems(passportSerriesList);
-            passportNumber.setLabel("Паспорт номер (обязательное поле)");
-            passportNumber.setPlaceholder("Шесть цифр");
-            passportNumber.setAllowCustomValue(true);
-            passportNumber.setItems(passportNumberList);
-            passportIssued.setLabel("Паспорт выдан");
-            passportIssued.setAllowCustomValue(true);
-            passportIssued.setItems(passportIssuedList);
-            passportIssued.setHelperText("(кем, когда)");
-            addressRegistration.setLabel("Адрес регистрации (обязательное поле)");
-            addressRegistration.setAllowCustomValue(true);
-            addressRegistration.setItems(addressRegistrationList);
-            addressRegistration.setHelperText("(место регистрации заявителя - индекс, адрес)");
-            addressEquals = new Checkbox("Адрес фактический совпадает с адресом регистрации", false);
-            addressActual = new TextField("Адрес фактический (обязательное поле)");
-            addressActual.setHelperText("(фактический адрес - индекс, адрес)");
-            object = new TextArea("Объект (обязательное поле)");
-            object.setHelperText("(наименование энергопринимающих устройств для присоединения)");
-            address = new TextArea("Адрес объекта (обязательное поле)");
-            address.setHelperText("(место нахождения энергопринимающих устройств)");
-            specification = new TextArea("Характер нагрузки");
-            specification.setHelperText("(характер нагрузки (вид экономической деятельности заявителя))");
+        demander.setHelperText("полное наименование заявителя – юридического лица;" +
+                " фамилия, имя, отчество заявителя – индивидуального предпринимателя");
+        delegate = new TextField("ФИО представителя","Представитель юр.лица");
+        inn.setLabel("ИНН или СНИЛС (обязательное поле)");
+        inn.setPlaceholder("ИНН для юр.лиц и ИП, СНИЛс для физ.лиц");
+        inn.setAllowCustomValue(true);
+        inn.setItems(innList);
+        inn.setHelperText(
+                "идентификационный номер налогоплательщика для юр.лиц и ИП"+
+                        " / номер СНИЛС для физических лиц");
+        innDate = new DatePicker("Дата регистрации в реестре");
+        innDate.addValueChangeListener(e -> {
+            LocalDate date = innDate.getValue();
+            if(date.getYear() > 50 && date.getYear() < 100)
+                innDate.setValue(LocalDate.of(1900 + date.getYear()
+                        ,date.getMonthValue()
+                        ,date.getDayOfMonth()));
+            if(date.getYear() > 0 && date.getYear() < 51)
+                innDate.setValue(LocalDate.of(2000 + date.getYear()
+                        ,date.getMonthValue()
+                        ,date.getDayOfMonth()));
+        });
+        innDate.setInvalid(true);
+        ogrn.setLabel("ОГРН (обязательное поле)");
+        ogrn.setPlaceholder("ОГРН для юр.лиц и ИП");
+        ogrn.setAllowCustomValue(true);
+        ogrn.setItems(ogrnList);
+        ogrn.setHelperText("(номер записи в Едином государственном реестре юридических лиц");
+        contact.setLabel("Контактный телефон (обязательное поле)");
+        contact.setAllowCustomValue(true);
+        contact.setItems(contactList);
+        meEmail.setLabel("Электронная почта (обязательное поле)");
+        meEmail.setAllowCustomValue(true);
+        meEmail.setItems(demanderList);
+        passportSerries.setLabel("Паспорт серия (обязательное поле)");
+        passportSerries.setPlaceholder("Четыре цифры");
+        passportSerries.setAllowCustomValue(true);
+        passportSerries.setItems(passportSerriesList);
+        passportNumber.setLabel("Паспорт номер (обязательное поле)");
+        passportNumber.setPlaceholder("Шесть цифр");
+        passportNumber.setAllowCustomValue(true);
+        passportNumber.setItems(passportNumberList);
+        passportIssued.setLabel("Паспорт выдан");
+        passportIssued.setAllowCustomValue(true);
+        passportIssued.setItems(passportIssuedList);
+        passportIssued.setHelperText("(кем, когда)");
+        addressRegistration.setLabel("Адрес регистрации (обязательное поле)");
+        addressRegistration.setAllowCustomValue(true);
+        addressRegistration.setItems(addressRegistrationList);
+        addressRegistration.setHelperText("(место регистрации заявителя - индекс, адрес)");
+        addressEquals = new Checkbox("Адрес фактический совпадает с адресом регистрации", false);
+        addressActual = new TextField("Адрес фактический (обязательное поле)");
+        addressActual.setHelperText("(фактический адрес - индекс, адрес)");
+        object = new TextArea("Объект (обязательное поле)");
+        object.setHelperText("(наименование энергопринимающих устройств для присоединения)");
+        address = new TextArea("Адрес объекта (обязательное поле)");
+        address.setHelperText("(место нахождения энергопринимающих устройств)");
+        specification = new TextArea("Характер нагрузки");
+        specification.setHelperText("(характер нагрузки (вид экономической деятельности заявителя))");
 
-            countPoints = new IntegerField("Кол-во точек подключения");
-            powerDemand = new NumberField("Мощность присоединяемая, кВт (обязательное поле)", "0,00 кВт");
-            //powerDemand.setHelperText("(максимальная мощность присоединяемых энергопринимающих устройств)");
-            powerDemand.setHelperText("(цифры, точка или запятая)");
-            powerDemand.setStep(0.01);
-            powerDemand.setAutocorrect(true);
-            powerCurrent = new NumberField("Мощность ранее присоединённая, кВт", "0,00 кВт");
-            powerCurrent.setHelperText("(цифры, точка или запятая)");
-            powerCurrent.setAutocorrect(true);
-            powerMaximum = new NumberField("Мощность максимальная, кВт", "0,00 кВт");
-            powerMaximum.setAutocorrect(true);
-            powerMaximum.setValue(0.0);
-            powerMaximum.setReadOnly(true);
+        countPoints = new IntegerField("Кол-во точек подключения");
+        powerDemand = new NumberField("Мощность присоединяемая, кВт (обязательное поле)", "0,00 кВт");
+        powerDemand.setHelperText("(цифры, точка или запятая)");
+        powerDemand.setStep(0.01);
+        powerDemand.setAutocorrect(true);
+        powerCurrent = new NumberField("Мощность ранее присоединённая, кВт", "0,00 кВт");
+        powerCurrent.setHelperText("(цифры, точка или запятая)");
+        powerCurrent.setAutocorrect(true);
+        powerMaximum = new NumberField("Мощность максимальная, кВт", "0,00 кВт");
+        powerMaximum.setAutocorrect(true);
+        powerMaximum.setValue(0.0);
+        powerMaximum.setReadOnly(true);
 
-            countTransformations = new TextArea("Кол-во и мощ-ть присоединяемых трансформаторов");
-            countGenerations = new TextArea("Кол-во и мощ-ть генераторов");
-            techminGeneration = new TextArea("Технологический минимум для генераторов");
-            techminGeneration.setPlaceholder("Величина и обоснование технологического минимума");
-            techminGeneration.setHelperText("(величина и обоснование технологического минимума)");
-            reservation = new TextArea("Технологическая и аварийная бронь");
-            reservation.setPlaceholder("Величина и обоснование технологической и аварийной брони");
-            reservation.setHelperText("(величина и обоснование технологической и аварийной брони)");
-            period = new TextArea("Срок подключения по временной схеме");
-            contract = new TextField("Реквизиты договора");
-            contract.setHelperText("(реквизиты договора на технологическое присоединение)");
-            garantText = new TextField("Наименование гарантирующего поставщика (обязательное) *");
-            garantText.addClassName("v-captiontext");
-            garantText.addClassName("v-required-field-indicator");
-        }
+        countTransformations = new TextArea("Кол-во и мощ-ть присоединяемых трансформаторов");
+        countGenerations = new TextArea("Кол-во и мощ-ть генераторов");
+        techminGeneration = new TextArea("Технологический минимум для генераторов");
+        techminGeneration.setPlaceholder("Величина и обоснование технологического минимума");
+        techminGeneration.setHelperText("(величина и обоснование технологического минимума)");
+        reservation = new TextArea("Технологическая и аварийная бронь");
+        reservation.setPlaceholder("Величина и обоснование технологической и аварийной брони");
+        reservation.setHelperText("(величина и обоснование технологической и аварийной брони)");
+        period = new TextArea("Срок подключения по временной схеме");
+        contract = new TextField("Реквизиты договора");
+        contract.setHelperText("(реквизиты договора на технологическое присоединение)");
+        garantText = new TextField("Наименование гарантирующего поставщика (обязательное) *");
+        garantText.addClassName("v-captiontext");
+        garantText.addClassName("v-required-field-indicator");
 
         // создание селекторов
-        {
+        typeDemander = new Select<>();
+        typeDemander.setLabel("Тип заявителя");
+        typeDemander.setItems("Физическое лицо", "Юридическое лицо", "Индивидуальный предприниматель");
 
-            typeDemander = new Select<>();
-            typeDemander.setLabel("Тип заявителя");
-            typeDemander.setItems("Физическое лицо", "Юридическое лицо", "Индивидуальный предприниматель");
+        List<Reason> reasonList = reasonService.findAll().stream().
+                filter(r -> r.getDtype().contains(dType)).toList();
+        reason = ViewHelper.createSelect(Reason::getName, reasonList,
+                "Причина обращения (обязательное поле)", Reason.class);
 
-            List<Reason> reasonList = reasonService.findAll().stream().
-                filter(r -> r.getDtype().contains(dType)).collect(Collectors.toList());
-            reason = ViewHelper.createSelect(Reason::getName, reasonList,
-                    "Причина обращения (обязательное поле)", Reason.class);
+        voltage = ViewHelper.createSelect(Voltage::getName, voltageService.findAllByOptional(false),
+                "Класс напряжения", Voltage.class);
 
-            voltage = ViewHelper.createSelect(Voltage::getName, voltageService.findAllByOptional(false),
-                    "Класс напряжения", Voltage.class);
+        voltageIn = ViewHelper.createSelect(Voltage::getName, voltageService.findAllByOptional(true),
+                "Уровень напряжения на вводе", Voltage.class);
 
-            voltageIn = ViewHelper.createSelect(Voltage::getName, voltageService.findAllByOptional(true),
-                    "Уровень напряжения на вводе", Voltage.class);
+        safety = ViewHelper.createSelect(Safety::getName, safetyService.findAll(),
+                "Категория надежности", Safety.class);
+        safetyService.findById(3L).ifPresent(r -> safety.setValue(r));
+        safety.setReadOnly(true);
 
-            safety = ViewHelper.createSelect(Safety::getName, safetyService.findAll(),
-                    "Категория надежности", Safety.class);
-            if(safetyService.findById(3L).isPresent())
-                safety.setValue(safetyService.findById(3L).get());
-            safety.setReadOnly(true);
+        garant = ViewHelper.createSelect(Garant::getName, garantService.findAllByActive(true),
+                "Гарантирующий поставщик", Garant.class);
 
-            garant = ViewHelper.createSelect(Garant::getName, garantService.findAllByActive(true),
-                    "Гарантирующий поставщик", Garant.class);
+        plan = ViewHelper.createSelect(Plan::getName, planService.findAll(),
+                "Рассрочка платежа", Plan.class);
 
-            plan = ViewHelper.createSelect(Plan::getName, planService.findAll(),
-                    "Рассрочка платежа", Plan.class);
-
-            status = ViewHelper.createSelect(Status::getName, statusService.findAll(),
-                    "Статус", Status.class);
-            if(statusService.findById(1L).isPresent())
-                status.setValue(statusService.findById(1L).get());
-            status.setReadOnly(true);
-        }
+        status = ViewHelper.createSelect(Status::getName, statusService.findAll(),
+                "Статус", Status.class);
+        statusService.findById(1L).ifPresent(r -> status.setValue(r));
+        status.setReadOnly(true);
 
         binderDemand.bindInstanceFields(this);
         pointBinder.bindInstanceFields(this);
@@ -435,16 +422,16 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 passportIssued.setVisible(true);
                 ogrn.setVisible(false);
             }
-            case "Индивидуальный предприниматель" -> {
-                passportSerries.setVisible(true);
-                passportNumber.setVisible(true);
-                passportIssued.setVisible(true);
-                ogrn.setVisible(true);
-            }
             case "Юридическое лицо" -> {
                 passportSerries.setVisible(false);
                 passportNumber.setVisible(false);
                 passportIssued.setVisible(false);
+                ogrn.setVisible(true);
+            }
+            default -> {
+                passportSerries.setVisible(true);
+                passportNumber.setVisible(true);
+                passportIssued.setVisible(true);
                 ogrn.setVisible(true);
             }
         }
@@ -452,7 +439,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
     protected void setListeners() {
         save.addClickListener(event -> {
-            if(!verifyField()) return;
+            if(Boolean.TRUE.equals(!verifyField())) return;
             if(!save()) return;
             UI.getCurrent().navigate(DemandList.class);
         });
@@ -570,8 +557,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     ViewHelper.deselect(passportSerries);
                 }
             });
-//        } else {
-//            passportSerries.setValue("0000");
         }
         passportSerries.addCustomValueSetListener(e -> {
             String customValue = e.getDetail();
@@ -592,8 +577,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     ViewHelper.deselect(passportNumber);
                 }
             });
-//        } else {
-//            passportNumber.setValue("000000");
         }
         passportNumber.addCustomValueSetListener(e -> {
             String customValue = e.getDetail();
@@ -618,7 +601,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             addressRegistration.setValue(customValue);
         });
         addressEquals.addValueChangeListener(event -> {
-            if(addressEquals.getValue()){
+            if(Boolean.TRUE.equals(addressEquals.getValue())) {
                 addressActual.setValue(addressRegistration.getValue());
                 addressActual.setEnabled(false);
             } else {
@@ -627,7 +610,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         });
         addressActual.addValueChangeListener(e -> ViewHelper.deselect(addressActual));
         reason.addValueChangeListener(e -> {
-            //                powerCurrent.setValue(0.0);
             powerCurrent.setReadOnly(reason.getValue().getId() == 1L);
             powerDemand.setReadOnly(reason.getValue().getId() == 3L
                     || reason.getValue().getId() == 4L);
@@ -704,13 +686,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         powerMaximum.setValue(currentP + demandP);
         // При максимальной мощности свыше 5 кВт напряжение на входе должно быть только 380 В
         if((currentP + demandP) > 5.0) {
-            if(voltageService.findById(4L).isPresent())
-                voltageIn.setValue(voltageService.findById(4L).get());
+            voltageService.findById(4L).ifPresent(r -> voltageIn.setValue(r));
             voltageIn.setReadOnly(true);
         } else {
             voltageIn.setReadOnly(false);
         }
-        if (powerMaximum.getValue() > this.MaxPower) {
+        if (powerMaximum.getValue() > this.maxPower) {
             Notification notification = new Notification(
                     "Для такого типа заявки превышена макисальная мощность", 5000,
                     Notification.Position.MIDDLE);
@@ -725,16 +706,14 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     "Ошибка ввода числа", 5000,
                     Notification.Position.MIDDLE);
             notification.open();
-//            field.setValue(0.0);
             field.focus();
         }
     }
 
     public boolean save() {
-        if(typeDemander.isVisible()){
-            if(typeDemander.getValue() != null) {
+        if(typeDemander.isVisible() && (typeDemander.getValue() != null)) {
                 demand.setTypeDemander(typeDemander.getValue());
-            }
+
         }
         demand.setChangeDate(LocalDateTime.now());
         if (demand.getUser() == null) {
@@ -791,9 +770,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                         ,alertHere.getFirst(),space);
             }
             if (!passportSerries.isEmpty() &&
-                    passportSerries.isVisible()) {
-                if (passportSerries.getValue().length() != 4)
-                    alertHere = ViewHelper.attention(passportSerries
+                    passportSerries.isVisible() &&
+                    (passportSerries.getValue().length() != 4))
+                    {alertHere = ViewHelper.attention(passportSerries
                             ,"Поле Паспорт серия должно содержать 4 цифры"
                             ,alertHere.getFirst(),space);
             }
@@ -804,9 +783,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                         ,alertHere.getFirst(),space);
             }
             if (!passportNumber.isEmpty() &&
-                    passportNumber.isVisible()) {
-                if (passportNumber.getValue().length() != 6)
-                    alertHere = ViewHelper.attention(passportNumber
+                    passportNumber.isVisible() &&
+                    (passportNumber.getValue().length() != 6))
+                    {alertHere = ViewHelper.attention(passportNumber
                             ,"Поле Паспорт номер  должно содержать 6 цифр"
                             ,alertHere.getFirst(),space);
             }
@@ -865,15 +844,16 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     ,"Не заполнено поле Характер нагрузки}"
                     ,alertHere.getFirst(),space);
         }
-        if(reason.getValue() != null) { // если выбрана причина подключения
-            // если текущая мощность видима и не указана или равна 0 и причина - увеличение,
-            // то поле надо зополнить
-            if ((powerCurrent.isEmpty() || powerCurrent.getValue() == 0.0) &&
-                    powerCurrent.isVisible() && (reason.getValue().getId() == 2L)) {
+        // если выбрана причина подключения
+        // если текущая мощность видима и не указана или равна 0 и причина - увеличение,
+        // то поле надо зополнить
+        if(reason.getValue() != null &&
+                ((powerCurrent.isEmpty() || powerCurrent.getValue() == 0.0) &&
+                    powerCurrent.isVisible() && (reason.getValue().getId() == 2L))) {
                 alertHere = ViewHelper.attention(powerCurrent
                         ,"При увеличении мощности нужно указать ранее присоединённую..."
                         ,alertHere.getFirst(),space);
-            }
+
         }
         // если запрас мощности виден и не заполнен или равен 0,
         // то поле надо заполнить
@@ -886,7 +866,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         // если максимальная мощность не 0,
         // то проверяем чтобы не превышала максимум для типа заявки
         if ((!powerMaximum.isEmpty() || powerMaximum.getValue() != 0.0)
-                && powerMaximum.getValue() > this.MaxPower) {
+                && powerMaximum.getValue() > this.maxPower) {
             alertHere = ViewHelper.attention(powerDemand
                     ,"Максимальная мощность превышает допустимую..."
                     ,alertHere.getFirst(),space);
@@ -920,14 +900,14 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         }
         if(editPnt > 0) {
             pointsLayout.setDemand(demand);
-            if(!pointsLayout.saveEdited()) return false;
+            if(!Boolean.TRUE.equals(pointsLayout.saveEdited())) return false;
         }
         if(editExp > 0) {
             expirationsLayout.setDemand(demand);
-            if (!expirationsLayout.saveEdited()) return false;
+            if (!Boolean.TRUE.equals(expirationsLayout.saveEdited())) return false;
         }
         // связываем значения полей страницы и объекта заявки
-        if (binderDemand.validate().getValidationErrors().size() > 0) {
+        if (!binderDemand.validate().getValidationErrors().isEmpty()) {
             List<ValidationResult> validationResults = binderDemand.validate().getValidationErrors();
             for (ValidationResult validationResult : validationResults) {
                 Notification notification = new Notification();
@@ -964,7 +944,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             if(demand.getMeEmail()==null || demand.getMeEmail().isEmpty()) meEmail.setReadOnly(false);
             if(demand.getInn()==null || demand.getInn().isEmpty()) inn.setReadOnly(false);
             if(demand.getOgrn()==null || demand.getOgrn().isEmpty()) ogrn.setReadOnly(false);
-            if(demand.isPrivilegeNot()==false && demand.isPrivilege()==false) {
+            if(!demand.isPrivilegeNot() && !demand.isPrivilege()) {
                 privilegeNot.setReadOnly(false);
                 privilegeLayout.setReadOnly(false);
             }
@@ -978,34 +958,36 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         demandType.setReadOnly(true);
         createdate.setReadOnly(true);
         if(value != null) {
-            if(typeDemander.isVisible()){
-                if(value.getTypeDemander() != null) {
+            if(typeDemander.isVisible() && (value.getTypeDemander() != null)) {
                     typeDemander.setValue(value.getTypeDemander());
-                }
             }
             demandId.setValue(demand.getId().toString());
             filesLayout.findAllByDemand(demand);
             notesLayout.findAllByDemand(demand);
             historyLayout.findAllByDemand(demand);
             switch (demand.getStatus().getState()) {
-                case ADD -> setReadOnly(true);
+                case ADD -> {
+                    setReadOnly(true);
+                    pointsLayout.setReadOnly();
+                }
                 case NOTE -> {
                     setReadOnly(true);
                     filesLayout.setReadOnly();
+                    pointsLayout.setReadOnly();
                 }
                 case FREEZE -> {
                     setReadOnly(true);
                     filesLayout.setReadOnly();
                     notesLayout.setReadOnly();
+                    pointsLayout.setReadOnly();
                 }
+                default -> setReadOnly(false);
             }
             if(addressActual.getValue().equals(addressRegistration.getValue())
                 && !addressRegistration.isEmpty()) {
                 addressActual.setEnabled(false);
                 addressEquals.setValue(true);
             }
-//            demander.setItems(createList(demand.getUser(), ViewHelper.FieldName.DEMANDER));
-//            demander.setValue(demand.getDemander());
         }
     }
 
@@ -1029,7 +1011,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     public void beforeEnter(BeforeEnterEvent event) {
         User currentUser;
         Role role = Role.ANONYMOUS;
-        Optional<Long> demandId = event.getRouteParameters().getLong(DEMAND_ID);
+        Optional<Long> id = event.getRouteParameters().getLong(DEMAND_ID);
         currentUser = userService.findByUsername(
                 SecurityContextHolder.getContext().getAuthentication().getName());
         if(currentUser != null) {
@@ -1047,19 +1029,20 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             case SALES -> client = 2;
             case GARANT -> client = 2;
             case ADMIN -> client = 0;
+            default -> client = 1;
         }
         filesLayout.setClient(client);
         notesLayout.setClient(client);
         if(expirationsLayout != null)
             expirationsLayout.setClient(client);
         typeDemander.setReadOnly(false);
-        if (demandId.isPresent()) {
+        if (id.isPresent()) {
             Notification notification = new Notification();
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
             notification.setPosition(Notification.Position.BOTTOM_START);
             notification.setDuration(3000);
 
-            Optional<Demand> demandFromBackend = demandService.get(demandId.get());
+            Optional<Demand> demandFromBackend = demandService.get(id.get());
             if (demandFromBackend.isPresent()) {
                 if(role == Role.ADMIN) {
                     setReadOnly(false);
@@ -1076,13 +1059,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                         filesLayout.setDeleteVisible(false);
                     }
                 } else {
-                    notification.setText(String.format("Заявка с ID = %d не Ваша", demandId.get()));
+                    notification.setText(String.format("Заявка с ID = %d не Ваша", id.get()));
                     notification.open();
                     filesLayout.setDeleteVisible(false);
                     clearForm();
                 }
             } else {
-                notification.setText(String.format("Заявка с ID = %d не найдена", demandId.get()));
+                notification.setText(String.format("Заявка с ID = %d не найдена", id.get()));
                 notification.open();
                 clearForm();
             }
@@ -1128,80 +1111,69 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     private List<String> createList(User user, ViewHelper.FieldName fieldName){
         List<String> list = new ArrayList<>();
         List<Demand> demandList = this.demandService.findAllByUser(user);
-        for(Demand demand : demandList){
+        for(Demand dem : demandList){
             switch (fieldName){
                 case DEMANDER:
-                    if(demand.getDemander()!=null)
-                        if(!list.contains(demand.getDemander()))
-                            list.add(demand.getDemander());
+                    if(dem.getDemander()!=null && (!list.contains(dem.getDemander())))
+                            list.add(dem.getDemander());
                     break;
                 case DELEGATE:
-                    if(demand.getDelegate()!=null)
-                        if(!list.contains(demand.getDelegate()))
-                            list.add(demand.getDelegate());
+                    if(dem.getDelegate()!=null && (!list.contains(dem.getDelegate())))
+                            list.add(dem.getDelegate());
                     break;
                 case INN:
-                    if(demand.getInn()!=null)
-                        if(!list.contains(demand.getInn()))
-                            list.add(demand.getInn());
+                    if(dem.getInn()!=null && (!list.contains(dem.getInn())))
+                            list.add(dem.getInn());
                     break;
                 case OGRN:
-                    if(demand.getOgrn()!=null)
-                        if(!list.contains(demand.getOgrn()))
-                            list.add(demand.getOgrn());
+                    if(dem.getOgrn()!=null && (!list.contains(dem.getOgrn())))
+                            list.add(dem.getOgrn());
                     break;
                 case CONTACT:
-                    if(demand.getContact()!=null)
-                        if(!list.contains(demand.getContact()))
-                            list.add(demand.getContact());
-                    if(user.getContact()!=null)
-                        if(!list.contains(user.getContact()))
+                    if(dem.getContact()!=null && (!list.contains(dem.getContact())))
+                            list.add(dem.getContact());
+                    if(user.getContact()!=null && (!list.contains(user.getContact())))
                             list.add(user.getContact());
                     break;
                 case MEEMAIL:
-                    if(demand.getMeEmail()!=null)
-                        if(!list.contains(demand.getMeEmail()))
-                            list.add(demand.getMeEmail());
-                    if(user.getEmail()!=null)
-                        if(!list.contains(user.getEmail()))
+                    if(dem.getMeEmail()!=null && (!list.contains(dem.getMeEmail())))
+                            list.add(dem.getMeEmail());
+                    if(user.getEmail()!=null && (!list.contains(user.getEmail())))
                             list.add(user.getEmail());
                     break;
                 case PASPORTSERIES:
-                    if(demand.getPassportSerries()!=null)
-                        if(!list.contains(demand.getPassportSerries()))
-                            list.add(demand.getPassportSerries());
+                    if(dem.getPassportSerries()!=null &&
+                            (!list.contains(dem.getPassportSerries())))
+                            list.add(dem.getPassportSerries());
                     break;
                 case PASPORTNUMBER:
-                    if(demand.getPassportNumber()!=null)
-                        if(!list.contains(demand.getPassportNumber()))
-                            list.add(demand.getPassportNumber());
+                    if(dem.getPassportNumber()!=null &&
+                            (!list.contains(dem.getPassportNumber())))
+                            list.add(dem.getPassportNumber());
                     break;
                 case PASPORTISSUED:
-                    if(demand.getPassportIssued()!=null)
-                        if(!list.contains(demand.getPassportIssued()))
-                            list.add(demand.getPassportIssued());
+                    if(dem.getPassportIssued()!=null &&
+                            (!list.contains(dem.getPassportIssued())))
+                            list.add(dem.getPassportIssued());
                     break;
                 case ADDRESSREGISTRATION:
-                    if(demand.getAddressRegistration()!=null)
-                        if(!list.contains(demand.getAddressRegistration()))
-                            list.add(demand.getAddressRegistration());
+                    if(dem.getAddressRegistration()!=null &&
+                            (!list.contains(dem.getAddressRegistration())))
+                            list.add(dem.getAddressRegistration());
                     break;
             }
         }
         switch(fieldName){
             case DEMANDER:
-                if(user.getFio()!=null)
-                    if(!list.contains(user.getFio()))
+                if(user.getFio()!=null && (!list.contains(user.getFio())))
                         list.add(user.getFio());
                 break;
             case CONTACT:
-                if(user.getContact()!=null)
-                    if(!list.contains(user.getContact()))
+                if(user.getContact()!=null && (!list.contains(user.getContact())))
                         list.add(user.getContact());
                 break;
             case MEEMAIL:
-                if(user.getEmail()!=null)
-                    if(!list.contains(user.getEmail()))
+                if(user.getEmail()!=null && (!list.contains(user.getEmail())))
                         list.add(user.getEmail());
                 break;
 

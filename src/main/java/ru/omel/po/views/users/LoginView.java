@@ -22,7 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Tag("sa-login-view")
 @Route(value = LoginView.ROUTE) //, layout = MainView.class)
 @PageTitle("Вход в личный кабинет")
-//public class LoginView extends Div  implements BeforeEnterObserver {
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     public static final String ROUTE = "login";
     private final LoginForm login = new LoginForm();
@@ -33,29 +32,19 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
                      CustomRequestCache requestCache) {
         addClassName("login-view");
         setSizeFull();
-        //setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
         setHorizontalComponentAlignment(Alignment.CENTER);
-        //login.setOpened(true);
-        //login.setTitle("Вход в личный кабинет");
         login.setI18n(createRussianLoginI18n());
-        login.setAction("login");
-        login.addForgotPasswordListener(event -> {
-            //login.close();
-            UI.getCurrent().navigate(Forgot.class);
-        });
+        login.setAction(LoginView.ROUTE);
+        login.addForgotPasswordListener(event -> UI.getCurrent().navigate(Forgot.class));
 
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setAlignItems(Alignment.CENTER);
         verticalLayout.setAlignSelf(Alignment.CENTER);
         Button registration = new Button("Зарегистрироваться");
-        registration.addClickListener(event -> {
-            //login.close();
-            UI.getCurrent().navigate(Profile.class);
-        });
+        registration.addClickListener(event -> UI.getCurrent().navigate(Profile.class));
         verticalLayout.add(login,registration);
 
-//        add(login);
         add(verticalLayout);
 
         login.addLoginListener(e -> {
@@ -69,16 +58,15 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
                                 e.getPassword()));
                 // if authentication was successful we will update the security context and redirect to the page requested first
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                //login.close();
                 UI.getCurrent().navigate(requestCache.resolveRedirectUrl());
                 logger.info(logger.getLevel());
-                logger.info("User login successful: " + e.getUsername());
+                logger.info(String.format("User login successful: %s", e.getUsername()));
             } catch(AuthenticationException ex) {
                 // show default error message
                 // Note: You should not expose any detailed information here like "username is known but password is wrong"
                 // as it weakens security.
                 login.setError(true);
-                logger.info("User not login: " + e.getUsername());
+                logger.info(String.format("User not login: %s", e.getUsername()));
             }
         });
 

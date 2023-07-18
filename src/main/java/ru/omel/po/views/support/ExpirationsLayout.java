@@ -4,7 +4,6 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import ru.omel.po.data.entity.Demand;
 import ru.omel.po.data.entity.Expiration;
 import ru.omel.po.data.entity.Safety;
-import ru.omel.po.data.entity.Voltage;
 import ru.omel.po.data.service.ExpirationService;
 import ru.omel.po.data.service.HistoryService;
 import ru.omel.po.data.service.SafetyService;
@@ -32,14 +31,13 @@ public class ExpirationsLayout extends VerticalLayout {
     private final Grid<Expiration> expirationGrid = new Grid<>(Expiration.class, false);
     private ListDataProvider<Expiration> expirationsDataProvider;
     private final Editor<Expiration> editorExpiration;
-    private final TextArea helpers;
     private final TextField fieldStep;
     private final TextField fieldPlanProject;
     private final TextField fieldPlanUsage;
     private final Grid.Column<Expiration> editorColumn;
     private final Button addButton;
     private Button removeButton;
-    private GeneralForm formParent;
+    private final GeneralForm formParent;
 
     private final ExpirationService expirationService;
     private final HistoryService historyService;
@@ -58,14 +56,13 @@ public class ExpirationsLayout extends VerticalLayout {
         formParent = paramFormParent;
         this.client = client;
         formParent.expirationsLayout = this;
-        expirationGrid.setHeightByRows(true);
+        expirationGrid.setAllRowsVisible(true);
         expirations = new ArrayList<>();
-        helpers = new TextArea();
+        TextArea helpers = new TextArea();
         helpers.setValue("Сроки проектирования и поэтапного введения в эксплуатацию объекта"+
                 " (в том числе по этапам и очередям), планируемое поэтапное распределение максимальной мощности " +
                 "(обязательны к заполнению) (ВНИМАНИЕ: после сохранения этапы не удаляются, " +
                 "можно только редактировать)");
-        //helpers.setHeight("1em");
         helpers.setReadOnly(true);
         helpers.setWidthFull();
         helpers.getElement().getStyle().set("font-size","1em");
@@ -89,7 +86,6 @@ public class ExpirationsLayout extends VerticalLayout {
                 formParent.saveMode(1,0);
             });
             edit.setEnabled(!editorExpiration.isOpen());
-//            edit.setText("ОТКРЫТЬ");
             edit.getElement().setAttribute("title","открыть");
             editButtons.add(edit);
             return edit;
@@ -154,7 +150,7 @@ public class ExpirationsLayout extends VerticalLayout {
                 expiration.setSafety(formParent.safety.getValue());
             }
             if(formParent.accordionPoints.isVisible()){
-                if(formParent.points != null && formParent.points.size() > 0){
+                if(formParent.points != null && !formParent.points.isEmpty()){
                     expiration.setSafety(formParent.points.get(0).getSafety());
                 } else {
                     Notification notification = new Notification();
@@ -195,10 +191,7 @@ public class ExpirationsLayout extends VerticalLayout {
                 .forEach(button -> button.setEnabled(!editorExpiration.isOpen())));
         editorExpiration.addCloseListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editorExpiration.isOpen())));
-        Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> {
-            saveEdited();
-        });
-//        save.setText("СОХРАНИТЬ");
+        Button save = new Button(new Icon(VaadinIcon.CHECK_CIRCLE_O), e -> saveEdited());
         save.addClassName("save");
         save.getElement().setAttribute("title","сохранить");
         Button cancel = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), e -> {
@@ -211,7 +204,6 @@ public class ExpirationsLayout extends VerticalLayout {
             expirationsDataProvider.refreshAll();
             formParent.saveMode(-1,0);
         });
-//        cancel.setText("ОТМЕНИТЬ");
         cancel.addClassName("cancel");
         cancel.getElement().setAttribute("title","отменить");
         Div divSave = new Div(save);

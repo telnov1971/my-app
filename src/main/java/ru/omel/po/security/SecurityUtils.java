@@ -43,9 +43,6 @@ public final class SecurityUtils {
                 || parameterValue != null
                 && Stream.of(RequestType.values())
                 .anyMatch(r -> r.getIdentifier().equals(parameterValue));
-//        return parameterValue != null
-//                && Stream.of(RequestType.values())
-//                .anyMatch(r -> r.getIdentifier().equals(parameterValue));
     }
 
 

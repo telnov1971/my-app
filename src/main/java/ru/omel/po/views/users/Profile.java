@@ -5,7 +5,6 @@ import ru.omel.po.data.entity.Role;
 import ru.omel.po.data.entity.User;
 import ru.omel.po.data.service.MailSenderService;
 import ru.omel.po.data.service.UserService;
-import ru.omel.po.views.main.MainView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -37,7 +36,7 @@ import java.util.UUID;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Редактор профиля пользователя")
 public class Profile extends Div implements BeforeEnterObserver {
-    protected final String USER_ID = "userID";
+    protected static final String USER_ID = "userID";
     private boolean editMode = false;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
@@ -52,7 +51,6 @@ public class Profile extends Div implements BeforeEnterObserver {
     private final TextField contact;
     private final Label notyfy;
     private final Label note;
-    private final Label subnote;
     private final Button saveButton = new Button("Зарегистрировать");
 
     public Profile(UserService userService,
@@ -108,7 +106,7 @@ public class Profile extends Div implements BeforeEnterObserver {
         note.getElement().getStyle().set("color", "red");
         note.getElement().getStyle().set("font-size", "1.5em");
         note.setHeight("1em");
-        subnote = new Label("В качестве логина и пароля рекомендуется " +
+        Label subnote = new Label("В качестве логина и пароля рекомендуется " +
                 "использовать только латинские буквы, цифры и знаки: @ # _ & . ");
         subnote.getElement().getStyle().set("color", "black");
         subnote.getElement().getStyle().set("font-size", "0.8em");
@@ -148,9 +146,7 @@ public class Profile extends Div implements BeforeEnterObserver {
                         editUser.setPassword(this.passwordEncoder.encode(password.getValue()));
                 }
                 userService.update(this.editUser);
-//                if (!editMode) {
-                    UI.getCurrent().navigate("/");
-//                }
+                UI.getCurrent().navigate("/");
             } else {
                 notyfy.setText("Пароли не совпадают");
                 notyfy.setVisible(true);
@@ -206,17 +202,15 @@ public class Profile extends Div implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         Optional<Long> userdId = event.getRouteParameters().getLong(USER_ID);
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (username != null) {
-            User userFromBackend = userService.findByUsername(username);
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (name != null) {
+            User userFromBackend = userService.findByUsername(name);
             if (userFromBackend != null) {
-                if(userFromBackend.getRoles().contains(Role.ADMIN)) {
-                    if(userdId.isPresent()) {
-                        if(userService.findById(userdId.get()).isPresent()) {
+                if(userFromBackend.getRoles().contains(Role.ADMIN) &&
+                        (userdId.isPresent()) &&
+                        (userService.findById(userdId.get()).isPresent())) {
                             populateForm((userService.findById(userdId.get())).get());
                             return;
-                        }
-                    }
                 }
                 if (userFromBackend.getUsername().
                         equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
@@ -265,13 +259,12 @@ public class Profile extends Div implements BeforeEnterObserver {
 
     private void sendMessage(User user){
         String host = "http://" + VaadinRequest.getCurrent().getHeader("host");
-                //VaadinService.getCurrentRequest().getPathInfo();
         if (!user.getEmail().isEmpty()) {
-            String message = String.format(
-                    "Здравствуйте, %s! \n" +
-                            "Добро пожаловать в Личный кабинет АО Омскэлектро.\n" +
-                            "Пожалуйста перейдите по ссылке: %s/activate/%s\n" +
-                            "для активации вашей регистрации.",
+            String message = String.format("""
+                    Здравствуйте, %s!
+                    Добро пожаловать в Личный кабинет АО Омскэлектро.
+                    Пожалуйста перейдите по ссылке: %s/activate/%s
+                    для активации вашей регистрации.""",
                     user.getUsername(),
                     host,
                     user.getActivationCode()

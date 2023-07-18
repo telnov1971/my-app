@@ -80,14 +80,6 @@ public class Demand extends AbstractEntity {
     // характер нагрузки
     private String specification;
 
-    // точки подключения
-//    @OneToMany(mappedBy = "demand", cascade = CascadeType.ALL)
-//    private List<Point> points = new ArrayList<>();
-//
-//    // сроки этапов
-//    @OneToMany(mappedBy = "demand", cascade = CascadeType.ALL)
-//    private List<Expiration> expirations = new ArrayList<>();
-
     // гарантирующий поставщик
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "garant_id")
@@ -100,9 +92,6 @@ public class Demand extends AbstractEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "plan_id")
     private Plan plan;
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "price_id")
-//    private Price price;
 
     // временный срок
     @Column(name = "period_connection")
@@ -137,8 +126,6 @@ public class Demand extends AbstractEntity {
 
     public Demand() {
         this.createDate = LocalDateTime.now();
-//        this.points = new ArrayList<>();
-//        this.expirations = new ArrayList<>();
     }
 
     public LocalDateTime getCreateDate() {
@@ -159,9 +146,7 @@ public class Demand extends AbstractEntity {
     public void setAddress(String address) {
         this.address = address;
     }
-    public boolean isExecuted() {
-        return executed;
-    }
+
     public void setExecuted(boolean done) {
         this.executed = done;
     }
@@ -243,12 +228,6 @@ public class Demand extends AbstractEntity {
     public void setDemandType(DemandType demandType) {
         this.demandType = demandType;
     }
-//    public Price getPrice() {
-//        return price;
-//    }
-//    public void setPrice(Price price) {
-//        this.price = price;
-//    }
     public Status getStatus() {
         return status;
     }

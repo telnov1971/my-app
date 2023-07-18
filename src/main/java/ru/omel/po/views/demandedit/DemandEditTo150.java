@@ -2,10 +2,7 @@ package ru.omel.po.views.demandedit;
 
 import com.vaadin.flow.component.notification.NotificationVariant;
 import org.springframework.transaction.annotation.Transactional;
-import ru.omel.po.data.entity.DType;
-import ru.omel.po.data.entity.Demand;
-import ru.omel.po.data.entity.DemandType;
-import ru.omel.po.data.entity.Point;
+import ru.omel.po.data.entity.*;
 import ru.omel.po.data.service.*;
 import ru.omel.po.views.main.MainView;
 import ru.omel.po.views.support.ExpirationsLayout;
@@ -21,8 +18,6 @@ import com.vaadin.flow.router.RouteAlias;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Юридические лица и ИП до 150кВт (один источник электропитания)")
 public class DemandEditTo150 extends GeneralForm {
-    private final ExpirationsLayout expirationsLayout;
-
     public DemandEditTo150(ReasonService reasonService,
                            DemandService demandService,
                            DemandTypeService demandTypeService,
@@ -46,13 +41,12 @@ public class DemandEditTo150 extends GeneralForm {
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
                 historyService, fileStoredService, DType.TO150,noteService, privilegeService, components);
-        this.MaxPower = 150.0;
-        if(demandTypeService.findById(DemandType.TO150).isPresent())
-            demandType.setValue(demandTypeService.findById(DemandType.TO150).get());
+        this.maxPower = 150.0;
+        demandTypeService.findById(DemandType.TO150).ifPresent(r ->
+                demandType.setValue(r));
 
         expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService, this, client);
 
-        typeDemander.setItems("Юридическое лицо", "Индивидуальный предприниматель");
         Component[] fields = {delegate, typeDemander, inn, innDate, ogrn,
                 addressRegistration,addressActual,addressEquals,
                 powerDemand, powerCurrent,
@@ -67,7 +61,6 @@ public class DemandEditTo150 extends GeneralForm {
             if(powerMaximum.getValue() < 15.0) {
                 plan.setValue(planService.findById(1L));
                 plan.setReadOnly(true);
-//                binderDemand.writeBeanIfValid(demand);
             } else {
                 plan.setReadOnly(false);
             }
@@ -86,14 +79,8 @@ public class DemandEditTo150 extends GeneralForm {
                 point = pointService.findAllByDemand(demand).get(0);
             }
             expirationsLayout.findAllByDemand(demand);
-            switch(demand.getStatus().getState()){
-                case EDIT:
-                    break;
-                case ADD:
-                case NOTE:
-                case FREEZE: {
+            if(demand.getStatus().getState() != Status.EState.EDIT ) {
                     expirationsLayout.setReadOnly();
-                } break;
             }
         }
         safety.setReadOnly(true);
@@ -101,6 +88,7 @@ public class DemandEditTo150 extends GeneralForm {
         pointBinder.readBean(this.point);
     }
     @Transactional
+    @Override
     public boolean save() {
         super.save();
         point.setDemand(demand);
@@ -123,7 +111,7 @@ public class DemandEditTo150 extends GeneralForm {
         notification.setPosition(Notification.Position.BOTTOM_START);
         notification.setDuration(3000);
 
-        if(!super.verifyField()) return false;
+        if(Boolean.TRUE.equals(!super.verifyField())) return false;
         if(!powerMaximum.isEmpty() && powerMaximum.getValue() > 150.0) {
             powerCurrent.focus();
             notification.setText("Максимальна мощность больше допустимой");
@@ -137,7 +125,7 @@ public class DemandEditTo150 extends GeneralForm {
             notification.open();
             return false;
         }
-        if(pointBinder.validate().getValidationErrors().size() > 0) return false;
+        if(!pointBinder.validate().getValidationErrors().isEmpty()) return false;
         pointBinder.writeBeanIfValid(point);
         return true;
     }
@@ -158,7 +146,7 @@ public class DemandEditTo150 extends GeneralForm {
                 passportIssued.setVisible(false);
                 ogrn.setVisible(true);
             }
-            case "Индивидуальный предприниматель" -> {
+            default -> {
                 passportSerries.setVisible(true);
                 passportNumber.setVisible(true);
                 passportIssued.setVisible(true);

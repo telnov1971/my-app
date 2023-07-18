@@ -18,6 +18,8 @@ public class HistoryService extends CrudService<History,Long> {
     private final GeneralService generalService;
     private String history;
 
+    private final String CHANGE = " изменилось на: ";
+
     public HistoryService(HistoryRepository historyRepository,
                           DemandService demandService,
                           PointService pointService,
@@ -40,7 +42,7 @@ public class HistoryService extends CrudService<History,Long> {
         String temp;
         this.history = "";
         Demand oldDemand;
-        General oldGeneral;
+
         if(demand.getId()!=null && demandService.findById(demand.getId()).isPresent()) {
              oldDemand = demandService.findById(demand.getId()).get();
         } else {
@@ -210,10 +212,10 @@ public class HistoryService extends CrudService<History,Long> {
         if(strNew!=null){
             if(strOld!=null){
                 if(!strNew.equals(strOld)){
-                    history = strOld + " изменилось на: " + strNew;
+                    history = strOld + CHANGE + strNew;
                 }
             } else {
-                history = " изменилось на: " + strNew;
+                history = CHANGE + strNew;
             }
         }
         return history;
@@ -224,10 +226,10 @@ public class HistoryService extends CrudService<History,Long> {
         if(dbNew!=null){
             if(dbOld!=null){
                 if(!dbNew.equals(dbOld)){
-                    history = dbOld + " изменилось на: " + dbNew;
+                    history = dbOld + CHANGE + dbNew;
                 }
             } else {
-                history = " изменилось на: " + dbNew;
+                history = CHANGE + dbNew;
             }
         }
         return history;
@@ -238,10 +240,10 @@ public class HistoryService extends CrudService<History,Long> {
         if(dcNew!=null){
             if(dcOld!=null){
                 if(!Objects.equals(dcNew.getId(), dcOld.getId())){
-                    history = dcOld.getName() + " изменилось на: " + dcNew.getName();
+                    history = dcOld.getName() + CHANGE + dcNew.getName();
                 }
             } else {
-                history = " изменилось на: " + dcNew.getName();
+                history = CHANGE + dcNew.getName();
             }
         }
         return history;
@@ -254,11 +256,11 @@ public class HistoryService extends CrudService<History,Long> {
                 strOld = bOld ? "ДА" : "НЕТ" ;
                 strNew = bNew ? "ДА" : "НЕТ" ;
                 if(!bNew.equals(bOld)){
-                    history = strOld + " изменилось на: " + strNew;
+                    history = strOld + CHANGE + strNew;
                 }
             } else {
                 strNew = bNew ? "ДА" : "НЕТ" ;
-                history = " изменилось на: " + strNew;
+                history = CHANGE + strNew;
             }
         }
         return history;

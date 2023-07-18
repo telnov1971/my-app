@@ -3,10 +3,7 @@ package ru.omel.po.views.demandedit;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.router.*;
 import org.springframework.transaction.annotation.Transactional;
-import ru.omel.po.data.entity.DType;
-import ru.omel.po.data.entity.Demand;
-import ru.omel.po.data.entity.DemandType;
-import ru.omel.po.data.entity.General;
+import ru.omel.po.data.entity.*;
 import ru.omel.po.data.service.*;
 import ru.omel.po.views.main.MainView;
 import ru.omel.po.views.support.ExpirationsLayout;
@@ -20,10 +17,6 @@ import com.vaadin.flow.component.notification.Notification;
 //@Route(value = "demandto15/:demandID?/:action?(edit)", layout = MainView.class)
 @PageTitle("Иные категории потребителей")
 public class DemandEditeGeneral extends GeneralForm {
-
-    private final PointsLayout pointsLayout;
-    private final ExpirationsLayout expirationsLayout;
-
     public DemandEditeGeneral(ReasonService reasonService,
                               DemandService demandService,
                               DemandTypeService demandTypeService,
@@ -47,9 +40,8 @@ public class DemandEditeGeneral extends GeneralForm {
                 pointService,generalService,voltageService,
                 safetyService,planService,priceService,sendService,userService,
                 historyService, fileStoredService, DType.GENERAL,noteService, privilegeService, components);
-        this.MaxPower = 1000000000.0;
-        if(demandTypeService.findById(DemandType.GENERAL).isPresent())
-            demandType.setValue(demandTypeService.findById(DemandType.GENERAL).get());
+        this.maxPower = 1000000000.0;
+        demandTypeService.findById(DemandType.GENERAL).ifPresent(r -> demandType.setValue(r));
 
         pointsLayout = new PointsLayout(pointService
                 , voltageService
@@ -81,7 +73,6 @@ public class DemandEditeGeneral extends GeneralForm {
         );
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory,space);
     }
-
     @Override
     public void populateForm(Demand value) {
         super.populateForm(value);
@@ -93,21 +84,18 @@ public class DemandEditeGeneral extends GeneralForm {
             }
             pointsLayout.findAllByDemand(demand);
             expirationsLayout.findAllByDemand(demand);
-            switch(demand.getStatus().getState()){
-                case EDIT:
-                    break;
-                case ADD:
-                case NOTE:
-                case FREEZE: {
+            if (demand.getStatus().getState() != Status.EState.EDIT){
                     expirationsLayout.setReadOnly();
-                } break;
             }
         }
         generalBinder.readBean(general);
     }
+
+    @Override
     @Transactional
     public boolean save() {
-        if((binderDemand.validate().getValidationErrors().size() > 0) || !super.save()) return false;
+        if((!binderDemand.validate().getValidationErrors().isEmpty()) ||
+                !super.save()) return false;
         generalBinder.writeBeanIfValid(general);
         general.setDemand(demand);
         historyExists |= historyService.saveHistory(client, demand, general, General.class);
@@ -132,7 +120,7 @@ public class DemandEditeGeneral extends GeneralForm {
         notification.setPosition(Notification.Position.BOTTOM_START);
         notification.setDuration(3000);
 
-        if(!super.verifyField()) return false;
+        if(!Boolean.TRUE.equals(super.verifyField())) return false;
         if(pointsLayout.getPointSize()==0){
             specification.focus();
             pointsLayout.setFocus();

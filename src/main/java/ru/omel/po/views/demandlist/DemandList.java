@@ -45,14 +45,13 @@ import java.util.*;
 public class DemandList extends Div {
     private final TextField filterId = new TextField();
     private final TextField filterText = new TextField();
-    private Select<DemandType> demandTypeSelect;
+    private final Select<DemandType> demandTypeSelect;
     private final Grid.Column<Demand> demanderColumn;
     private final Button clearFilter = new Button(new Icon(VaadinIcon.ERASER));
     private final Grid<Demand> grid = new Grid<>(Demand.class, false);
 
     private final DemandService demandService;
     private final UserService userService;
-    private final DemandTypeService demandTypeService;
 
     //@Autowired
     public DemandList(DemandService demandService
@@ -62,7 +61,6 @@ public class DemandList extends Div {
         filterLayout.getElement().getStyle().set("margin", "10px");
         this.demandService = demandService;
         this.userService = userService;
-        this.demandTypeService = demandTypeService;
         addClassNames("master-detail-view", "flex", "flex-col", "h-full");
 
         demandTypeSelect = ViewHelper.createSelect(DemandType::getName, demandTypeService.findAll(),
@@ -72,7 +70,6 @@ public class DemandList extends Div {
         Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
         grid.addComponentColumn(demand -> {
             Button edit = new Button(new Icon(VaadinIcon.EDIT));
-//            edit.setText("ОТКРЫТЬ");
             edit.addClassName("edit");
             edit.getElement().setAttribute("title","открыть");
             edit.addClickListener(event -> {
@@ -193,7 +190,6 @@ public class DemandList extends Div {
     }
 
     private void gridSetting(Long id, String text) {
-        Role role = Role.ANONYMOUS;
         // Определим текущего пользователя
         User currentUser =  this.userService.findByUsername(
                 SecurityContextHolder.getContext().getAuthentication().getName()
@@ -206,15 +202,12 @@ public class DemandList extends Div {
         // Определим роль и кол-во заявок
         if(currentUser.getRoles().contains(Role.ADMIN)) {
             filterVisible(true);
-            role = Role.ADMIN;
             MainView.setVisibleAdminOptions(true);
         } else if(currentUser.getRoles().contains(Role.GARANT)) {
             filterVisible(true);
-            role = Role.GARANT;
             MainView.setVisibleAdminOptions(false);
         } else if(currentUser.getRoles().contains(Role.USER)) {
             filterVisible(false);
-            role = Role.USER;
             MainView.setVisibleAdminOptions(false);
         }
         // Поиск по номеру заявки
