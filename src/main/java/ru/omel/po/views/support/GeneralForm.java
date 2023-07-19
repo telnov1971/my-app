@@ -968,18 +968,24 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             switch (demand.getStatus().getState()) {
                 case ADD -> {
                     setReadOnly(true);
-                    pointsLayout.setReadOnly();
+                    if(pointsLayout != null)
+                        pointsLayout.setReadOnly();
                 }
                 case NOTE -> {
                     setReadOnly(true);
-                    filesLayout.setReadOnly();
-                    pointsLayout.setReadOnly();
+                    if(filesLayout != null)
+                        filesLayout.setReadOnly();
+                    if(pointsLayout != null)
+                        pointsLayout.setReadOnly();
                 }
                 case FREEZE -> {
                     setReadOnly(true);
-                    filesLayout.setReadOnly();
-                    notesLayout.setReadOnly();
-                    pointsLayout.setReadOnly();
+                    if(filesLayout != null)
+                        filesLayout.setReadOnly();
+                    if(pointsLayout != null)
+                        pointsLayout.setReadOnly();
+                    if(notesLayout != null)
+                        notesLayout.setReadOnly();
                 }
                 default -> setReadOnly(false);
             }
