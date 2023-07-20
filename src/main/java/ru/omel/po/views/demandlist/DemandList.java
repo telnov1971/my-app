@@ -203,7 +203,8 @@ public class DemandList extends Div {
         if(currentUser.getRoles().contains(Role.ADMIN)) {
             filterVisible(true);
             MainView.setVisibleAdminOptions(true);
-        } else if(currentUser.getRoles().contains(Role.GARANT)) {
+        } else if(currentUser.getRoles().contains(Role.GARANT) ||
+                currentUser.getRoles().contains(Role.SALES)) {
             filterVisible(true);
             MainView.setVisibleAdminOptions(false);
         } else if(currentUser.getRoles().contains(Role.USER)) {

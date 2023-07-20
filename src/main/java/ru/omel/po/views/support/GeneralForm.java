@@ -620,7 +620,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         address.addValueChangeListener(e -> ViewHelper.deselect(address));
         specification.addValueChangeListener(e -> ViewHelper.deselect(specification));
         garant.addValueChangeListener(e->{
-            if(garant.getValue().getId() != 1) {
+            if(garant.getValue().getName().equals("Указать иного поставщика")) {
                 garantText.setVisible(true);
                 garantText.setReadOnly(false);
             } else {
@@ -1060,7 +1060,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     populateForm(demandFromBackend.get());
                     if((role == Role.GARANT || role == Role.SALES)) {
                         setReadOnly(true);
-                        expirationsLayout.setReadOnly();
+                        if(expirationsLayout != null)
+                            expirationsLayout.setReadOnly();
                         typeDemander.setReadOnly(true);
                         filesLayout.setDeleteVisible(false);
                     }

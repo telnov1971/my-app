@@ -80,6 +80,7 @@ public class DemandEditTo150 extends GeneralForm {
             }
             expirationsLayout.findAllByDemand(demand);
             if(demand.getStatus().getState() != Status.EState.EDIT ) {
+                if(expirationsLayout != null)
                     expirationsLayout.setReadOnly();
             }
         }

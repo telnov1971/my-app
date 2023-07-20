@@ -85,6 +85,7 @@ public class DemandEditeGeneral extends GeneralForm {
             pointsLayout.findAllByDemand(demand);
             expirationsLayout.findAllByDemand(demand);
             if (demand.getStatus().getState() != Status.EState.EDIT){
+                if(expirationsLayout != null)
                     expirationsLayout.setReadOnly();
             }
         }

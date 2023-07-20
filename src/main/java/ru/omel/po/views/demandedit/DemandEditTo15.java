@@ -83,8 +83,9 @@ public class DemandEditTo15 extends GeneralForm {
             }
             expirationsLayout.findAllByDemand(demand);
             voltage.setReadOnly(true);
-            if(demand.getStatus().getState()!= Status.EState.EDIT){
-                expirationsLayout.setReadOnly();
+            if(demand.getStatus().getState()!= Status.EState.EDIT) {
+                if(expirationsLayout != null)
+                    expirationsLayout.setReadOnly();
             }
         }
         safety.setReadOnly(true);

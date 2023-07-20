@@ -57,6 +57,10 @@ public class DemandService extends CrudService<Demand, Long> {
             findedDemand = repository.findById(id);
         if(demandType != null && user.getRoles().contains(Role.ADMIN))
             findedDemand = repository.findByIdAndDemandType(id, demandType);
+        if(demandType == null && user.getRoles().contains(Role.SALES))
+            findedDemand = repository.findById(id);
+        if(demandType != null && user.getRoles().contains(Role.SALES))
+            findedDemand = repository.findByIdAndDemandType(id, demandType);
         if(demandType == null && user.getRoles().contains(Role.USER))
             findedDemand = repository.findByIdAndUser(id, user);
         if(demandType != null && user.getRoles().contains(Role.USER))
@@ -74,6 +78,10 @@ public class DemandService extends CrudService<Demand, Long> {
         if(demandType == null && user.getRoles().contains(Role.ADMIN))
             demandList = repository.search(text);
         if(demandType != null && user.getRoles().contains(Role.ADMIN))
+            demandList = repository.search(text, demandType.getId());
+        if(demandType == null && user.getRoles().contains(Role.SALES))
+            demandList = repository.search(text);
+        if(demandType != null && user.getRoles().contains(Role.SALES))
             demandList = repository.search(text, demandType.getId());
         if(demandType == null && user.getRoles().contains(Role.GARANT))
             demandList = repository.search4Garant(text, user.getGarant().getId());

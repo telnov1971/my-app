@@ -227,14 +227,16 @@ public class MainView extends AppLayout {
                     Role.USER :
                     currentUser.getRoles().contains(Role.GARANT) ?
                             Role.GARANT :
-                            currentUser.getRoles().contains(Role.ADMIN) ?
-                                    Role.ADMIN :
-                                    Role.ANONYMOUS;
+                            currentUser.getRoles().contains(Role.SALES) ?
+                                    Role.SALES :
+                                    currentUser.getRoles().contains(Role.ADMIN) ?
+                                            Role.ADMIN :
+                                            Role.ANONYMOUS;
         } else {
             role = Role.ANONYMOUS;
         }
         switch (role) {
-            case ANONYMOUS, GARANT -> {
+            case ANONYMOUS, GARANT, SALES -> {
                 newDemands.setVisible(false);
                 list.setVisible(false);
             }
