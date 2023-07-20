@@ -134,8 +134,10 @@ public class FilesLayout extends VerticalLayout {
             String dirName = file.getDirectory() != null ?
                     uploadPath + file.getDirectory() + "\\" : uploadPath;
             File outFile = new File(dirName + filename);
+            try {
                 if(outFile.exists()) {
-                    try (InputStream inputStream = new FileInputStream(outFile)) {
+                    if (outFile.exists()) {
+                        InputStream inputStream = new FileInputStream(outFile);
                         resource = new StreamResource(
                                 file.getName(),
                                 () -> {
@@ -147,10 +149,11 @@ public class FilesLayout extends VerticalLayout {
                                     return null;
                                 }
                         );
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     }
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             if(resource!=null) {
                 anchor = new Anchor(resource, file.getName());
                 anchor.addClassName("anchor");
