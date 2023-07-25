@@ -1017,7 +1017,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     public void beforeEnter(BeforeEnterEvent event) {
         User currentUser;
         Role role = Role.ANONYMOUS;
-        Optional<Long> id = event.getRouteParameters().getLong(DEMAND_ID);
+        String strId;
+        Optional<Long> id = Optional.empty();
+        List<String> listParams = event.getRouteParameters().getWildcard(DEMAND_ID);
+        if(!listParams.isEmpty()) {
+             strId = listParams.get(0).replace(" ", "");
+             id = Optional.of(Long.valueOf(strId));
+        }
         currentUser = userService.findByUsername(
                 SecurityContextHolder.getContext().getAuthentication().getName());
         if(currentUser != null) {
