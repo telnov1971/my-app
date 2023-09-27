@@ -1,6 +1,7 @@
 package ru.omel.po.views.support;
 
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.AnchorTarget;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import ru.omel.po.data.entity.*;
 import ru.omel.po.data.service.*;
@@ -28,6 +29,7 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.internal.Pair;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.component.html.Anchor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.validation.constraints.NotNull;
@@ -98,6 +100,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected TextField addressActual;
     protected Checkbox addressEquals;
 
+    protected Checkbox assent = new Checkbox();
+    protected HorizontalLayout assentsLayout = new HorizontalLayout();
+    protected Label labelAssent;
     protected Label labelPrivilege;
     protected Checkbox privilegeNot = new Checkbox();
     protected Accordion accordionPrivilege = new Accordion();
@@ -203,6 +208,14 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         filesLayout = new FilesLayout(this.fileStoredService, this.historyService, client);
         notesLayout = new NotesLayout(noteService, this.historyService, client);
+
+        labelAssent = new Label("Подавая заявку в Личном кабинете, " +
+                "Вы подтверждаете согласие с нашей ");
+        Anchor anchorAsent = new Anchor(
+                "https://www.omskelectro.ru/index.php/press-tsentr/o-sajte/politika-konfidentsialnosti",
+                "политикой конфиденциальности",
+                AnchorTarget.BLANK);
+        assentsLayout.add(assent,labelAssent,anchorAsent);
 
         privilegeLayout = new PrivilegeLayout(this.privilegeService, this.historyService, this);
         accordionPrivilege.add("Выбор основания дающего право на льготы по оплате"
@@ -369,7 +382,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         formDemander.add(typeDemander,inn,innDate,ogrn,label,
                 passportSerries,passportNumber, passportIssued,
-                addressRegistration,addressActual,addressEquals);
+                addressRegistration,addressActual,addressEquals,assentsLayout);
         setWidthFormDemander();
         accordionDemander.add("Данные заявителя (открыть/закрыть по клику мышкой)", formDemander);
 
@@ -665,6 +678,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemander.setColspan(addressRegistration, 4);
         formDemander.setColspan(addressActual, 4);
         formDemander.setColspan(addressEquals, 4);
+        formDemander.setColspan(assentsLayout,4);
     }
 
     private void setColumnCount(@NotNull FormLayout form) {
@@ -822,6 +836,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         if(addressActual.isEmpty() && addressActual.isVisible()) {
             alertHere = ViewHelper.attention(addressActual
                     ,"Не заполнено поле Адрес фактический"
+                    ,alertHere.getFirst(),space);
+        }
+        if(assent.isEmpty()){
+            alertHere = ViewHelper.attention(assent
+                    ,"Не дано согласие на обработку персональных данных"
                     ,alertHere.getFirst(),space);
         }
         if(reason.getValue() == null) {

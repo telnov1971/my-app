@@ -59,7 +59,8 @@ public class Demand extends AbstractEntity {
     private String contact;
     @Column(name = "me_email")
     private String meEmail;
-
+    @Column(name = "assent")
+    private Boolean assent;
     @Column(name = "privilege")
     private boolean privilege = false;
 
@@ -329,5 +330,11 @@ public class Demand extends AbstractEntity {
     }
     public void setOgrn(String ogrn) {
         this.ogrn = ogrn;
+    }
+    public Boolean getAssent() {
+        return assent;
+    }
+    public void setAssent(Boolean assent) {
+        this.assent = assent;
     }
 }

@@ -13,6 +13,7 @@ import org.vaadin.artur.helpers.LaunchUtil;
 import com.vaadin.flow.theme.Theme;
 import ru.omel.po.views.users.LoginView;
 
+
 /**
  * The entry point of the Spring Boot application.
  *
