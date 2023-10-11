@@ -142,7 +142,6 @@ public class User extends AbstractEntity implements UserDetails {
     public void setDemands(Set<Demand> demands) {
         this.demands = demands;
     }
-
     public boolean isAdmin() {
         return roles.contains(Role.ADMIN);
     }
@@ -171,27 +170,21 @@ public class User extends AbstractEntity implements UserDetails {
     public void setGarant(Garant garant) {
         this.garant = garant;
     }
-
     public String getFio() {
         return fio;
     }
-
     public void setFio(String fio) {
         this.fio = fio;
     }
-
     public String getContact() {
         return contact;
     }
-
     public void setContact(String contact) {
         this.contact = contact;
     }
-
     public LocalDateTime getVisitDate() {
         return visitDate;
     }
-
     public void setVisitDate(LocalDateTime visitDate) {
         this.visitDate = visitDate;
     }

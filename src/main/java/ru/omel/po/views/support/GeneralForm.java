@@ -493,7 +493,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             meEmail.setItems(meEmailList);
             meEmail.setValue(customValue);
         });
-        meEmail.addValueChangeListener(e -> ViewHelper.deselect(contact));
+        meEmail.addValueChangeListener(e -> ViewHelper.deselect(meEmail));
         typeDemander.addValueChangeListener(e -> {
             ViewHelper.deselect(typeDemander);
             settingTemporalDemander();
@@ -564,19 +564,18 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             ogrn.setItems(ogrnList);
             ogrn.setValue(customValue);
         });
-        if(passportSerries.isVisible()) {
-            passportSerries.addValueChangeListener(e -> {
-                if(passportSerries.getValue() == null) return;
-                if (passportSerries.getValue().length() != 4) {
-                    alertHere = ViewHelper.attention(passportSerries
-                            , "Поле Паспорт серия должно содержать 4 цифры"
-                            , alertHere.getFirst(), space);
-                    passportSerries.focus();
-                } else {
-                    ViewHelper.deselect(passportSerries);
-                }
-            });
-        }
+        passportSerries.addValueChangeListener(e -> {
+            if(passportSerries.isVisible()) {
+                ViewHelper.deselect(passportSerries);
+//                if (passportSerries.getValue() == null ||
+//                        passportSerries.getValue().length() != 4) {
+//                    alertHere = ViewHelper.attention(passportSerries
+//                            , "Поле Паспорт серия должно содержать 4 цифры"
+//                            , alertHere.getFirst(), space);
+//                    passportSerries.focus();
+//                }
+            }
+        });
         passportSerries.addCustomValueSetListener(e -> {
             String customValue = e.getDetail();
             if(!passportSerriesList.contains(customValue))
@@ -584,19 +583,18 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             passportSerries.setItems(passportSerriesList);
             passportSerries.setValue(customValue);
         });
-        if(passportNumber.isVisible()) {
-            passportNumber.addValueChangeListener(e -> {
-                if(passportNumber.getValue()==null) return;
-                if(passportNumber.getValue().length() != 6) {
-                    alertHere = ViewHelper.attention(passportNumber
-                            , "Поле Паспорт номер  должно содержать 6 цифр"
-                            , alertHere.getFirst(), space);
-                    passportNumber.focus();
-                } else {
-                    ViewHelper.deselect(passportNumber);
-                }
-            });
-        }
+        passportNumber.addValueChangeListener(e -> {
+            if(passportNumber.isVisible()) {
+                ViewHelper.deselect(passportNumber);
+//                if (passportNumber.getValue() == null ||
+//                        passportNumber.getValue().length() != 6) {
+//                    alertHere = ViewHelper.attention(passportNumber
+//                            , "Поле Паспорт номер  должно содержать 6 цифр"
+//                            , alertHere.getFirst(), space);
+//                    passportNumber.focus();
+//                }
+            }
+        });
         passportNumber.addCustomValueSetListener(e -> {
             String customValue = e.getDetail();
             if(!passportNumberList.contains(customValue))
@@ -654,6 +652,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         powerDemand.addValueChangeListener(e -> changePower(powerDemand));
         powerCurrent.addBlurListener(e->testPower(powerCurrent));
         powerCurrent.addValueChangeListener(e -> changePower(powerCurrent));
+        voltage.addValueChangeListener(e -> ViewHelper.deselect(voltage));
+        voltageIn.addValueChangeListener(e -> ViewHelper.deselect(voltageIn));
+        assent.addValueChangeListener(e -> ViewHelper.deselect(assent));
     }
 
     private void setWidthFormDemand() {
