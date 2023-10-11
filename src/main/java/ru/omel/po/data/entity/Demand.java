@@ -30,6 +30,10 @@ public class Demand extends AbstractEntity {
     //
     @Column(name = "type_demander")
     private String typeDemander;
+    // согласие на обработку ПД
+    @Column(name = "assent")
+    private Boolean assent;
+
     // паспорт серия
     @Column(name = "pas_ser")
 //    @Size(min=4,max=4,message="Серия паспорта состоит из 4 цифр")
@@ -59,8 +63,6 @@ public class Demand extends AbstractEntity {
     private String contact;
     @Column(name = "me_email")
     private String meEmail;
-    @Column(name = "assent")
-    private Boolean assent;
     @Column(name = "privilege")
     private boolean privilege = false;
 

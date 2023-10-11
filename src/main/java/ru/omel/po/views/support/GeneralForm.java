@@ -77,6 +77,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected List<String> demanderList = new ArrayList<>();
     protected Select<String> typeDemander;
     protected TextField delegate;
+
+    protected Checkbox assent = new Checkbox();
+    protected HorizontalLayout assentsLayout = new HorizontalLayout();
+    protected Label labelAssent;
+    protected Anchor anchorAsent;
     protected ComboBox<String> inn = new ComboBox<>();
     protected List<String> innList = new ArrayList<>();
     protected DatePicker innDate;
@@ -100,9 +105,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected TextField addressActual;
     protected Checkbox addressEquals;
 
-    protected Checkbox assent = new Checkbox();
-    protected HorizontalLayout assentsLayout = new HorizontalLayout();
-    protected Label labelAssent;
     protected Label labelPrivilege;
     protected Checkbox privilegeNot = new Checkbox();
     protected Accordion accordionPrivilege = new Accordion();
@@ -211,10 +213,13 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         labelAssent = new Label("Подавая заявку в Личном кабинете, " +
                 "Вы подтверждаете согласие с нашей ");
-        Anchor anchorAsent = new Anchor(
+        anchorAsent = new Anchor(
                 "https://www.omskelectro.ru/index.php/press-tsentr/o-sajte/politika-konfidentsialnosti",
                 "политикой конфиденциальности",
                 AnchorTarget.BLANK);
+        labelAssent.getElement().getStyle().set("color", "red");
+        labelAssent.getElement().getStyle().set("font-size", "1.3em");
+        anchorAsent.getElement().getStyle().set("font-size", "1.3em");
         assentsLayout.add(assent,labelAssent,anchorAsent);
 
         privilegeLayout = new PrivilegeLayout(this.privilegeService, this.historyService, this);
@@ -382,11 +387,12 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         formDemander.add(typeDemander,inn,innDate,ogrn,label,
                 passportSerries,passportNumber, passportIssued,
-                addressRegistration,addressActual,addressEquals,assentsLayout);
+                addressRegistration,addressActual,addressEquals);
         setWidthFormDemander();
         accordionDemander.add("Данные заявителя (открыть/закрыть по клику мышкой)", formDemander);
 
         formDemand.add(demandId,createdate, demandType, status, label);
+        formDemand.add(assentsLayout);
         formDemand.add(demander,delegate,contact,meEmail);
         formDemand.add(accordionDemander);
         formDemand.add(labelPrivilege,privilegeNot,accordionPrivilege);
@@ -657,7 +663,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         for (Component component : oneColumn) {
             formDemand.setColspan(component,1);
         }
-        Component[] fourColumn = {demander,delegate,accordionDemander
+        Component[] fourColumn = {assentsLayout,demander,delegate,accordionDemander
                 ,labelPrivilege,privilegeNot,accordionPrivilege
                 ,reason,object,address,specification
                 ,accordionPoints,countTransformations,countGenerations,techminGeneration,reservation
@@ -678,7 +684,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemander.setColspan(addressRegistration, 4);
         formDemander.setColspan(addressActual, 4);
         formDemander.setColspan(addressEquals, 4);
-        formDemander.setColspan(assentsLayout,4);
+        //formDemander.setColspan(assentsLayout,4);
     }
 
     private void setColumnCount(@NotNull FormLayout form) {
@@ -727,7 +733,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     public boolean save() {
         if(typeDemander.isVisible() && (typeDemander.getValue() != null)) {
                 demand.setTypeDemander(typeDemander.getValue());
-
         }
         demand.setChangeDate(LocalDateTime.now());
         if (demand.getUser() == null) {
@@ -838,11 +843,6 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     ,"Не заполнено поле Адрес фактический"
                     ,alertHere.getFirst(),space);
         }
-        if(assent.isEmpty()){
-            alertHere = ViewHelper.attention(assent
-                    ,"Не дано согласие на обработку персональных данных"
-                    ,alertHere.getFirst(),space);
-        }
         if(reason.getValue() == null) {
             alertHere = ViewHelper.attention(reason
                     ,"Необходимо выбрать причину обращения"
@@ -910,6 +910,11 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         if(garantText.isVisible() && garantText.isEmpty()) {
             alertHere = ViewHelper.attention(garantText
                     ,"Необходимо указать гарантирующего поставщика"
+                    ,alertHere.getFirst(),space);
+        }
+        if(assent.isEmpty()){
+            alertHere = ViewHelper.attention(assent
+                    ,"Не дано согласие на обработку персональных данных"
                     ,alertHere.getFirst(),space);
         }
         // если есть ошибки в полях
@@ -1013,6 +1018,15 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 addressActual.setEnabled(false);
                 addressEquals.setValue(true);
             }
+            if(value.getAssent() != null && value.getAssent()) {
+                labelAssent.getElement().getStyle().set("color", "");
+                labelAssent.getElement().getStyle().set("font-size", "1em");
+                anchorAsent.getElement().getStyle().set("font-size", "1em");
+            }
+            labelPrivilege.getElement().getStyle().set("color","");
+            labelPrivilege.getElement().getStyle().set("font-size", "1em");
+            privilegeNot.getElement().getStyle().set("color","");
+            privilegeNot.getElement().getStyle().set("font-size", "1em");
         }
     }
 

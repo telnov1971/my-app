@@ -48,6 +48,8 @@ public class HistoryService extends CrudService<History,Long> {
         } else {
             return "Заявка создана";
         }
+        history = history + ((oldDemand.getAssent() == null && demand.getAssent())
+                ? "Согласие на обработку ПД получено" + "\n": "");
         temp = createHistory(demand.getDemander(), oldDemand.getDemander());
         history = history + (!temp.equals("") ? "Заявитель: " + temp + "\n": "");
         temp = createHistory(demand.getTypeDemander(), oldDemand.getTypeDemander());
