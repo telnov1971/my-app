@@ -9,6 +9,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @DynamicUpdate
@@ -45,6 +46,9 @@ public class Demand extends AbstractEntity {
     // пасорт выдан
     @Column(name = "pas_iss")
     private String passportIssued;
+
+    private Date birthdate;
+    private String birthplace;
     // госрегистрация
     // @Size(min=10,max=12,message="ИНН содержит от 10 до 12 цифр")
     private String inn;
@@ -207,18 +211,6 @@ public class Demand extends AbstractEntity {
     public void setReason(Reason reason) {
         this.reason = reason;
     }
-//    public List<Point> getPoints() {
-//        return points;
-//    }
-//    public void setPoints(List<Point> points) {
-//        this.points = points;
-//    }
-//    public List<Expiration> getExpirations() {
-//        return expirations;
-//    }
-//    public void setExpirations(List<Expiration> expirations) {
-//        this.expirations = expirations;
-//    }
     public Garant getGarant() {
         return garant;
     }
@@ -338,5 +330,17 @@ public class Demand extends AbstractEntity {
     }
     public void setAssent(Boolean assent) {
         this.assent = assent;
+    }
+    public Date getBirthdate() {
+        return birthdate;
+    }
+    public void setBirthdate(Date birthdate) {
+        this.birthdate = birthdate;
+    }
+    public String getBirthplace() {
+        return birthplace;
+    }
+    public void setBirthplace(String birthplace) {
+        this.birthplace = birthplace;
     }
 }

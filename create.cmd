@@ -1,1 +1,1 @@
-mvn clean package -Pproduction -DskipTests
+mvn clean package -e -Pproduction -DskipTests
