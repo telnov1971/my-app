@@ -139,18 +139,24 @@ public class DemandEditTo150 extends GeneralForm {
                 passportSerries.setVisible(true);
                 passportNumber.setVisible(true);
                 passportIssued.setVisible(true);
+                birthdate.setVisible(true);
+                birthplace.setVisible(true);
                 ogrn.setVisible(false);
             }
             case "Юридическое лицо" -> {
                 passportSerries.setVisible(false);
                 passportNumber.setVisible(false);
                 passportIssued.setVisible(false);
+                birthdate.setVisible(false);
+                birthplace.setVisible(false);
                 ogrn.setVisible(true);
             }
             default -> {
                 passportSerries.setVisible(true);
                 passportNumber.setVisible(true);
                 passportIssued.setVisible(true);
+                birthdate.setVisible(true);
+                birthplace.setVisible(true);
                 ogrn.setVisible(true);
             }
         }

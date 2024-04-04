@@ -99,6 +99,9 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
     protected ComboBox<String> passportIssued = new ComboBox<>();
     protected List<String> passportIssuedList = new ArrayList<>();
 
+    protected DatePicker birthdate = new DatePicker();
+    protected TextField birthplace = new TextField();
+
     protected ComboBox<String> addressRegistration = new ComboBox<>();
     protected List<String> addressRegistrationList = new ArrayList<>();
 
@@ -303,6 +306,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         passportIssued.setAllowCustomValue(true);
         passportIssued.setItems(passportIssuedList);
         passportIssued.setHelperText("(кем, когда)");
+        birthdate.setLabel("Дата рождения  (обязательное поле)");
+        birthplace.setLabel("Место рождения (обязательное поле)");
         addressRegistration.setLabel("Адрес регистрации (обязательное поле)");
         addressRegistration.setAllowCustomValue(true);
         addressRegistration.setItems(addressRegistrationList);
@@ -387,6 +392,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         formDemander.add(typeDemander,inn,innDate,ogrn,label,
                 passportSerries,passportNumber, passportIssued,
+                birthdate, birthplace,
                 addressRegistration,addressActual,addressEquals);
         setWidthFormDemander();
         accordionDemander.add("Данные заявителя (открыть/закрыть по клику мышкой)", formDemander);
@@ -413,6 +419,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
 
         Component[] fields = {delegate, typeDemander, ogrn, //inn, innDate,
                 passportSerries,passportNumber, passportIssued,
+                birthdate, birthplace,
                 labelPrivilege,privilegeNot,accordionPrivilege,
                 addressRegistration,addressActual, addressEquals,
                 countPoints, accordionPoints, powerDemand, powerCurrent,
@@ -609,6 +616,16 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             passportIssued.setItems(passportIssuedList);
             passportIssued.setValue(customValue);
         });
+        birthdate.addValueChangeListener(e ->{
+            if(birthdate.isVisible()){
+                ViewHelper.deselect(birthdate);
+            }
+        });
+        birthplace.addValueChangeListener(e ->{
+            if(birthplace.isVisible()){
+                ViewHelper.deselect(birthplace);
+            }
+        });
         addressRegistration.addValueChangeListener(e -> ViewHelper.deselect(addressRegistration));
         addressRegistration.addCustomValueSetListener(e -> {
             String customValue = e.getDetail();
@@ -682,6 +699,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
         formDemander.setColspan(passportNumber, 1);
         formDemander.setColspan(passportSerries, 1);
         formDemander.setColspan(passportIssued, 4);
+        formDemander.setColspan(birthplace, 2);
+        formDemander.setColspan(birthdate, 1);
         formDemander.setColspan(addressRegistration, 4);
         formDemander.setColspan(addressActual, 4);
         formDemander.setColspan(addressEquals, 4);
@@ -808,6 +827,18 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                     {alertHere = ViewHelper.attention(passportNumber
                             ,"Поле Паспорт номер  должно содержать 6 цифр"
                             ,alertHere.getFirst(),space);
+            }
+            if (birthdate.isEmpty() &&
+                    birthdate.isVisible())
+            {alertHere = ViewHelper.attention(birthdate
+                    ,"Не заполнено поле Дата рождения"
+                    ,alertHere.getFirst(),space);
+            }
+            if (birthplace.isEmpty() &&
+                    birthplace.isVisible())
+            {alertHere = ViewHelper.attention(birthplace
+                    ,"Не заполнено поле Место рождения"
+                    ,alertHere.getFirst(),space);
             }
         }
         if(inn.isEmpty() && inn.isVisible()) {
@@ -954,6 +985,7 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 demander, typeDemander, delegate
                  , inn, innDate, ogrn, contact, meEmail
                  , passportSerries, passportNumber, passportIssued
+                 , birthdate, birthplace
                  , addressRegistration, addressActual, addressEquals, privilegeNot
                  , reason, object, address, specification
                  , countPoints, powerDemand, powerCurrent, voltage, safety, period
