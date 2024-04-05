@@ -258,7 +258,8 @@
     "@vaadin/multi-select-combo-box": "$@vaadin/multi-select-combo-box",
     "proj4": "$proj4",
     "@vaadin/tabsheet": "$@vaadin/tabsheet",
-    "@vaadin/tooltip": "$@vaadin/tooltip"
+    "@vaadin/tooltip": "$@vaadin/tooltip",
+    "pnpm": "$pnpm"
   },
   "vaadin": {
     "dependencies": {
