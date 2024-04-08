@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,6 +60,10 @@ public class HistoryService extends CrudService<History,Long> {
         history = history + (!temp.equals("") ? "Паспорт серия: " + temp + "\n" : "");
         temp = createHistory(demand.getPassportNumber(), oldDemand.getPassportNumber());
         history = history + (!temp.equals("") ? "Паспорт номер: " + temp + "\n" : "");
+        temp = createHistory(demand.getBirthdate(), oldDemand.getBirthdate());
+        history = history + (!temp.equals("") ? "Дата рождения: " + temp + "\n" : "");
+        temp = createHistory(demand.getBirthplace(), oldDemand.getBirthplace());
+        history = history + (!temp.equals("") ? "Место рождения: " + temp + "\n" : "");
         temp = createHistory(demand.getPassportIssued(), oldDemand.getPassportIssued());
         history = history + (!temp.equals("") ? "Паспорт выдан: " + temp + "\n" : "");
         temp = createHistory(demand.getInn(), oldDemand.getInn());
@@ -267,6 +273,22 @@ public class HistoryService extends CrudService<History,Long> {
         }
         return history;
     }
+
+    private String createHistory(Date dNew, Date dOld){
+        String history = "";
+        if(dNew!=null){
+            if(dOld!=null){
+                if(!Objects.equals(dNew, dOld)){
+                    history = DateFormat.getDateInstance().format(dOld) + CHANGE +
+                            DateFormat.getDateInstance().format(dNew);
+                }
+            } else {
+                history = CHANGE + dNew;
+            }
+        }
+        return history;
+    }
+
 
     public History save(History history) {
         return historyRepository.save(history);
