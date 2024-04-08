@@ -9,6 +9,7 @@ import org.vaadin.artur.helpers.CrudService;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 @Service
@@ -279,8 +280,8 @@ public class HistoryService extends CrudService<History,Long> {
         if(dNew!=null){
             if(dOld!=null){
                 if(!Objects.equals(dNew, dOld)){
-                    history = DateFormat.getDateInstance().format(dOld) + CHANGE +
-                            DateFormat.getDateInstance().format(dNew);
+                    history = DateFormat.getDateInstance(DateFormat.SHORT).format(dOld) + CHANGE +
+                            DateFormat.getDateInstance(DateFormat.SHORT).format(dNew);
                 }
             } else {
                 history = CHANGE + dNew;

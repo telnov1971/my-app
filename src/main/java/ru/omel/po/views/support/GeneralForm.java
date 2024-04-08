@@ -1001,6 +1001,8 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
             if(demand.getMeEmail()==null || demand.getMeEmail().isEmpty()) meEmail.setReadOnly(false);
             if(demand.getInn()==null || demand.getInn().isEmpty()) inn.setReadOnly(false);
             if(demand.getOgrn()==null || demand.getOgrn().isEmpty()) ogrn.setReadOnly(false);
+            if(demand.getBirthdate()==null) birthdate.setReadOnly(false);
+            if(demand.getBirthplace()==null || demand.getBirthplace().isEmpty()) birthplace.setReadOnly(false);
             if(!demand.isPrivilegeNot() && !demand.isPrivilege()) {
                 privilegeNot.setReadOnly(false);
                 privilegeLayout.setReadOnly(false);
