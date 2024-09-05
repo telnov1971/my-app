@@ -9,7 +9,6 @@ import org.vaadin.artur.helpers.CrudService;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 @Service

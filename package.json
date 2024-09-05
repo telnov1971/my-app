@@ -119,6 +119,7 @@
     "@vaadin/virtual-list": "23.3.7",
     "construct-style-sheets-polyfill": "3.1.0",
     "date-fns": "2.29.3",
+    "line-awesome": "^1.3.0",
     "lit": "2.6.1",
     "pnpm": "^8.15.6",
     "proj4": "2.8.1"
@@ -259,7 +260,8 @@
     "proj4": "$proj4",
     "@vaadin/tabsheet": "$@vaadin/tabsheet",
     "@vaadin/tooltip": "$@vaadin/tooltip",
-    "pnpm": "$pnpm"
+    "pnpm": "$pnpm",
+    "line-awesome": "$line-awesome"
   },
   "vaadin": {
     "dependencies": {
@@ -399,6 +401,6 @@
       "workbox-core": "6.5.4",
       "workbox-precaching": "6.5.4"
     },
-    "hash": "22c88c06cb7430b8ba63f075a7a564ffe87192d5098b519293a80b8eddd9607f"
+    "hash": "50bbc9227e6a5fad6996338b4f0b4758526e11c709d40885322f54274e8f9724"
   }
 }

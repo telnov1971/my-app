@@ -119,13 +119,13 @@ public class DemandEditTo150 extends GeneralForm {
             notification.open();
             return false;
         }
-        if(expirationsLayout.getExpirationsSize()==0){
-            powerCurrent.focus();
-            expirationsLayout.setFocus();
-            notification.setText("Не заполнены этапы работ");
-            notification.open();
-            return false;
-        }
+//        if(expirationsLayout.getExpirationsSize()==0){
+//            powerCurrent.focus();
+//            expirationsLayout.setFocus();
+//            notification.setText("Не заполнены этапы работ");
+//            notification.open();
+//            return false;
+//        }
         if(!pointBinder.validate().getValidationErrors().isEmpty()) return false;
         pointBinder.writeBeanIfValid(point);
         return true;

@@ -5,7 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.omel.po.data.entity.*;
 import ru.omel.po.data.service.*;
 import ru.omel.po.views.main.MainView;
-import ru.omel.po.views.support.ExpirationsLayout;
+//import ru.omel.po.views.support.ExpirationsLayout;
 import ru.omel.po.views.support.GeneralForm;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.notification.Notification;
@@ -26,7 +26,7 @@ public class DemandEditTo15 extends GeneralForm {
                           GarantService garantService,
                           PointService pointService,
                           GeneralService generalService,
-                          ExpirationService expirationService,
+//                          ExpirationService expirationService,
                           UserService userService,
                           VoltageService voltageService,
                           SafetyService safetyService,
@@ -46,8 +46,7 @@ public class DemandEditTo15 extends GeneralForm {
         this.maxPower = 15.0;
         demander.setHelperText(demander.getHelperText() + " или физического лица");
         demandTypeService.findById(DemandType.TO15).ifPresent(r -> demandType.setValue(r));
-        expirationsLayout = new ExpirationsLayout(expirationService
-                ,safetyService, historyService, this, client);
+//        expirationsLayout = new ExpirationsLayout(expirationService,safetyService, historyService, this, client);
         safetyService.findById(3L).ifPresent(r -> safety.setValue(r));
         safety.setReadOnly(true);
 
@@ -58,16 +57,16 @@ public class DemandEditTo15 extends GeneralForm {
                 addressRegistration,addressActual,addressEquals,
                 labelPrivilege,privilegeNot,accordionPrivilege,
                 powerDemand, powerCurrent,
-                powerMaximum, voltage, safety, accordionExpiration};
+                powerMaximum, voltage, safety};//, accordionExpiration};
         for(Component field : fields){
             field.setVisible(true);
         }
 
-        accordionExpiration.add("Этапы выполнения работ (открыть/закрыть по клику мышкой)"
-                ,this.expirationsLayout);
-        powerMaximum.addValueChangeListener(e ->
-            expirationsLayout.setPowerMax(powerMaximum.getValue())
-        );
+//        accordionExpiration.add("Этапы выполнения работ (открыть/закрыть по клику мышкой)"
+//                ,this.expirationsLayout);
+//        powerMaximum.addValueChangeListener(e ->
+//            expirationsLayout.setPowerMax(powerMaximum.getValue())
+//        );
         voltageService.findById(1L).ifPresent(r -> voltage.setValue(r));
         voltage.setReadOnly(true);
         add(formDemand,filesLayout,notesLayout,buttonBar,accordionHistory,space);
@@ -82,12 +81,12 @@ public class DemandEditTo15 extends GeneralForm {
             } else {
                 point = pointService.findAllByDemand(demand).get(0);
             }
-            expirationsLayout.findAllByDemand(demand);
+//            expirationsLayout.findAllByDemand(demand);
             voltage.setReadOnly(true);
-            if(demand.getStatus().getState()!= Status.EState.EDIT) {
-                if(expirationsLayout != null)
-                    expirationsLayout.setReadOnly();
-            }
+//            if(demand.getStatus().getState()!= Status.EState.EDIT) {
+//                if(expirationsLayout != null)
+//                    expirationsLayout.setReadOnly();
+//            }
         }
         safety.setReadOnly(true);
         pointBinder.readBean(this.point);
@@ -100,7 +99,7 @@ public class DemandEditTo15 extends GeneralForm {
     public boolean save() {
         super.save();
         point.setDemand(demand);
-        expirationsLayout.setDemand(demand);
+//        expirationsLayout.setDemand(demand);
         if(privilegeLayout.getPrivilege(demand) != PrivilegeLayout.PrivilegeState.NOTCHANGE) {
             String strHistory;
             switch(privilegeLayout.getPrivilege(demand)){
@@ -125,7 +124,7 @@ public class DemandEditTo15 extends GeneralForm {
 
         historyExists |= historyService.saveHistory(client,demand,point,Point.class);
         pointService.update(this.point);
-        historyExists |= expirationsLayout.saveExpirations();
+//        historyExists |= expirationsLayout.saveExpirations();
         demand.setChange(demand.isChange() || historyExists);
         if(!demand.isPrivilegeNot() && privilegeLayout.getPrivilegeStatus()) demand.setPrivilege(true);
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -157,13 +156,13 @@ public class DemandEditTo15 extends GeneralForm {
             notification.open();
             return false;
         }
-        if(expirationsLayout.getExpirationsSize()==0){
-            powerCurrent.focus();
-            expirationsLayout.setFocus();
-            notification.setText("Не заполнены этапы работ");
-            notification.open();
-            return false;
-        }
+//        if(expirationsLayout.getExpirationsSize()==0){
+//            powerCurrent.focus();
+//            expirationsLayout.setFocus();
+//            notification.setText("Не заполнены этапы работ");
+//            notification.open();
+//            return false;
+//        }
         if(!pointBinder.validate().getValidationErrors().isEmpty()) return false;
         pointBinder.writeBeanIfValid(point);
         return true;

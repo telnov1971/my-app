@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
