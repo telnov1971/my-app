@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 public class AppEnv {
     private static String uploadPath;
     private static String dbName;
+    private static Boolean newMode;
 
     public AppEnv() {
     }
@@ -21,5 +22,11 @@ public class AppEnv {
     }
     public static void setDbName(String dbName) {
         AppEnv.dbName = dbName;
+    }
+    public static Boolean getNewMode() {
+        return newMode;
+    }
+    public static void setNewMode(Boolean newMode) {
+        AppEnv.newMode = newMode;
     }
 }
