@@ -3,9 +3,14 @@ package ru.omel.po.views.support;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.AnchorTarget;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.page.*;
+
+import ru.omel.po.config.AppEnv;
 import ru.omel.po.data.entity.*;
 import ru.omel.po.data.service.*;
 import ru.omel.po.views.demandlist.DemandList;
+import ru.omel.po.views.main.MainView;
+
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
@@ -29,6 +34,8 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.internal.Pair;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.component.html.Anchor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -1149,6 +1156,10 @@ public abstract class GeneralForm extends Div implements BeforeEnterObserver {
                 notification.setText(String.format("Заявка с ID = %d не найдена", id.get()));
                 notification.open();
                 clearForm();
+            }
+        } else {
+            if(AppEnv.getNewMode()==false){
+                UI.getCurrent().getPage().setLocation("/");
             }
         }
 
